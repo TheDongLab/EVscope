@@ -29,7 +29,7 @@
    - Step 8: featureCounts
    - Step 9: CIRCexplorer2
 
-# <img src="figures/EV-RNA_seq_pipeline.png" width="80" height="80" align="center"> EV-RNA_seq_pipeline </div> 
+# <img src="figures/EV-RNA_seq_pipeline.png" width="800" height="800" align="center"> EV-RNA_seq_pipeline </div> 
 
 ## 4. Example Command:
    bash run_SMARTer_pipe_EV_RNA_seq_v3_ZYY.sh B4_TDP43_KD_caRNA_rep3 R1.fq.gz R2.fq.gz
