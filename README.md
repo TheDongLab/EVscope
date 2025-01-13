@@ -5,20 +5,20 @@
  deduplication, and final feature counting. It also provides a 14-bp motif analysis of Read2, 
  as well as optional bigWig coverage tracks and circular RNA detection (CIRCexplorer2).
 
- 1. Usage:
+ ## 1. Usage:
    bash run_SMARTer_pipe_EV_RNA_seq_v3_ZYY.sh <SampleName> <R1.fastq.gz> <R2.fastq.gz>
    - SampleName: A short identifier for your sample, e.g. B4_TDP43_KD_caRNA_rep3.
    - R1.fastq.gz: Path to Read1 FASTQ file (possibly gzipped).
    - R2.fastq.gz: Path to Read2 FASTQ file (possibly gzipped).
    The script creates <SampleName>_processed/ with all outputs.
 
- 2. Requirements:
+ ## 2. Requirements:
    - Linux environment
    - Tools: fastqc, multiqc, umi_tools, cutadapt, trim_galore, ribodetector_cpu, seqtk, 
             kraken2, KronaTools, kreport2krona.py, STAR, samtools, bamCoverage, 
             computeMatrix, plotProfile, featureCounts, CIRCexplorer2, python scripts.
 
- 3. Description of Steps:
+ ## 3. Description of Steps:
    - Step 1: QC + 14-bp R2 motif with get_SMARTer_Read2_14BP_motif.py
    - Step 2: UMI extraction + adapter trimming
    - Step 3: rRNA detection (ribodetector_cpu)
@@ -31,10 +31,10 @@
 
 # <img src="figures/EV-RNA_seq_pipeline.png" width="80" height="80" align="center"> EV-RNA_seq_pipeline </div> 
 
- 4. Example Command:
+## 4. Example Command:
    bash run_SMARTer_pipe_EV_RNA_seq_v3_ZYY.sh B4_TDP43_KD_caRNA_rep3 R1.fq.gz R2.fq.gz
 
- 5. Output Structure:
+## 5. Output Structure:
    - 1_raw_QC_and_motif/: QC reports + motif results
    - 2_UMI_trim/: trimmed data + logs
    - 3_ribodetector/: rRNA reads
@@ -45,4 +45,4 @@
    - 8_featurecounts/: featureCounts
    - 9_CIRCexplorer2/: back-spliced junction + annotated circular RNAs
 
- Enjoy your EV RNA-seq pipeline!
+## Enjoy your EV RNA-seq pipeline!
