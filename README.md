@@ -19,6 +19,7 @@
             computeMatrix, plotProfile, featureCounts, CIRCexplorer2, python scripts.
 
  ## 3. Description of Steps:
+ # <img src="figures/EV-RNA_seq_pipeline.png" width="600" height="800" align="center"> </div> 
    - Step 1: QC + 14-bp R2 motif with get_SMARTer_Read2_14BP_motif.py
    - Step 2: UMI extraction + adapter trimming
    - Step 3: rRNA detection (ribodetector_cpu)
@@ -28,8 +29,6 @@
    - Step 7: bigWig coverage and DeepTools
    - Step 8: featureCounts
    - Step 9: CIRCexplorer2
-
-# <img src="figures/EV-RNA_seq_pipeline.png" width="600" height="800" align="center"> </div> 
 
 ## 4. Example Command:
    bash run_SMARTer_pipe_EV_RNA_seq_v3_ZYY.sh B4_TDP43_KD_caRNA_rep3 R1.fq.gz R2.fq.gz
