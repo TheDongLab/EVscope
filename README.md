@@ -1,7 +1,7 @@
 <div style="text-align: justify;">
 
-# EV-RNA-Profiler README/manual: run_SMARTer_pipe_EV_RNA_seq_v3_ZYY.sh
-This pipeline processes SMARTer Stranded EV RNA-seq data from raw FASTQ files through multiple steps, 
+# EV-RNA-Profiler Manual
+This pipeline ": run_SMARTer_pipe_EV_RNA_seq_v3.sh" processes SMARTer Stranded EV RNA-seq data from raw FASTQ files through multiple steps, 
 including quality control, UMI extraction, adapter/quality trimming, rRNA detection, alignment, 
 deduplication, and final feature counting. It also provides a 14-bp motif analysis of Read2, 
 as well as optional bigWig coverage tracks and circular RNA detection (CIRCexplorer2).
