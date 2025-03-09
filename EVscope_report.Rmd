@@ -57,7 +57,7 @@ knitr::asis_output("\n\n&nbsp;\n\n")
 ```
 
 ```{r, out.width="75%", out.height="75%"}
-knitr::include_graphics("~/assets/EV-RNA_seq_pipeline.png")
+knitr::include_graphics("figures/EV-RNA_seq_pipeline.png")
 ```
 
 ```{r, echo=FALSE, results='asis'}
