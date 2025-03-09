@@ -228,5 +228,16 @@ run_step "${outputDir}/7_bw_density" "
 "
 
 
+# Step 18: Generate Output Report using R Markdown
+run_step "${outputDir}/18_Output_report" "
+    mkdir -p ${outputDir}/18_Output_report
+
+    # Run the Rmd script to generate the HTML report
+    Rscript -e 'rmarkdown::render(\"EVscope_report.Rmd\",
+    output_file=\"${outputDir}/18_Output_report/EVscope_report.html\")'
+
+    echo \"HTML output report for sample '${Header}' generated successfully in '${outputDir}/18_Output_report/Final_Report.html'\"
+"
+
 echo "Pipeline completed successfully for sample: $Header"
 
