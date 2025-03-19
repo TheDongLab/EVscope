@@ -37,7 +37,7 @@ computeMatrix, plotProfile, featureCounts, CIRCexplorer2, python scripts.
 - Step 9: CIRCexplorer2
 
 ## 4. Example Command:
-bash run_SMARTer_pipe_EV_RNA_seq_v3_ZYY.sh B4_TDP43_KD_caRNA_rep3 R1.fq.gz R2.fq.gz
+bash EVscope.sh Sample_007 R1.fq.gz R2.fq.gz
 
 ## 5. Output Structure:
 - 1_raw_QC_and_motif/: QC reports + motif results
@@ -50,7 +50,7 @@ bash run_SMARTer_pipe_EV_RNA_seq_v3_ZYY.sh B4_TDP43_KD_caRNA_rep3 R1.fq.gz R2.fq
 - 8_featurecounts/: featureCounts
 - 9_CIRCexplorer2/: back-spliced junction + annotated circular RNAs
 
-## Enjoy your EV RNA-seq pipeline!
+## Wellcome you brogoug any feedbacks of suggestion on EV RNA-seq pipeline: EVscope !
 
 </div>
 
