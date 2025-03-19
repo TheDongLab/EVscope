@@ -1,10 +1,12 @@
 <div style="text-align: justify;">
 
 # Manual of the EVscope pipeline 
-This pipeline ": run_SMARTer_pipe_EV_RNA_seq_v3.sh" processes SMARTer Stranded EV RNA-seq data from raw FASTQ files through multiple steps, 
+This pipeline ": EVscope_v1.sh" processes RNA-seq data from raw FASTQ files through multiple steps, 
 including quality control, UMI extraction, adapter/quality trimming, rRNA detection, alignment, 
 deduplication, and final feature counting. It also provides a 14-bp motif analysis of Read2, 
 as well as optional bigWig coverage tracks and circular RNA detection (CIRCexplorer2).
+
+
 
 ## 1. Usage:
 bash EVscope.sh <SampleName> <R1.fastq.gz> <R2.fastq.gz>
@@ -12,6 +14,9 @@ bash EVscope.sh <SampleName> <R1.fastq.gz> <R2.fastq.gz>
 - R1.fastq.gz: Path to Read1 FASTQ file.
 - R2.fastq.gz: Path to Read2 FASTQ file.
 Then it will run all the modules in the current directory <SampleName>.
+
+## Input data format
+for you total EV RNA-seq data, we recommend used to use SMARTer-seq protocal for library construction of EV RNAs . 
 
 ## 2. Requirements:
 - Linux systerm on your computor of cloud server. such as mac-os termial or unbuntu environment
