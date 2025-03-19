@@ -1,6 +1,6 @@
 <div style="text-align: justify;">
 
-# EVscope-Profiler Manual
+# Manual of the EVscope pipeline 
 This pipeline ": run_SMARTer_pipe_EV_RNA_seq_v3.sh" processes SMARTer Stranded EV RNA-seq data from raw FASTQ files through multiple steps, 
 including quality control, UMI extraction, adapter/quality trimming, rRNA detection, alignment, 
 deduplication, and final feature counting. It also provides a 14-bp motif analysis of Read2, 
