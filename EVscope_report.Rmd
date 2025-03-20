@@ -57,7 +57,7 @@ knitr::asis_output("\n\n&nbsp;\n\n")
 ```
 
 ```{r, out.width="75%", out.height="75%"}
-knitr::include_graphics("figures/EV-RNA_seq_pipeline.png")
+knitr::include_graphics("figures/EVscope_pipeline.png")
 ```
 
 ```{r, echo=FALSE, results='asis'}
@@ -86,7 +86,7 @@ html_links <- paste0("[", basename(raw_fastc_01), "](", raw_fastc_01, ")")
 
 for (file in raw_fastc_01) {
   cat(basename(file), "\n\n")  # Display the filename
-  cat(sprintf('<iframe src="%s" width="120%%" height="800px"></iframe>\n\n', file))  # Embed the file in an iframe
+  cat(sprintf('<iframe src="%s" width="100%%" height="800px"></iframe>\n\n', file))  # Embed the file in an iframe
 }
 ```
 
@@ -121,7 +121,7 @@ trim_galore_03_reports<- trim_galore_03_files[grepl("report", trim_galore_03_fil
 
 for (file in trim_galore_03_reports) {
   cat(basename(file), "\n\n")  # Display the filename
-  cat(sprintf('<iframe src="%s" width="120%%" height="600px"></iframe>\n\n', file))  # Embed the file in an iframe
+  cat(sprintf('<iframe src="%s" width="100%%" height="600px"></iframe>\n\n', file))  # Embed the file in an iframe
 }
 ```
 
@@ -132,7 +132,7 @@ trim_galore_fastqc_files<- list.files(fp(output_dir, "04_trim_galore_fastqc"), f
 
 for (file in trim_galore_fastqc_files) {
   cat(basename(file), "\n\n")  # Display the filename
-  cat(sprintf('<iframe src="%s" width="120%%" height="800px"></iframe>\n\n', file))  # Embed the file in an iframe
+  cat(sprintf('<iframe src="%s" width="100%%" height="800px"></iframe>\n\n', file))  # Embed the file in an iframe
 }
 ```
 

@@ -1,7 +1,13 @@
+/* Make the content fill the full width */
+.container-fluid {
+  max-width: 100% !important;
+  padding-left: 10;
+  padding-right: 10;
+}
 
 body, p {
   font-family: "Calibri";
-  color: #333333; /* text. not-quite-black */
+  color: #333333; /* text. Diamond Age not-quite-black */
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -10,7 +16,7 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 .email {
-  color: #00BFFF;
+  color: #333333;
 }
 
 .list-group-item{
