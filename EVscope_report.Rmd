@@ -22,7 +22,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 ```{r, echo=FALSE, message = FALSE}
 knitr::opts_chunk$set(echo = F, fig.height=8, fig.width=8, message=F, warning=F, cache=F, fig.align = 'center')
 
@@ -31,7 +30,7 @@ library(kableExtra)
 library(here)
 
 # some required helper functions:
-downloadableDT<- function(atable, rownames = NULL, pageLength = 20){
+downloadableDT<- function(atable, rownames = NULL, pageLength = 50){
   require(DT)
   datatable(atable,
             rownames = rownames,
@@ -86,8 +85,11 @@ html_links <- paste0("[", basename(raw_fastc_01), "](", raw_fastc_01, ")")
 
 for (file in raw_fastc_01) {
   cat(basename(file), "\n\n")  # Display the filename
-  cat(sprintf('<iframe src="%s" width="100%%" height="800px"></iframe>\n\n', file))  # Embed the file in an iframe
+  cat(sprintf('<iframe src="%s" width="100%%" height="1000px"></iframe>\n\n', file))  # Embed the file in an iframe
 }
+
+cat('<br>')
+cat('<br>')
 ```
 
 # 02_UMI_motif
@@ -109,7 +111,11 @@ umi_motif_02_csv<- read.csv(umi_motif_02_csv_name)
 
 #downloadableDT(umi_motif_02_csv, pageLength=10)
 datatable(umi_motif_02_csv, rownames = NULL, options = list(scrollX=F))
+```
 
+
+```{r, results='asis'}
+cat("<br><br><br>") 
 ```
 
 # 03_trim_galore
@@ -123,6 +129,9 @@ for (file in trim_galore_03_reports) {
   cat(basename(file), "\n\n")  # Display the filename
   cat(sprintf('<iframe src="%s" width="100%%" height="600px"></iframe>\n\n', file))  # Embed the file in an iframe
 }
+
+cat('<br>')
+cat('<br>')
 ```
 
 # 04_trim_galore_fastqc 
@@ -132,14 +141,16 @@ trim_galore_fastqc_files<- list.files(fp(output_dir, "04_trim_galore_fastqc"), f
 
 for (file in trim_galore_fastqc_files) {
   cat(basename(file), "\n\n")  # Display the filename
-  cat(sprintf('<iframe src="%s" width="100%%" height="800px"></iframe>\n\n', file))  # Embed the file in an iframe
+  cat(sprintf('<iframe src="%s" width="100%%" height="1000px"></iframe>\n\n', file))  # Embed the file in an iframe
 }
+
+cat('<br>')
+cat('<br>')
 ```
 
 # 07_second_STAR
 
 ```{r}
-
 second_STAR_07_files<- list.files(fp(output_dir, "07_second_STAR"), full.names = T)
 
 second_STAR_07_log<- second_STAR_07_files[grepl("\\_dedup_Log.final.out$", second_STAR_07_files)]
@@ -147,6 +158,10 @@ second_STAR_07_log<- second_STAR_07_files[grepl("\\_dedup_Log.final.out$", secon
 ```
 
 [`r basename(second_STAR_07_log)`](`r second_STAR_07_log`)
+
+```{r, results='asis'}
+cat("<br><br><br>") 
+```
 
 # 08_CIRCexplorer2
 
@@ -171,6 +186,11 @@ CIRCexplorer2_08_circularRNA<- CIRCexplorer2_08_files[grepl("circularRNA", CIRCe
 ```{r}
 CIRCexplorer2_08_circularRNA<- read.table(CIRCexplorer2_08_circularRNA)
 
+downloadableDT(CIRCexplorer2_08_circularRNA)
+```
+
+```{r, results='asis'}
+cat("<br><br><br>") 
 ```
 
 # 09_BWA_CIRI2
@@ -200,6 +220,10 @@ BWA_CIRI2_09_CIRI2_out<- read.delim(BWA_CIRI2_09_CIRI2_out)
 downloadableDT(BWA_CIRI2_09_CIRI2_out)
 ```
 
+```{r, results='asis'}
+cat("<br><br><br>") 
+```
+
 # 10_merge_CIRI2_CIRCexplorer2
 
 ```{r}
@@ -225,6 +249,9 @@ for (pdf in merge_CIRI2_CIRCexplorer2_pdfs) {
   cat(basename(pdf), "<br>\n")
   cat(sprintf('<iframe src="%s" width="100%%" height="600px"></iframe><br><br>\n\n', pdf))  # Add iframe and extra breaks
 }
+
+cat('<br>')
+cat('<br>')
 ```
 
 # 11_picard_metrics
@@ -237,6 +264,10 @@ picard_metrics_pdf<- picard_metrics_files[grepl("pdf", picard_metrics_files)]
 ```
 
 <iframe src="`r picard_metrics_pdf`" width="100%" height="600px"></iframe>
+
+```{r, results='asis'}
+cat("<br><br><br>") 
+```
 
 # 12_featureCounts
 
@@ -255,7 +286,10 @@ featureCounts_12_files<- list.files(fp(output_dir, "12_featureCounts"), full.nam
 
 links <- paste0("<a href='", featureCounts_12_files, "' download>", basename(featureCounts_12_files), "</a>")
 knitr::kable(data.frame(Files = links), escape = FALSE)
+```
 
+```{r, results='asis'}
+cat("<br><br><br>") 
 ```
 
 # 13_plot_RNA_distribution
@@ -264,6 +298,7 @@ knitr::kable(data.frame(Files = links), escape = FALSE)
 plot_RNA_distribution_files<- list.files(fp(output_dir, "13_plot_RNA_distribution"), full.names = T)
 
 plot_RNA_distribution_tsv<- plot_RNA_distribution_files[grepl("CPM.tsv", plot_RNA_distribution_files)]
+
 ```
 
 `r basename(plot_RNA_distribution_tsv)`
@@ -280,18 +315,25 @@ for (pdf in plot_RNA_distribution_pdfs) {
   cat(basename(pdf), "<br>\n")
   cat(sprintf('<iframe src="%s" width="100%%" height="600px"></iframe><br><br>\n\n', pdf))  # Add iframe and extra breaks
 }
+
+cat('<br>')
+cat('<br>')
 ```
 
 # 15_Kraken
 
 ```{r}
 kraken_15_files<- list.files(fp(output_dir, "15_Kraken"), full.names = T, pattern = ".html")
-
 ```
 
 `r basename(kraken_15_files)`
 
 <iframe src=`r kraken_15_files` width="100%" height="600px"></iframe>
+
+
+```{r, results='asis'}
+cat("<br><br><br>") 
+```
 
 # 17_QC_matrix
 
@@ -307,6 +349,10 @@ QC_matrix_tsv<- read.delim(QC_matrix_files)
 downloadableDT(QC_matrix_tsv)
 ```
 
+```{r, results='asis'}
+cat("<br><br><br>") 
+```
+
 # R session info
 This section includes technical details about the R packages used to produce this report. Most readers can safely ignore it.
 
@@ -320,4 +366,6 @@ knitr::kable(as.data.frame(sess$packages), caption="Package versions")
 ```
 
 </div>
+
+<div class="tocify-extend-page" data-unique="tocify-extend-page" style="height: 0;"></div>
 

@@ -10,6 +10,12 @@ body, p {
   color: #333333; /* text. Diamond Age not-quite-black */
 }
 
+h1.title {
+  font-family: "Marcellus";
+  color: dodgerblue4; /*#265C2D;*/
+  font-size: 50px; /* Change size for H1 */
+}
+
 h1,h2,h3,h4,h5,h6 {
   font-family: "Marcellus";
   color: dodgerblue4; /*#265C2D;*/
@@ -21,6 +27,7 @@ h1,h2,h3,h4,h5,h6 {
 
 .list-group-item{
   font-family: "Marcellus";
+  font-size: 20px;
 }
 
 .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {
@@ -31,3 +38,11 @@ h1,h2,h3,h4,h5,h6 {
     background-color: #00BFFF;
     color: white;
 }
+
+  #TOC {
+    max-width: fit-content;
+    white-space: nowrap;
+    max-height: calc(100vh - 50px); /* Limit TOC height to fit in the viewport */
+  }
+  
+
