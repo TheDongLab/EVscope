@@ -50,7 +50,7 @@ bash EVscope.sh Sample_007 R1.fq.gz R2.fq.gz
 - 8_featurecounts/: featureCounts
 - 9_CIRCexplorer2/: back-spliced junction + annotated circular RNAs
 
-## Wellcome you brogoug any feedbacks of suggestion on EV RNA-seq pipeline: EVscope !
+## Welcome you brought any feedbacks of suggestions on EV RNA-seq pipeline: EVscope !
 
 </div>
 
