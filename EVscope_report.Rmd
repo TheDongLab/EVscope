@@ -36,7 +36,7 @@ downloadableDT<- function(atable, rownames = NULL, pageLength = 50){
             rownames = rownames,
             extensions = 'Buttons',
             options = list(
-              autoWidth = TRUE,
+              autoWidth = FALSE,
               scrollX=TRUE,
               dom = 'Blfrtip',  # 'B' adds buttons, 'frtip' keeps other controls
               pageLength = pageLength,  # Number of rows per page
@@ -305,6 +305,7 @@ plot_RNA_distribution_tsv<- plot_RNA_distribution_files[grepl("CPM.tsv", plot_RN
 
 ```{r, echo=FALSE, results='asis'}
 plot_RNA_distribution_tsv<- read.table(plot_RNA_distribution_tsv, header = T)
+rownames(plot_RNA_distribution_tsv)<- NULL
 
 downloadableDT(plot_RNA_distribution_tsv)
 
@@ -346,7 +347,9 @@ QC_matrix_tsv<- read.delim(QC_matrix_files)
 `r basename(QC_matrix_files)`
 
 ```{r}
-downloadableDT(QC_matrix_tsv)
+#downloadableDT(QC_matrix_tsv)
+datatable(QC_matrix_tsv, rownames = NULL, options = list(scrollX=F,
+                                                         pageLength = 50))
 ```
 
 ```{r, results='asis'}
