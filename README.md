@@ -25,7 +25,7 @@ kraken2, KronaTools, kreport2krona.py, STAR, samtools, bamCoverage,
 computeMatrix, plotProfile, featureCounts, CIRCexplorer2, python scripts.
 
 ## 3. Description of Steps:
-<img src="figures/EV-RNA_seq_pipeline.png" width="600" height="800" align="center"> </div> 
+<img src="figures/EVscope_pipeline.png" width="600" height="800" align="center"> </div> 
 - Step 1: QC + 14-bp R2 motif with get_SMARTer_Read2_14BP_motif.py
 - Step 2: UMI extraction + adapter trimming
 - Step 3: rRNA detection (ribodetector_cpu)
