@@ -1,0 +1,429 @@
+---
+title: "EVscope Comprehensive Analysis Report"
+author:
+  - Rambo (Yiyong) Zhao
+  - Xianjun Dong
+  - Himanshu Chintalapudi
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: yeti
+    highlight: haddock
+    number_sections: false
+    # The following options create the floating navigation bar on the left
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    self_contained: false
+---
+
+<style type="text/css">
+/* General styling for a more professional look */
+body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; }
+.main-container { max-width: 95% !important; margin-left: auto; margin-right: auto; }
+h1, h2, h3, h4, h5, h6 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 400; color: #2c3e50; }
+h1.title { color: #2980b9; font-size: 38px; font-weight: 500; }
+.table { width: 100%; font-size: 12px; }
+img { max-width: 90%; height: auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; display: block; margin-left: 0; margin-right: auto; }
+iframe { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 4px; }
+pre { background-color: #f5f5f5; border: 1px solid #ccc; border-radius: 4px; padding: 10px; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+/* --- Custom TOC Styling --- */
+#TOC > h3 { color: #2980b9; font-size: 18px; font-weight: 500; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+#TOC li a { font-weight: bold; color: #d9534f; }
+#TOC li a:hover, #TOC li a:focus { color: #a94442; text-decoration: none; }
+#TOC .nav-pills .active > a, #TOC .nav-pills .active > a:hover, #TOC .nav-pills .active > a:focus {
+  background-color: #d9534f;
+  color: white;
+}
+</style>
+
+<script>
+// Add a title to the top of the floating TOC
+document.addEventListener("DOMContentLoaded", function(){
+  var toc = document.getElementById('TOC');
+  if(toc){
+    var title = document.createElement('h3');
+    title.innerHTML = 'EVscope_output';
+    toc.insertBefore(title, toc.firstChild);
+  }
+});
+</script>
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+# --- R Environment Setup ---
+knitr::opts_chunk$set(echo = FALSE, fig.align = 'left', message=FALSE, warning=FALSE)
+options(knitr.duplicate.label = 'allow', width = 300)
+
+# --- Package Management ---
+required_packages <- c("knitr", "readr", "dplyr", "DT", "tools", "stringr", "ggplot2", "plotly", "tidyr")
+new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]
+if(length(new_packages) > 0) {
+  install.packages(new_packages, repos = "[https://cloud.r-project.org/](https://cloud.r-project.org/)")
+}
+lapply(required_packages, library, character.only = TRUE)
+
+# --- Path Configuration ---
+absolute_output_dir <- Sys.getenv("EVscope_OUTPUT_DIR")
+if (!dir.exists(absolute_output_dir)) {
+  stop("FATAL: Output directory not found. EVscope_OUTPUT_DIR was not set or is invalid.")
+}
+
+# --- Helper Functions ---
+check_step_dir <- function(subdir_name) {
+  dir_path <- file.path(absolute_output_dir, subdir_name)
+  if (!dir.exists(dir_path)) {
+    cat(paste0("`", subdir_name, "` directory not found. This step might have been skipped.\n\n"))
+    return(FALSE)
+  }
+  return(TRUE)
+}
+
+display_image <- function(subdir_path, pattern, caption) {
+  full_dir_path <- file.path(absolute_output_dir, subdir_path)
+  img_file <- list.files(full_dir_path, pattern = pattern, full.names = FALSE)
+  if (length(img_file) > 0) {
+    cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+    cat(paste0('<img src="../', file.path(subdir_path, img_file[1]), '" alt="', img_file[1], '">\n\n'))
+  }
+}
+
+display_iframe <- function(subdir_path, pattern, caption) {
+  full_dir_path <- file.path(absolute_output_dir, subdir_path)
+  html_file <- list.files(full_dir_path, pattern = pattern, full.names = FALSE)
+  if (length(html_file) > 0) {
+    cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+    cat(paste0('<iframe src="../', file.path(subdir_path, html_file[1]), '"></iframe>\n\n'))
+  }
+}
+
+display_datatable <- function(subdir_path, pattern, caption, top_n = 20) {
+    full_dir_path <- file.path(absolute_output_dir, subdir_path)
+    file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+    if (length(file_path) > 0 && file.info(file_path[1])$size > 0) {
+        cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+        tryCatch({
+            df <- readr::read_tsv(file_path[1], col_types = cols(.default = "c"), progress = FALSE)
+            df_head <- head(df, top_n)
+            datatable(df_head,
+                      caption = htmltools::tags$caption(style = 'caption-side: bottom; text-align: left;', paste('Showing top', nrow(df_head), 'rows of', basename(file_path[1]))),
+                      extensions = 'Buttons',
+                      options = list(pageLength = top_n, scrollX = TRUE, dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel')),
+                      filter = 'none', rownames = FALSE)
+        }, error = function(e) { cat(paste("Could not render table:", basename(file_path[1]), "\n\n")) })
+    }
+}
+
+display_csv_datatable <- function(subdir_path, pattern, caption, top_n = 20) {
+    full_dir_path <- file.path(absolute_output_dir, subdir_path)
+    file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+    if (length(file_path) > 0 && file.info(file_path[1])$size > 0) {
+        cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+        tryCatch({
+            df <- readr::read_csv(file_path[1], col_types = cols(.default = "c"), progress = FALSE)
+            df_head <- head(df, top_n)
+            datatable(df_head,
+                      caption = htmltools::tags$caption(style = 'caption-side: bottom; text-align: left;', paste('Showing top', nrow(df_head), 'rows of', basename(file_path[1]))),
+                      extensions = 'Buttons',
+                      options = list(pageLength = top_n, scrollX = TRUE, dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel')),
+                      filter = 'none', rownames = FALSE)
+        }, error = function(e) { cat(paste("Could not render table:", basename(file_path[1]), "\n\n")) })
+    }
+}
+
+parse_and_display_star_log <- function(subdir_path, pattern, caption) {
+    full_dir_path <- file.path(absolute_output_dir, subdir_path)
+    file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+    if (length(file_path) > 0) {
+        cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+        log_lines <- read_lines(file_path[1])
+        log_df <- tibble(raw = log_lines) %>%
+            filter(str_detect(raw, "\\|")) %>%
+            mutate(
+                Metric = str_trim(str_extract(raw, ".*?(?=\\|)")),
+                Value = str_trim(str_extract(raw, "(?<=\\|).*"))
+            ) %>%
+            select(Metric, Value) %>%
+            filter(!is.na(Metric), Metric != "")
+        
+        datatable(log_df, options = list(dom = 't', paging = FALSE), rownames = FALSE, class = 'compact')
+    }
+}
+
+plot_picard_metrics <- function(subdir_path, pattern, caption) {
+    full_dir_path <- file.path(absolute_output_dir, subdir_path)
+    file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+    if (length(file_path) > 0) {
+        cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+        df <- read_tsv(file_path[1], comment = "#", n_max = 1, col_types = cols(.default = "c")) %>%
+            select(starts_with("PCT_")) %>%
+            pivot_longer(everything(), names_to = "Category", values_to = "Percentage") %>%
+            mutate(
+                Percentage = as.numeric(Percentage) * 100,
+                Category = str_remove(Category, "PCT_") %>% str_replace_all("_", " ") %>% str_to_title()
+            )
+
+        p <- ggplot(df, aes(x = reorder(Category, -Percentage), y = Percentage, fill = Category)) +
+            geom_col(show.legend = FALSE) +
+            geom_text(aes(label = sprintf("%.2f%%", Percentage)), vjust = -0.5, size = 3.5) +
+            labs(x = "Genomic Region", y = "Percentage of Bases (%)") +
+            theme_minimal(base_size = 12) +
+            theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            scale_fill_brewer(palette = "Paired")
+
+        ggplotly(p, tooltip = c("x", "y")) %>% layout(title = list(text = "Distribution of Aligned Bases", x = 0))
+    }
+}
+
+display_all_images <- function(subdir_path, pattern, main_caption) {
+  full_dir_path <- file.path(absolute_output_dir, subdir_path)
+  img_files <- list.files(full_dir_path, pattern = pattern, full.names = FALSE)
+  
+  if (length(img_files) > 0) {
+    cat(paste0("<br><strong>", main_caption, "</strong>\n\n"))
+    
+    for (img in img_files) {
+      original_full_path <- file.path(full_dir_path, img)
+      sanitized_img_name <- img
+      
+      if (grepl("%", img, fixed = TRUE)) {
+        sanitized_img_name <- gsub("%", "pct", img, fixed = TRUE)
+        sanitized_full_path <- file.path(full_dir_path, sanitized_img_name)
+        file.copy(original_full_path, sanitized_full_path, overwrite = TRUE)
+      }
+      
+      relative_img_path <- file.path(subdir_path, sanitized_img_name)
+      cat(paste0("<em>", img, "</em>\n"))
+      cat(paste0('<img src="../', relative_img_path, '" alt="', img, '">\n\n'))
+    }
+  }
+}
+```
+
+# EVscope Pipeline {.unlisted}
+
+**EVscope** is a state-of-the-art, open-source bioinformatics pipeline for comprehensive analysis of extracellular vesicle (EV) RNA sequencing data. Designed to address the unique challenges of EV RNA-seq—low RNA abundance, fragmentation, and contamination—it processes paired-end FASTQ files through quality control, UMI-based deduplication, alignment, circular RNA detection, expression quantification, taxonomic classification, rRNA detection, and cellular origin inference. Optimized for the SMARTer Stranded Total RNA-Seq Kit v3 (Pico Input), EVscope introduces a novel genome-wide expectation-maximization (EM) algorithm for multi-mapping read assignment and a unique read-through detection method for Read1 trimming. It supports 20 RNA biotype annotations and integrates tools like FastQC, STAR, CIRCexplorer2, CIRI2, RSEM, and Kraken2, delivering robust results via an HTML report.
+
+```{r intro_image, results='asis'}
+# MODIFIED: This chunk no longer copies the file. It links directly to the original.
+# This assumes the report is viewed in an environment where the original path is accessible.
+# If the output folder is moved, this image link will likely break.
+
+# 1. Calculate the absolute path to the original image to check for existence.
+# This assumes a directory structure like: .../pipeline_root/test_data/run_folder/output_folder
+img_original_abs_path <- normalizePath(file.path(absolute_output_dir, "../../../figures/EVscope_pipeline.png"), mustWork = FALSE)
+
+# 2. Define the static relative path from the final HTML file to the original image.
+# HTML is in .../output_folder/Step_27_HTML_Report/
+# Image is in .../pipeline_root/figures/
+# Path goes up 4 levels from Step_27 to pipeline_root, then down to figures.
+img_path_from_html <- "../../../../figures/EVscope_pipeline.png"
+
+if (file.exists(img_original_abs_path)) {
+    # 3. Directly link to the original image using the calculated relative path. NO COPY.
+    cat(paste0('![EVscope Pipeline Overview](', img_path_from_html, ')\n\n'))
+} else {
+    cat("INFO: `EVscope_pipeline.png` not found using relative path discovery. Please check the pipeline's directory structure.\n\n")
+}
+```
+
+-----
+
+# Step\_01\_Raw\_QC
+
+```{r step1, results='asis'}
+if (check_step_dir("Step_01_Raw_QC")) {
+  display_iframe("Step_01_Raw_QC", "_R1_001_fastqc\\.html$", "FastQC Report for Read 1")
+  display_iframe("Step_01_Raw_QC", "_R2_001_fastqc\\.html$", "FastQC Report for Read 2")
+}
+```
+
+# Step\_02\_UMI\_Analysis
+
+```{r step2, results='asis'}
+if (check_step_dir("Step_02_UMI_Analysis")) {
+  display_image("Step_02_UMI_Analysis", "motif_logo\\.png$", "UMI Motif Logo")
+  display_datatable("Step_02_UMI_Analysis", "_ACC_motif_fraction\\.tsv$", "ACC Motif Fraction")
+  display_csv_datatable("Step_02_UMI_Analysis", "_base_distribution\\.csv$", "UMI Base Distribution")
+}
+```
+
+# Step\_03\_UMI\_Adaptor\_Trim
+
+```{r step3, results='asis'}
+if (check_step_dir("Step_03_UMI_Adaptor_Trim")) {
+  display_image("Step_03_UMI_Adaptor_Trim", "_read_length_distribution\\.png$", "Read Length Distribution After Trimming")
+  display_datatable("Step_03_UMI_Adaptor_Trim", "_readthrough_UMI_trimming\\.log$", "Readthrough UMI Trimming Log")
+}
+```
+
+# Step\_04\_Trimmed\_QC
+
+```{r step4, results='asis'}
+if (check_step_dir("Step_04_Trimmed_QC")) {
+  display_iframe("Step_04_Trimmed_QC", "_R1_clean_fastqc\\.html$", "Trimmed FastQC Report for Read 1")
+  display_iframe("Step_04_Trimmed_QC", "_R2_clean_fastqc\\.html$", "Trimmed FastQC Report for Read 2")
+}
+```
+
+# Step\_06\_Alignment\_Initial
+
+```{r step6a, results='asis'}
+if (check_step_dir("Step_06_Alignment_Initial")) {
+  parse_and_display_star_log("Step_06_Alignment_Initial", "Log\\.final\\.out$", "STAR Initial Alignment Summary")
+}
+```
+
+# Step\_06\_Alignment\_Refined
+
+```{r step6b, results='asis'}
+if (check_step_dir("Step_06_Alignment_Refined")) {
+  parse_and_display_star_log("Step_06_Alignment_Refined", "_STAR_umi_dedup_Log\\.final\\.out$", "STAR Refined Alignment Summary")
+}
+```
+
+# Step\_07\_Strand\_Detection
+
+```{r step7, results='asis'}
+if (check_step_dir("Step_07_Strand_Detection")) {
+  display_image("Step_07_Strand_Detection", "bam2strandness_pie\\.png$", "Library Strandedness")
+  display_datatable("Step_07_Strand_Detection", "bam2strandness\\.tsv$", "Strandedness Details")
+}
+```
+
+# Step\_08\_CIRCexplorer2\_circRNA
+
+```{r step8, results='asis'}
+if (check_step_dir("Step_08_CIRCexplorer2_circRNA")) {
+  display_datatable("Step_08_CIRCexplorer2_circRNA", "_dedup_junction_readcounts_CPM\\.tsv$", "CIRCexplorer2 Expression (CPM)")
+}
+```
+
+# Step\_09\_CIRI2\_circRNA
+
+```{r step9, results='asis'}
+if (check_step_dir("Step_09_CIRI2_circRNA")) {
+  display_datatable("Step_09_CIRI2_circRNA", "_dedup_junction_readcounts_CPM\\.tsv$", "CIRI2 Expression (CPM)")
+}
+```
+
+# Step\_10\_circRNA\_Merge
+
+```{r step10, results='asis'}
+if (check_step_dir("Step_10_circRNA_Merge")) {
+  display_image("Step_10_circRNA_Merge", "Venn_diagram_of_circRNAs.*\\.png$", "Overlap of circRNA Detection Tools")
+  display_datatable("Step_10_circRNA_Merge", "_combined_CIRCexplorer2_CIRI2\\.tsv$", "Combined circRNA Matrix")
+}
+```
+
+# Step\_11\_RNA\_Metrics
+
+```{r step11, results='asis'}
+if (check_step_dir("Step_11_RNA_Metrics")) {
+  plot_picard_metrics("Step_11_RNA_Metrics", "picard_metrics\\.tsv$", "Picard Aligned Base Distribution")
+  display_image("Step_11_RNA_Metrics", "insert_size_histogram\\.png$", "Insert Size Distribution")
+}
+```
+
+# Step\_15\_featureCounts\_Expression
+
+```{r step15, results='asis'}
+if (check_step_dir("Step_15_featureCounts_Expression")) {
+  display_datatable("Step_15_featureCounts_Expression", "_combined_expression_matrix_linearRNA_TPM_circRNA_CPM_featureCounts\\.tsv$", "Combined Linear and Circular RNA Expression")
+  display_all_images("Step_15_featureCounts_Expression", "\\.png$", "Expression Analysis Plots")
+}
+```
+
+# Step\_16\_gDNA\_Corrected\_Expression
+
+```{r step16, results='asis'}
+if (check_step_dir("Step_16_gDNA_Corrected_Expression")) {
+  display_datatable("Step_16_gDNA_Corrected_Expression", "_combined_expression_matrix_linearRNA_TPM_circRNA_CPM_gDNA_correction\\.tsv$", "Combined Linear and Circular RNA Expression (gDNA Corrected)")
+  display_all_images("Step_16_gDNA_Corrected_Expression", "\\.png$", "gDNA-Corrected Expression Plots")
+}
+```
+
+# Step\_17\_RSEM\_Expression
+
+```{r step17, results='asis'}
+if (check_step_dir("Step_17_RSEM_Expression")) {
+  display_datatable("Step_17_RSEM_Expression", "_combined_expression_matrix_linearRNA_TPM_circRNA_CPM\\.tsv$", "Combined Linear and Circular RNA Expression (RSEM)")
+  display_all_images("Step_17_RSEM_Expression", "\\.png$", "RSEM-based Expression Plots")
+}
+```
+
+# Step\_18\_Genomic\_Regions
+
+```{r step18, results='asis'}
+if (check_step_dir("Step_18_Genomic_Regions")) {
+  display_image("Step_18_Genomic_Regions", "reads_mapping_stats_pie\\.png$", "Read Distribution Across Genomic Regions")
+  display_datatable("Step_18_Genomic_Regions", "\\.summary$", "Feature Count Summaries")
+}
+```
+
+# Step\_19\_Taxonomy
+
+```{r step19, results='asis'}
+if (check_step_dir("Step_19_Taxonomy")) {
+  display_iframe("Step_19_Taxonomy", "_krona\\.html$", "Krona Interactive Taxonomy Report")
+  display_datatable("Step_19_Taxonomy", "_report\\.tsv$", "Kraken2 Report")
+}
+```
+
+# Step\_20\_featureCounts\_Deconvolution
+
+```{r step20, results='asis'}
+if (check_step_dir("Step_20_featureCounts_Deconvolution")) {
+  display_all_images("Step_20_featureCounts_Deconvolution", "_deconvolution_fraction.*\\.png$", "Deconvolution Plots")
+}
+```
+
+# Step\_21\_gDNA\_Corrected\_Deconvolution
+
+```{r step21, results='asis'}
+if (check_step_dir("Step_21_gDNA_Corrected_Deconvolution")) {
+  display_all_images("Step_21_gDNA_Corrected_Deconvolution", "_deconvolution_fraction.*\\.png$", "Deconvolution Plots")
+}
+```
+
+# Step\_22\_RSEM\_Deconvolution
+
+```{r step22, results='asis'}
+if (check_step_dir("Step_22_RSEM_Deconvolution")) {
+  display_all_images("Step_22_RSEM_Deconvolution", "_deconvolution_fraction.*\\.png$", "Deconvolution Plots")
+}
+```
+
+# Step\_24\_QC\_Summary
+
+```{r step24, results='asis'}
+if (check_step_dir("Step_24_QC_Summary")) {
+  display_datatable("Step_24_QC_Summary", "_QC_matrix\\.tsv$", "QC Metrics Summary")
+}
+```
+
+# Step\_25\_EMapper\_BigWig\_Quantification
+
+```{r step25, results='asis'}
+if (check_step_dir("Step_25_EMapper_BigWig_Quantification")) {
+  cat("#### Generated BigWig Files {.unlisted}\n\nGenerated files are available in `Step_25_EMapper_BigWig_Quantification/EMapper_output/`.\n\n")
+}
+```
+
+# Step\_26\_BigWig\_Density\_Plot
+
+```{r step26, results='asis'}
+if (check_step_dir("Step_26_BigWig_Density_Plot")) {
+  display_image("Step_26_BigWig_Density_Plot/RNA_types", "\\.png$", "Coverage Density over RNA Types")
+  display_image("Step_26_BigWig_Density_Plot/meta_gene", "\\.png$", "Coverage Density over Meta-Gene Regions")
+}
+```
+
+-----
+
+# Appendix: Session Information
+
+```{r session-info, echo=TRUE}
+sessionInfo()
+```

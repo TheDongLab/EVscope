@@ -1,0 +1,27 @@
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [14:35:33<00:00, 52533.70s/it]100%|██████████| 1/1 [14:35:33<00:00, 52533.74s/it]
+/home/yz2474/yiyong_2023/EVscope_pipeline/bin/Step_22_run_RNA_deconvolution_ARIC.py:145: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
+
+  ax = sns.barplot(x=frac_col, y=ct_col, data=df, palette=sns.color_palette("bright"))
+/home/yz2474/yiyong_2023/EVscope_pipeline/bin/Step_22_run_RNA_deconvolution_ARIC.py:145: UserWarning: 
+The palette list has fewer values (10) than needed (30) and will cycle, which may produce an uninterpretable plot.
+  ax = sns.barplot(x=frac_col, y=ct_col, data=df, palette=sns.color_palette("bright"))
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [8:02:31<00:00, 28951.58s/it]100%|██████████| 1/1 [8:02:31<00:00, 28951.58s/it]
+/home/yz2474/yiyong_2023/EVscope_pipeline/bin/Step_22_run_RNA_deconvolution_ARIC.py:145: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
+
+  ax = sns.barplot(x=frac_col, y=ct_col, data=df, palette=sns.color_palette("bright"))
+/home/yz2474/yiyong_2023/EVscope_pipeline/bin/Step_22_run_RNA_deconvolution_ARIC.py:145: UserWarning: 
+The palette list has fewer values (10) than needed (54) and will cycle, which may produce an uninterpretable plot.
+  ax = sns.barplot(x=frac_col, y=ct_col, data=df, palette=sns.color_palette("bright"))
+  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [16:47<00:00, 1007.02s/it]100%|██████████| 1/1 [16:47<00:00, 1007.02s/it]
+/home/yz2474/yiyong_2023/EVscope_pipeline/bin/Step_22_run_RNA_deconvolution_ARIC.py:145: FutureWarning: 
+
+Passing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `y` variable to `hue` and set `legend=False` for the same effect.
+
+  ax = sns.barplot(x=frac_col, y=ct_col, data=df, palette=sns.color_palette("bright"))
+/home/yz2474/yiyong_2023/EVscope_pipeline/bin/Step_22_run_RNA_deconvolution_ARIC.py:145: UserWarning: 
+The palette list has fewer values (10) than needed (31) and will cycle, which may produce an uninterpretable plot.
+  ax = sns.barplot(x=frac_col, y=ct_col, data=df, palette=sns.color_palette("bright"))

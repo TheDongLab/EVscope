@@ -1,0 +1,4 @@
+/home/yz2474/yiyong_2023/EVscope_pipeline/bin/Step_15_plot_RNA_distribution_20subplots.py:118: UserWarning: Attempting to set identical low and high xlims makes transformation singular; automatically expanding.
+  ax.set_xlim(0, max_val * 1.25)
+/home/yz2474/yiyong_2023/EVscope_pipeline/bin/Step_15_plot_RNA_distribution_20subplots.py:118: UserWarning: Attempting to set identical low and high xlims makes transformation singular; automatically expanding.
+  ax.set_xlim(0, max_val * 1.25)

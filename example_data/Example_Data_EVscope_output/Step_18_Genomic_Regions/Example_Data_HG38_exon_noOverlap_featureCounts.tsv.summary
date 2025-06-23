@@ -1,0 +1,15 @@
+Status	Example_Data_EVscope_output/Step_06_Alignment_Refined/Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out.bam
+Assigned	7
+Unassigned_Unmapped	0
+Unassigned_Read_Type	0
+Unassigned_Singleton	0
+Unassigned_MappingQuality	0
+Unassigned_Chimera	7
+Unassigned_FragmentLength	0
+Unassigned_Duplicate	0
+Unassigned_MultiMapping	18032
+Unassigned_Secondary	0
+Unassigned_NonSplit	0
+Unassigned_NoFeatures	60
+Unassigned_Overlapping_Length	0
+Unassigned_Ambiguity	1

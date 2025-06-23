@@ -1,0 +1,125 @@
+Pipeline starting...
+Running in Paired-End mode.
+[2025-06-23 06:13:31] INFO: Loaded configuration from '/home/yz2474/yiyong_2023/EVscope_pipeline/EVscope.conf'
+[2025-06-23 06:13:31] INFO: Checking for required software dependencies...
+[2025-06-23 06:13:31] INFO: All basic dependencies are satisfied.
+[2025-06-23 06:13:31] INFO: Essential reference files are present.
+[2025-06-23 06:13:31] INFO: Starting EVscope pipeline (Version: 2.4.0) for sample: Example_Data
+[2025-06-23 06:13:31] INFO: Output directory: Example_Data_EVscope_output
+[2025-06-23 06:13:31] INFO: Final steps to be executed: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
+[2025-06-23 06:13:31] INFO: EVscope Pipeline Steps (Version: 2.4.0)
+[2025-06-23 06:13:31] INFO: ========================================
+[2025-06-23 06:13:31] INFO: The pipeline consists of 27 steps. Use --run_steps and --skip_steps to customize execution.
+[2025-06-23 06:13:31] INFO: Step  | Description
+[2025-06-23 06:13:31] INFO: ------|------------
+[2025-06-23 06:13:31] INFO: 1     | Raw FASTQ quality control using FastQC
+[2025-06-23 06:13:31] INFO: 2     | UMI motif analysis and ratio calculation
+[2025-06-23 06:13:31] INFO: 3     | UMI labeling and adaptor trimming
+[2025-06-23 06:13:31] INFO: 4     | Quality control of trimmed FASTQs
+[2025-06-23 06:13:31] INFO: 5     | Bacterial contamination detection (E. coli, Mycoplasma)
+[2025-06-23 06:13:31] INFO: 6     | STAR Two-Pass Alignment (Initial + Refined for circRNA)
+[2025-06-23 06:13:31] INFO: 7     | Library strandedness detection
+[2025-06-23 06:13:31] INFO: 8     | CIRCexplorer2 circRNA detection
+[2025-06-23 06:13:31] INFO: 9     | CIRI2 circRNA detection
+[2025-06-23 06:13:31] INFO: 10    | Merge CIRCexplorer2 and CIRI2 circRNA results
+[2025-06-23 06:13:31] INFO: 11    | RNA-seq metrics collection (Picard)
+[2025-06-23 06:13:31] INFO: 12    | featureCounts quantification (unique mode)
+[2025-06-23 06:13:31] INFO: 13    | gDNA-corrected featureCounts quantification
+[2025-06-23 06:13:31] INFO: 14    | RSEM quantification (multi mode)
+[2025-06-23 06:13:31] INFO: 15    | featureCounts expression matrix and RNA distribution plots
+[2025-06-23 06:13:31] INFO: 16    | gDNA-corrected expression matrix and RNA distribution plots
+[2025-06-23 06:13:31] INFO: 17    | RSEM expression matrix and RNA distribution plots
+[2025-06-23 06:13:31] INFO: 18    | Genomic regions mapping (3'UTR, 5'UTR, etc.)
+[2025-06-23 06:13:31] INFO: 19    | Taxonomy classification using Kraken2
+[2025-06-23 06:13:31] INFO: 20    | Tissue deconvolution for featureCounts
+[2025-06-23 06:13:31] INFO: 21    | Tissue deconvolution for gDNA-corrected counts
+[2025-06-23 06:13:31] INFO: 22    | Tissue deconvolution for RSEM
+[2025-06-23 06:13:31] INFO: 23    | rRNA detection using ribodetector
+[2025-06-23 06:13:31] INFO: 24    | Comprehensive QC summary
+[2025-06-23 06:13:31] INFO: 25    | Coverage analysis (EMapper)
+[2025-06-23 06:13:31] INFO: 26    | Coverage density plots (RNA types and meta-gene regions)
+[2025-06-23 06:13:31] INFO: 27    | HTML report generation
+[2025-06-23 06:13:31] INFO: ========================================
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_01_Raw_QC
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_02_UMI_Analysis
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_03_UMI_Adaptor_Trim
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_04_Trimmed_QC
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_05_Bacterial_Filter
+[2025-06-23 06:13:31] INFO: Executing Step 6: Two-Pass Alignment
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_06_Alignment_Initial
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_06_Alignment_Refined
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_07_Strand_Detection
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_08_CIRCexplorer2_circRNA
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_09_CIRI2_circRNA
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_10_circRNA_Merge
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_11_RNA_Metrics
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_12_featureCounts_Quant
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_13_gDNA_Corrected_Quant
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_14_RSEM_Quant
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_15_featureCounts_Expression
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_16_gDNA_Corrected_Expression
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_17_RSEM_Expression
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_18_Genomic_Regions
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_19_Taxonomy
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_20_featureCounts_Deconvolution
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_21_gDNA_Corrected_Deconvolution
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_22_RSEM_Deconvolution
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_23_rRNA_Detection
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_24_QC_Summary
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_25_EMapper_BigWig_Quantification
+[2025-06-23 06:13:31] INFO: Step already done, skipping: Step_26_BigWig_Density_Plot
+[2025-06-23 06:13:31] INFO: ==> Running Step: Step_27_HTML_Report <==
+1/50               
+2/50 [setup]       
+3/50               
+4/50 [intro_image] 
+5/50               
+6/50 [step1]       
+7/50               
+8/50 [step2]       
+9/50               
+10/50 [step3]       
+11/50               
+12/50 [step4]       
+13/50               
+14/50 [step6a]      
+15/50               
+16/50 [step6b]      
+17/50               
+18/50 [step7]       
+19/50               
+20/50 [step8]       
+21/50               
+22/50 [step9]       
+23/50               
+24/50 [step10]      
+25/50               
+26/50 [step11]      
+27/50               
+28/50 [step15]      
+29/50               
+30/50 [step16]      
+31/50               
+32/50 [step17]      
+33/50               
+34/50 [step18]      
+35/50               
+36/50 [step19]      
+37/50               
+38/50 [step20]      
+39/50               
+40/50 [step21]      
+41/50               
+42/50 [step22]      
+43/50               
+44/50 [step24]      
+45/50               
+46/50 [step25]      
+47/50               
+48/50 [step26]      
+49/50               
+50/50 [session-info]
+/mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/bin/pandoc +RTS -K512m -RTS Step_27_html_report.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /mnt/data/projects/donglab/yiyong_2023/EVscope_pipeline/test_data/test4_github/Example_Data_EVscope_output/Step_27_HTML_Report/Example_Data_final_report.html --lua-filter /mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/lib/R/library/rmarkdown/rmarkdown/lua/pagebreak.lua --lua-filter /mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/lib/R/library/rmarkdown/rmarkdown/lua/latex-div.lua --lua-filter /mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/lib/R/library/rmarkdown/rmarkdown/lua/table-classes.lua --embed-resources --standalone --variable bs3=TRUE --section-divs --template /mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/lib/R/library/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable theme=bootstrap --mathjax --variable 'mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --include-in-header /home/yz2474/tmp//RtmpE14dS6/rmarkdown-str1d6eec7c275d7e.html 
+[2025-06-23 06:13:48] INFO: Finished step: Step_27_HTML_Report in 17 seconds
+[2025-06-23 06:13:48] INFO: Pipeline completed successfully for Example_Data in 17 seconds.
+[2025-06-23 06:13:48] INFO: Final output is in: Example_Data_EVscope_output

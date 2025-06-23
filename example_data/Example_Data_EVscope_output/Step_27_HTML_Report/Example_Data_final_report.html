@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Rambo (Yiyong) Zhao" />
+<meta name="author" content="Xianjun Dong" />
+<meta name="author" content="Himanshu Chintalapudi" />
+
+
+<title>EVscope Comprehensive Analysis Report</title>
+
+<script src="Example_Data_final_report_files/header-attrs-2.29/header-attrs.js"></script>
+<script src="Example_Data_final_report_files/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="Example_Data_final_report_files/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="Example_Data_final_report_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="Example_Data_final_report_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="Example_Data_final_report_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="Example_Data_final_report_files/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="Example_Data_final_report_files/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="Example_Data_final_report_files/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="Example_Data_final_report_files/navigation-1.1/tabsets.js"></script>
+<link href="Example_Data_final_report_files/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="Example_Data_final_report_files/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="Example_Data_final_report_files/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="Example_Data_final_report_files/datatables-binding-0.33/datatables.js"></script>
+<link href="Example_Data_final_report_files/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="Example_Data_final_report_files/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="Example_Data_final_report_files/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="Example_Data_final_report_files/jszip-1.13.6/jszip.min.js"></script>
+<link href="Example_Data_final_report_files/dt-ext-buttons-1.13.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="Example_Data_final_report_files/dt-ext-buttons-1.13.6/js/dataTables.buttons.min.js"></script>
+<script src="Example_Data_final_report_files/dt-ext-buttons-1.13.6/js/buttons.html5.min.js"></script>
+<script src="Example_Data_final_report_files/dt-ext-buttons-1.13.6/js/buttons.colVis.min.js"></script>
+<script src="Example_Data_final_report_files/dt-ext-buttons-1.13.6/js/buttons.print.min.js"></script>
+<link href="Example_Data_final_report_files/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="Example_Data_final_report_files/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; } /* Alert */
+code span.an { color: #008000; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #0000ff; } /* ControlFlow */
+code span.ch { color: #008080; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008000; } /* Comment */
+code span.cv { color: #008000; } /* CommentVar */
+code span.do { color: #008000; } /* Documentation */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.im { } /* Import */
+code span.in { color: #008000; } /* Information */
+code span.kw { color: #0000ff; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #ff4000; } /* Other */
+code span.pp { color: #ff4000; } /* Preprocessor */
+code span.sc { color: #008080; } /* SpecialChar */
+code span.ss { color: #008080; } /* SpecialString */
+code span.st { color: #008080; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #008080; } /* VerbatimString */
+code span.wa { color: #008000; font-weight: bold; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">EVscope Comprehensive Analysis Report</h1>
+<h4 class="author">Rambo (Yiyong) Zhao</h4>
+<h4 class="author">Xianjun Dong</h4>
+<h4 class="author">Himanshu Chintalapudi</h4>
+<h4 class="date">23 June, 2025</h4>
+
+</div>
+
+
+<style type="text/css">
+/* General styling for a more professional look */
+body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 14px; }
+.main-container { max-width: 95% !important; margin-left: auto; margin-right: auto; }
+h1, h2, h3, h4, h5, h6 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 400; color: #2c3e50; }
+h1.title { color: #2980b9; font-size: 38px; font-weight: 500; }
+.table { width: 100%; font-size: 12px; }
+img { max-width: 90%; height: auto; border: 1px solid #ddd; border-radius: 4px; padding: 5px; display: block; margin-left: 0; margin-right: auto; }
+iframe { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 4px; }
+pre { background-color: #f5f5f5; border: 1px solid #ccc; border-radius: 4px; padding: 10px; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+
+/* --- Custom TOC Styling --- */
+/* TOC title */
+#TOC > h3 { color: #2980b9; font-size: 18px; font-weight: 500; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+/* TOC links styling: bold and red */
+#TOC li a { font-weight: bold; color: #d9534f; }
+/* Hover and focus effects for links */
+#TOC li a:hover, #TOC li a:focus { color: #a94442; text-decoration: none; }
+/* Styling for the currently active link */
+#TOC .nav-pills .active > a, #TOC .nav-pills .active > a:hover, #TOC .nav-pills .active > a:focus {
+  background-color: #d9534f;
+  color: white;
+}
+</style>
+<script>
+// Add a title to the top of the floating TOC
+document.addEventListener("DOMContentLoaded", function(){
+  var toc = document.getElementById('TOC');
+  if(toc){
+    var title = document.createElement('h3');
+    title.innerHTML = 'EVscope_output';
+    toc.insertBefore(title, toc.firstChild);
+  }
+});
+</script>
+<pre><code>## [[1]]
+## [1] &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[2]]
+## [1] &quot;readr&quot;     &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[3]]
+##  [1] &quot;dplyr&quot;     &quot;readr&quot;     &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[4]]
+##  [1] &quot;DT&quot;        &quot;dplyr&quot;     &quot;readr&quot;     &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[5]]
+##  [1] &quot;tools&quot;     &quot;DT&quot;        &quot;dplyr&quot;     &quot;readr&quot;     &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[6]]
+##  [1] &quot;stringr&quot;   &quot;tools&quot;     &quot;DT&quot;        &quot;dplyr&quot;     &quot;readr&quot;     &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[7]]
+##  [1] &quot;ggplot2&quot;   &quot;stringr&quot;   &quot;tools&quot;     &quot;DT&quot;        &quot;dplyr&quot;     &quot;readr&quot;     &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[8]]
+##  [1] &quot;plotly&quot;    &quot;ggplot2&quot;   &quot;stringr&quot;   &quot;tools&quot;     &quot;DT&quot;        &quot;dplyr&quot;     &quot;readr&quot;     &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;     
+## 
+## [[9]]
+##  [1] &quot;tidyr&quot;     &quot;plotly&quot;    &quot;ggplot2&quot;   &quot;stringr&quot;   &quot;tools&quot;     &quot;DT&quot;        &quot;dplyr&quot;     &quot;readr&quot;     &quot;knitr&quot;     &quot;stats&quot;     &quot;graphics&quot;  &quot;grDevices&quot; &quot;utils&quot;     &quot;datasets&quot;  &quot;methods&quot;   &quot;base&quot;</code></pre>
+<div id="evscope-pipeline" class="section level1 unlisted">
+<h1 class="unlisted">EVscope Pipeline</h1>
+<p><strong>EVscope</strong> is a state-of-the-art, open-source
+bioinformatics pipeline for comprehensive analysis of extracellular
+vesicle (EV) RNA sequencing data. Designed to address the unique
+challenges of EV RNA-seq—low RNA abundance, fragmentation, and
+contamination—it processes paired-end FASTQ files through quality
+control, UMI-based deduplication, alignment, circular RNA detection,
+expression quantification, taxonomic classification, rRNA detection, and
+cellular origin inference. Optimized for the SMARTer Stranded Total
+RNA-Seq Kit v3 (Pico Input), EVscope introduces a novel genome-wide
+expectation-maximization (EM) algorithm for multi-mapping read
+assignment and a unique read-through detection method for Read1
+trimming. It supports 20 RNA biotype annotations and integrates tools
+like FastQC, STAR, CIRCexplorer2, CIRI2, RSEM, and Kraken2, delivering
+robust results via an HTML report.</p>
+<div class="float">
+<img src="../EVscope_pipeline.png" alt="EVscope Pipeline Overview" />
+<div class="figcaption">EVscope Pipeline Overview</div>
+</div>
+<hr />
+</div>
+<div id="step_01_raw_qc" class="section level1">
+<h1>Step_01_Raw_QC</h1>
+<div id="fastqc-report-for-read-1" class="section level4 unlisted">
+<h4 class="unlisted">FastQC Report for Read 1</h4>
+<iframe src="../Step_01_Raw_QC/chr21_2000_reads_R1_001_fastqc.html">
+</iframe>
+</div>
+<div id="fastqc-report-for-read-2" class="section level4 unlisted">
+<h4 class="unlisted">FastQC Report for Read 2</h4>
+<iframe src="../Step_01_Raw_QC/chr21_2000_reads_R2_001_fastqc.html">
+</iframe>
+</div>
+</div>
+<div id="step_02_umi_analysis" class="section level1">
+<h1>Step_02_UMI_Analysis</h1>
+<div id="umi-motif-logo" class="section level4 unlisted">
+<h4 class="unlisted">UMI Motif Logo</h4>
+<p><img src="../Step_02_UMI_Analysis/Example_Data_14BP_motif_logo.png" alt="Example_Data_14BP_motif_logo.png"></p>
+</div>
+<div id="acc-motif-fraction" class="section level4 unlisted">
+<h4 class="unlisted">ACC Motif Fraction</h4>
+</div>
+<div id="umi-base-distribution" class="section level4 unlisted">
+<h4 class="unlisted">UMI Base Distribution</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-afbc75be3ffab6f997aa" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-afbc75be3ffab6f997aa">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 14 rows of Example_Data_base_distribution.csv<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14"],["0.2495","0.249","0.2545","0.2295","0.2425","0.2175","0.2325","0.224","0.977","0.0135","0.003","0.003","0.0015","0.007"],["0.2005","0.2045","0.227","0.209","0.231","0.2305","0.209","0.2085","0.017","0.977","0.974","0.325","0.182","0.25"],["0.2125","0.212","0.1945","0.2245","0.193","0.2255","0.1995","0.2065","0.0055","0.009","0.02","0.6715","0.8145","0.7345"],["0.3375","0.3335","0.324","0.337","0.3335","0.3265","0.359","0.361","0.0005","0.0005","0.003","0.0005","0.002","0.0085"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Position<\/th>\n      <th>A<\/th>\n      <th>C<\/th>\n      <th>G<\/th>\n      <th>T<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"Position","targets":0},{"name":"A","targets":1},{"name":"C","targets":2},{"name":"G","targets":3},{"name":"T","targets":4}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_03_umi_adaptor_trim" class="section level1">
+<h1>Step_03_UMI_Adaptor_Trim</h1>
+<div id="read-length-distribution-after-trimming"
+class="section level4 unlisted">
+<h4 class="unlisted">Read Length Distribution After Trimming</h4>
+<p><img src="../Step_03_UMI_Adaptor_Trim/Example_Data_read_length_distribution.png" alt="Example_Data_read_length_distribution.png"></p>
+</div>
+<div id="readthrough-umi-trimming-log" class="section level4 unlisted">
+<h4 class="unlisted">Readthrough UMI Trimming Log</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-55365c2115fc748660b9" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-55365c2115fc748660b9">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 20 rows of Example_Data_R1_readthrough_UMI_trimming.log<\/caption>","data":[["LH00547:85:22VTFJLT3:7:1101:46445:1048_CCGTTGTT 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:15905:1064_CTAAAAGT 1:N:0:TAAGTGGT+GNCTTAAG","LH00547:85:22VTFJLT3:7:1101:30699:1064_CCACTATC 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:49949:1064_TGAATTGA 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:6409:1080_TATCGATC 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:13011:1080_ATGGGTGG 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:10135:1096_ATAGATGA 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:7093:1112_GTGGATAA 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:43246:1112_ACTAGCAA 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:26334:1192_ACGGAGAA 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:27388:1192_TATTTTGC 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:19742:1208_TTCCGATA 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:43615:1240_TTTGGATC 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:39649:1288_GTTCACAA 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:7417:1320_CAAGATTA 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:4181:1352_CATCGCGG 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:22211:1352_GGAGACTT 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:48433:1352_TTCACACT 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:44928:1369_CGAAATGG 1:N:0:TAAGTGGT+GGCTTAAG","LH00547:85:22VTFJLT3:7:1101:30976:1417_ATGTCGGG 1:N:0:TAAGTGGT+GGCTTAAG"],["GGGGGTAACAACGG","CCCGGTACTTTTAG","CGGGGTGATAGTGG","CCCGGTTCAATTCA","CCCGGTGATCGATA","GCGGGTCCACCCAT","CCCGGTTCATCTAT","CGGGGTTTATCCAC","GCCGGTTTGCTAGT","CCCCGGTTCTCCGT","CCGGGTGCAAAATA","CCGGGTTATCGGAA","CCCGGTGATCCAAA","GCCGGTTTGTGAAC","CCCGGTTAATCTTG","CCCGGTCCGCGATG","GCGGGTAAGTCTCC","CCCGGTAGTGTGAA","GCCGGTCCATTTCG","CCCGGTCCCGACAT"],["GGGGGTAACAACGG","CCCGGTACTTTTAG","CGGGGTGATAGTGG","CCCGGTTCAATTCA","CCCGGTGATCGATA","GCG","CCC","CGGGGTTTATCCAC","GCCGGTTTGCTAGT","CCCCGGTTCTCCGT","CCGGGTGCAAAATA","CCGGGTTATCGGAA","CCCGGTGATCCAAA","GCCGGTTTGTGAAC","CCCGGTTAATCTTG","CCCGGTCCGCGATG","GCGGGTAAGTCTCC","CCCGGTAGTGTGAA","GCCGGTCCATTTCG","CCCGGTCCCGACAT"],["14","14","14","14","14","3","3","14","14","14","14","14","14","14","14","14","14","14","14","14"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Read_name<\/th>\n      <th>Computed_adapter<\/th>\n      <th>Trimmed_adapter<\/th>\n      <th>Adapter_trim_length<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"Read_name","targets":0},{"name":"Computed_adapter","targets":1},{"name":"Trimmed_adapter","targets":2},{"name":"Adapter_trim_length","targets":3}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_04_trimmed_qc" class="section level1">
+<h1>Step_04_Trimmed_QC</h1>
+<div id="trimmed-fastqc-report-for-read-1"
+class="section level4 unlisted">
+<h4 class="unlisted">Trimmed FastQC Report for Read 1</h4>
+<iframe src="../Step_04_Trimmed_QC/Example_Data_R1_clean_fastqc.html">
+</iframe>
+</div>
+<div id="trimmed-fastqc-report-for-read-2"
+class="section level4 unlisted">
+<h4 class="unlisted">Trimmed FastQC Report for Read 2</h4>
+<iframe src="../Step_04_Trimmed_QC/Example_Data_R2_clean_fastqc.html">
+</iframe>
+</div>
+</div>
+<div id="step_06_alignment_initial" class="section level1">
+<h1>Step_06_Alignment_Initial</h1>
+<div id="star-initial-alignment-summary"
+class="section level4 unlisted">
+<h4 class="unlisted">STAR Initial Alignment Summary</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-c605adb5b4fd2f0ed31c" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-c605adb5b4fd2f0ed31c">{"x":{"filter":"none","vertical":false,"data":[["Started job on","Started mapping on","Finished on","Mapping speed, Million of reads per hour","Number of input reads","Average input read length","Uniquely mapped reads number","Uniquely mapped reads %","Average mapped length","Number of splices: Total","Number of splices: Annotated (sjdb)","Number of splices: GT/AG","Number of splices: GC/AG","Number of splices: AT/AC","Number of splices: Non-canonical","Mismatch rate per base, %","Deletion rate per base","Deletion average length","Insertion rate per base","Insertion average length","Number of reads mapped to multiple loci","% of reads mapped to multiple loci","Number of reads mapped to too many loci","% of reads mapped to too many loci","Number of reads unmapped: too many mismatches","% of reads unmapped: too many mismatches","Number of reads unmapped: too short","% of reads unmapped: too short","Number of reads unmapped: other","% of reads unmapped: other","Number of chimeric reads","% of chimeric reads"],["Jun 23 02:20:02","Jun 23 02:22:52","Jun 23 02:22:55","2.40","2000","162","63","3.15%","107.52","14","11","10","0","0","4","2.07%","0.07%","2.50","0.00%","0.00","1884","94.20%","0","0.00%","0","0.00%","30","1.50%","22","1.10%","7","0.35%"]],"container":"<table class=\"compact\">\n  <thead>\n    <tr>\n      <th>Metric<\/th>\n      <th>Value<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","paging":false,"columnDefs":[{"name":"Metric","targets":0},{"name":"Value","targets":1}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_06_alignment_refined" class="section level1">
+<h1>Step_06_Alignment_Refined</h1>
+<div id="star-refined-alignment-summary"
+class="section level4 unlisted">
+<h4 class="unlisted">STAR Refined Alignment Summary</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-7d2377e013c90cda20f3" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-7d2377e013c90cda20f3">{"x":{"filter":"none","vertical":false,"data":[["Started job on","Started mapping on","Finished on","Mapping speed, Million of reads per hour","Number of input reads","Average input read length","Uniquely mapped reads number","Uniquely mapped reads %","Average mapped length","Number of splices: Total","Number of splices: Annotated (sjdb)","Number of splices: GT/AG","Number of splices: GC/AG","Number of splices: AT/AC","Number of splices: Non-canonical","Mismatch rate per base, %","Deletion rate per base","Deletion average length","Insertion rate per base","Insertion average length","Number of reads mapped to multiple loci","% of reads mapped to multiple loci","Number of reads mapped to too many loci","% of reads mapped to too many loci","Number of reads unmapped: too many mismatches","% of reads unmapped: too many mismatches","Number of reads unmapped: too short","% of reads unmapped: too short","Number of reads unmapped: other","% of reads unmapped: other","Number of chimeric reads","% of chimeric reads"],["Jun 23 02:22:58","Jun 23 02:24:28","Jun 23 02:24:33","1.40","1945","161","63","3.24%","107.52","14","11","10","0","0","4","2.07%","0.07%","2.50","0.00%","0.00","1875","96.40%","0","0.00%","0","0.00%","6","0.31%","0","0.00%","7","0.36%"]],"container":"<table class=\"compact\">\n  <thead>\n    <tr>\n      <th>Metric<\/th>\n      <th>Value<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"t","paging":false,"columnDefs":[{"name":"Metric","targets":0},{"name":"Value","targets":1}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_07_strand_detection" class="section level1">
+<h1>Step_07_Strand_Detection</h1>
+<div id="library-strandedness" class="section level4 unlisted">
+<h4 class="unlisted">Library Strandedness</h4>
+<p><img src="../Step_07_Strand_Detection/Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out_bam2strandness_pie.png" alt="Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out_bam2strandness_pie.png"></p>
+</div>
+<div id="strandedness-details" class="section level4 unlisted">
+<h4 class="unlisted">Strandedness Details</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-3d9a4cc9e2a563147b48" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-3d9a4cc9e2a563147b48">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 1 rows of Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out_bam2strandness.tsv<\/caption>","data":[["Example_Data_EVscope_output/Step_06_Alignment_Refined/Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"],["This is PairEnd Data"],["0.3409"],["0.5568"],["0.1023"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>BAM<\/th>\n      <th>data type<\/th>\n      <th>'1++,1--,2+-,2-+ (forward)'<\/th>\n      <th>'1+-,1-+,2++,2-- (reverse)'<\/th>\n      <th>%reads failed to determine:<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"BAM","targets":0},{"name":"data type","targets":1},{"name":"'1++,1--,2+-,2-+ (forward)'","targets":2},{"name":"'1+-,1-+,2++,2-- (reverse)'","targets":3},{"name":"%reads failed to determine:","targets":4}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_08_circexplorer2_circrna" class="section level1">
+<h1>Step_08_CIRCexplorer2_circRNA</h1>
+<div id="circexplorer2-expression-cpm" class="section level4 unlisted">
+<h4 class="unlisted">CIRCexplorer2 Expression (CPM)</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-bf4b7071ea375b647ef3" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bf4b7071ea375b647ef3">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 20 rows of Example_Data_CIRCexplorer2_dedup_junction_readcounts_CPM.tsv<\/caption>","data":[["chr17:1083519|1100735|ENSG00000159842.16","chr17:5354358|5365238|ENSG00000029725.17","chr17:7601408|7604080|ENSG00000129245.13","chr17:7936700|7937262|ENSG00000170037.14","chr17:8499269|8509949|ENSG00000133026.14","chr17:8506317|8509949|ENSG00000133026.14","chr17:8508553|8509949|ENSG00000133026.14","chr17:8569719|8577338|ENSG00000133026.14","chr17:11651068|11669794|ENSG00000007174.18","chr17:15540432|15547148|ENSG00000259024.7","chr17:17879626|17884768|ENSG00000175662.18","chr17:18789357|18798943|ENSG00000171928.14","chr17:18865468|18877870|ENSG00000141127.15","chr17:19309884|19329647|ENSG00000072134.16","chr17:19958013|19958571|ENSG00000108599.15","chr17:20204332|20205912|ENSG00000128487.19","chr17:27765534|27766588|ENSG00000007171.19","chr17:29285991|29287716|ENSG00000108256.9","chr17:29451454|29451680|ENSG00000160551.12","chr17:29482196|29491865|ENSG00000160551.12"],["chr17:1083519|1100735|ABR","chr17:5354358|5365238|RABEP1","chr17:7601408|7604080|FXR2","chr17:7936700|7937262|CNTROB","chr17:8499269|8509949|MYH10","chr17:8506317|8509949|MYH10","chr17:8508553|8509949|MYH10","chr17:8569719|8577338|MYH10","chr17:11651068|11669794|DNAH9","chr17:15540432|15547148|TVP23C-CDRT4","chr17:17879626|17884768|TOM1L2","chr17:18789357|18798943|TVP23B","chr17:18865468|18877870|PRPSAP2","chr17:19309884|19329647|EPN2","chr17:19958013|19958571|AKAP10","chr17:20204332|20205912|SPECC1","chr17:27765534|27766588|NOS2","chr17:29285991|29287716|NUFIP2","chr17:29451454|29451680|TAOK1","chr17:29482196|29491865|TAOK1"],["1","2","3","1","4","8","12","3","1","1","1","1","2","2","5","5","2","2","2","1"],["0.19","0.38","0.58","0.19","0.77","1.54","2.30","0.58","0.19","0.19","0.19","0.19","0.38","0.38","0.96","0.96","0.38","0.38","0.38","0.19"],["circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA","circRNA"],["-","+","-","+","-","-","-","-","+","-","-","+","+","+","-","+","-","-","+","+"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>circRNA_ID1<\/th>\n      <th>circRNA_ID2<\/th>\n      <th>junction_read_counts<\/th>\n      <th>CPM<\/th>\n      <th>circRNA_type<\/th>\n      <th>Strandness<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"circRNA_ID1","targets":0},{"name":"circRNA_ID2","targets":1},{"name":"junction_read_counts","targets":2},{"name":"CPM","targets":3},{"name":"circRNA_type","targets":4},{"name":"Strandness","targets":5}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_09_ciri2_circrna" class="section level1">
+<h1>Step_09_CIRI2_circRNA</h1>
+<div id="ciri2-expression-cpm" class="section level4 unlisted">
+<h4 class="unlisted">CIRI2 Expression (CPM)</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-827877bc37a1674b2cd0" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-827877bc37a1674b2cd0">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 20 rows of Example_Data_CIRI2_dedup_junction_readcounts_CPM.tsv<\/caption>","data":[["chr1:1223243|1223968|ENSG00000078808.20","chr1:1544862|1564916|ENSG00000160075.12","chr1:6231901|6233643|ENSG00000116237.16","chr1:7777159|7778169|ENSG00000049245.13","chr1:8495062|8541318|ENSG00000142599.20","chr1:8495062|8557523|ENSG00000142599.20","chr1:8495062|8614686|ENSG00000142599.20","chr1:8508626|8557523|ENSG00000142599.20","chr1:8541213|8557523|ENSG00000142599.20","chr1:8541213|8614686|ENSG00000142599.20","chr1:8541213|8624380|ENSG00000142599.20","chr1:11970669|11972997|ENSG00000083444.17","chr1:17580552|17588479|ENSG00000074964.17","chr1:21272698|21290156|ENSG00000117298.16","chr1:23030468|23044486|ENSG00000004487.18","chr1:23030468|23050520|ENSG00000004487.18","chr1:23030468|23059167|ENSG00000004487.18","chr1:23071224|23072197|ENSG00000004487.18","chr1:26257596|26259802|ENSG00000130695.16","chr1:26328208|26328873|ENSG00000176092.17"],["chr1:1223243|1223968|SDF4","chr1:1544862|1564916|SSU72","chr1:6231901|6233643|ICMT","chr1:7777159|7778169|VAMP3","chr1:8495062|8541318|RERE","chr1:8495062|8557523|RERE","chr1:8495062|8614686|RERE","chr1:8508626|8557523|RERE","chr1:8541213|8557523|RERE","chr1:8541213|8614686|RERE","chr1:8541213|8624380|RERE","chr1:11970669|11972997|PLOD1","chr1:17580552|17588479|ARHGEF10L","chr1:21272698|21290156|ECE1","chr1:23030468|23044486|KDM1A","chr1:23030468|23050520|KDM1A","chr1:23030468|23059167|KDM1A","chr1:23071224|23072197|KDM1A","chr1:26257596|26259802|CEP85","chr1:26328208|26328873|CRYBG2"],["3","3","7","11","7","8","3","26","34","9","6","3","3","12","13","9","5","5","12","5"],["0.82","0.82","1.90","2.99","1.90","2.18","0.82","7.07","9.25","2.45","1.63","0.82","0.82","3.26","3.54","2.45","1.36","1.36","3.26","1.36"],["exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon","exon"],["-","-","-","+","-","-","-","-","-","-","-","+","+","-","+","+","+","+","+","-"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>circRNA_ID1<\/th>\n      <th>circRNA_ID2<\/th>\n      <th>junction_read_counts<\/th>\n      <th>CPM<\/th>\n      <th>circRNA_type<\/th>\n      <th>Strandness<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"circRNA_ID1","targets":0},{"name":"circRNA_ID2","targets":1},{"name":"junction_read_counts","targets":2},{"name":"CPM","targets":3},{"name":"circRNA_type","targets":4},{"name":"Strandness","targets":5}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_10_circrna_merge" class="section level1">
+<h1>Step_10_circRNA_Merge</h1>
+<div id="overlap-of-circrna-detection-tools"
+class="section level4 unlisted">
+<h4 class="unlisted">Overlap of circRNA Detection Tools</h4>
+<p><img src="../Step_10_circRNA_Merge/Example_Data_Venn_diagram_of_circRNAs_identified_between_CIRCexplorer2_CIRI2.png" alt="Example_Data_Venn_diagram_of_circRNAs_identified_between_CIRCexplorer2_CIRI2.png"></p>
+</div>
+<div id="combined-circrna-matrix" class="section level4 unlisted">
+<h4 class="unlisted">Combined circRNA Matrix</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-a2995d357f1cd9f77526" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-a2995d357f1cd9f77526">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 20 rows of Example_Data_combined_CIRCexplorer2_CIRI2.tsv<\/caption>","data":[["chr17:1083519|1100735|ENSG00000159842.16","chr17:5354358|5365238|ENSG00000029725.17","chr17:7601408|7604080|ENSG00000129245.13","chr17:7936700|7937262|ENSG00000170037.14","chr17:8499269|8509949|ENSG00000133026.14","chr17:8506317|8509949|ENSG00000133026.14","chr17:8508553|8509949|ENSG00000133026.14","chr17:8569719|8577338|ENSG00000133026.14","chr17:11651068|11669794|ENSG00000007174.18","chr17:15540432|15547148|ENSG00000259024.7","chr17:17879626|17884768|ENSG00000175662.18","chr17:18789357|18798943|ENSG00000171928.14","chr17:18865468|18877870|ENSG00000141127.15","chr17:19309884|19329647|ENSG00000072134.16","chr17:19958013|19958571|ENSG00000108599.15","chr17:20204332|20205912|ENSG00000128487.19","chr17:27765534|27766588|ENSG00000007171.19","chr17:29285991|29287716|ENSG00000108256.9","chr17:29451454|29451680|ENSG00000160551.12","chr17:29482196|29491865|ENSG00000160551.12"],["chr17:1083519|1100735|ABR","chr17:5354358|5365238|RABEP1","chr17:7601408|7604080|FXR2","chr17:7936700|7937262|CNTROB","chr17:8499269|8509949|MYH10","chr17:8506317|8509949|MYH10","chr17:8508553|8509949|MYH10","chr17:8569719|8577338|MYH10","chr17:11651068|11669794|DNAH9","chr17:15540432|15547148|TVP23C-CDRT4","chr17:17879626|17884768|TOM1L2","chr17:18789357|18798943|TVP23B","chr17:18865468|18877870|PRPSAP2","chr17:19309884|19329647|EPN2","chr17:19958013|19958571|AKAP10","chr17:20204332|20205912|SPECC1","chr17:27765534|27766588|NOS2","chr17:29285991|29287716|NUFIP2","chr17:29451454|29451680|TAOK1","chr17:29482196|29491865|TAOK1"],["circRNA2|ABR","circRNA1|RABEP1","circRNA1|FXR2","circRNA1|CNTROB","circRNA1|MYH10","circRNA2|MYH10","circRNA3|MYH10","circRNA4|MYH10","circRNA1|DNAH9","circRNA1|TVP23C-CDRT4","circRNA1|TOM1L2","circRNA1|TVP23B","circRNA1|PRPSAP2","circRNA1|EPN2","circRNA2|AKAP10","circRNA1|SPECC1","circRNA1|NOS2","circRNA1|NUFIP2","circRNA1|TAOK1","circRNA2|TAOK1"],["CIRCexplorer2","CIRCexplorer2","CIRCexplorer2","CIRI2 (overlapped)","CIRCexplorer2","CIRI2 (overlapped)","CIRI2 (overlapped)","CIRI2 (overlapped)","CIRCexplorer2","CIRCexplorer2","CIRCexplorer2","CIRI2 (overlapped)","CIRCexplorer2","CIRCexplorer2","CIRI2 (overlapped)","CIRI2 (overlapped)","CIRCexplorer2","CIRCexplorer2","CIRI2 (overlapped)","CIRCexplorer2"],["1","2","3","3","4","11","18","5","1","1","1","4","2","2","6","6","2","2","3","1"],["0.19","0.38","0.58","0.82","0.77","2.99","4.9","1.36","0.19","0.19","0.19","1.09","0.38","0.38","1.63","1.63","0.38","0.38","0.82","0.19"],["circRNA","circRNA","circRNA","exon","circRNA","exon","exon","exon","circRNA","circRNA","circRNA","exon","circRNA","circRNA","exon","exon","circRNA","circRNA","exon","circRNA"],["-","+","-","+","-","-","-","-","+","-","-","+","+","+","-","+","-","-","+","+"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>circRNA_ID1<\/th>\n      <th>circRNA_ID2<\/th>\n      <th>circRNA_ID3<\/th>\n      <th>Source<\/th>\n      <th>junction_read_counts<\/th>\n      <th>CPM<\/th>\n      <th>circRNA_type<\/th>\n      <th>Strandness<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"circRNA_ID1","targets":0},{"name":"circRNA_ID2","targets":1},{"name":"circRNA_ID3","targets":2},{"name":"Source","targets":3},{"name":"junction_read_counts","targets":4},{"name":"CPM","targets":5},{"name":"circRNA_type","targets":6},{"name":"Strandness","targets":7}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_11_rna_metrics" class="section level1">
+<h1>Step_11_RNA_Metrics</h1>
+<div id="picard-aligned-base-distribution"
+class="section level4 unlisted">
+<h4 class="unlisted">Picard Aligned Base Distribution</h4>
+</div>
+<div id="insert-size-distribution" class="section level4 unlisted">
+<h4 class="unlisted">Insert Size Distribution</h4>
+<p><img src="../Step_11_RNA_Metrics/Example_Data_insert_size_histogram.png" alt="Example_Data_insert_size_histogram.png"></p>
+</div>
+</div>
+<div id="step_15_featurecounts_expression" class="section level1">
+<h1>Step_15_featureCounts_Expression</h1>
+<div id="combined-linear-and-circular-rna-expression"
+class="section level4 unlisted">
+<h4 class="unlisted">Combined Linear and Circular RNA Expression</h4>
+<p><strong>Expression Analysis Plots</strong></p>
+<p><em>Example_Data_bar_plot_for_top_100_highly_expressed_genes.png</em>
+<img src="../Step_15_featureCounts_Expression/Example_Data_bar_plot_for_top_100_highly_expressed_genes.png" alt="Example_Data_bar_plot_for_top_100_highly_expressed_genes.png"></p>
+<p><em>Example_Data_RNA_type_composition_1subplot.png</em>
+<img src="../Step_15_featureCounts_Expression/Example_Data_RNA_type_composition_1subplot.png" alt="Example_Data_RNA_type_composition_1subplot.png"></p>
+<p><em>Example_Data_RNA_type_composition_20subplots.png</em>
+<img src="../Step_15_featureCounts_Expression/Example_Data_RNA_type_composition_20subplots.png" alt="Example_Data_RNA_type_composition_20subplots.png"></p>
+<p><em>Example_Data_RNA_type_composition_2subplots.pdf.png</em>
+<img src="../Step_15_featureCounts_Expression/Example_Data_RNA_type_composition_2subplots.pdf.png" alt="Example_Data_RNA_type_composition_2subplots.pdf.png"></p>
+</div>
+</div>
+<div id="step_16_gdna_corrected_expression" class="section level1">
+<h1>Step_16_gDNA_Corrected_Expression</h1>
+<div id="combined-linear-and-circular-rna-expression-gdna-corrected"
+class="section level4 unlisted">
+<h4 class="unlisted">Combined Linear and Circular RNA Expression (gDNA
+Corrected)</h4>
+<p><strong>gDNA-Corrected Expression Plots</strong></p>
+<p><em>Example_Data_bar_plot_for_top_100_highly_expressed_genes.png</em>
+<img src="../Step_16_gDNA_Corrected_Expression/Example_Data_bar_plot_for_top_100_highly_expressed_genes.png" alt="Example_Data_bar_plot_for_top_100_highly_expressed_genes.png"></p>
+<p><em>Example_Data_RNA_type_composition_1subplot.png</em>
+<img src="../Step_16_gDNA_Corrected_Expression/Example_Data_RNA_type_composition_1subplot.png" alt="Example_Data_RNA_type_composition_1subplot.png"></p>
+<p><em>Example_Data_RNA_type_composition_20subplots.png</em>
+<img src="../Step_16_gDNA_Corrected_Expression/Example_Data_RNA_type_composition_20subplots.png" alt="Example_Data_RNA_type_composition_20subplots.png"></p>
+<p><em>Example_Data_RNA_type_composition_2subplots.pdf.png</em>
+<img src="../Step_16_gDNA_Corrected_Expression/Example_Data_RNA_type_composition_2subplots.pdf.png" alt="Example_Data_RNA_type_composition_2subplots.pdf.png"></p>
+</div>
+</div>
+<div id="step_17_rsem_expression" class="section level1">
+<h1>Step_17_RSEM_Expression</h1>
+<div id="combined-linear-and-circular-rna-expression-rsem"
+class="section level4 unlisted">
+<h4 class="unlisted">Combined Linear and Circular RNA Expression
+(RSEM)</h4>
+<p><strong>RSEM-based Expression Plots</strong></p>
+<p><em>Example_Data_bar_plot_for_top_100_highly_expressed_genes.png</em>
+<img src="../Step_17_RSEM_Expression/Example_Data_bar_plot_for_top_100_highly_expressed_genes.png" alt="Example_Data_bar_plot_for_top_100_highly_expressed_genes.png"></p>
+<p><em>Example_Data_RNA_type_composition_1subplot.png</em>
+<img src="../Step_17_RSEM_Expression/Example_Data_RNA_type_composition_1subplot.png" alt="Example_Data_RNA_type_composition_1subplot.png"></p>
+<p><em>Example_Data_RNA_type_composition_20subplots.png</em>
+<img src="../Step_17_RSEM_Expression/Example_Data_RNA_type_composition_20subplots.png" alt="Example_Data_RNA_type_composition_20subplots.png"></p>
+<p><em>Example_Data_RNA_type_composition_2subplots.pdf.png</em>
+<img src="../Step_17_RSEM_Expression/Example_Data_RNA_type_composition_2subplots.pdf.png" alt="Example_Data_RNA_type_composition_2subplots.pdf.png"></p>
+</div>
+</div>
+<div id="step_18_genomic_regions" class="section level1">
+<h1>Step_18_Genomic_Regions</h1>
+<div id="read-distribution-across-genomic-regions"
+class="section level4 unlisted">
+<h4 class="unlisted">Read Distribution Across Genomic Regions</h4>
+<p><img src="../Step_18_Genomic_Regions/Example_Data_reads_mapping_stats_pie.png" alt="Example_Data_reads_mapping_stats_pie.png"></p>
+</div>
+<div id="feature-count-summaries" class="section level4 unlisted">
+<h4 class="unlisted">Feature Count Summaries</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-8c92e1b10949fb486f55" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-8c92e1b10949fb486f55">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 14 rows of Example_Data_HG38_3UTR_noOverlap_featureCounts.tsv.summary<\/caption>","data":[["Assigned","Unassigned_Unmapped","Unassigned_Read_Type","Unassigned_Singleton","Unassigned_MappingQuality","Unassigned_Chimera","Unassigned_FragmentLength","Unassigned_Duplicate","Unassigned_MultiMapping","Unassigned_Secondary","Unassigned_NonSplit","Unassigned_NoFeatures","Unassigned_Overlapping_Length","Unassigned_Ambiguity"],["0","0","0","0","0","7","0","0","18032","0","0","68","0","0"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Status<\/th>\n      <th>Example_Data_EVscope_output/Step_06_Alignment_Refined/Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out.bam<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"Status","targets":0},{"name":"Example_Data_EVscope_output/Step_06_Alignment_Refined/Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out.bam","targets":1}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_19_taxonomy" class="section level1">
+<h1>Step_19_Taxonomy</h1>
+<div id="krona-interactive-taxonomy-report"
+class="section level4 unlisted">
+<h4 class="unlisted">Krona Interactive Taxonomy Report</h4>
+<iframe src="../Step_19_Taxonomy/Example_Data_krona.html">
+</iframe>
+</div>
+<div id="kraken2-report" class="section level4 unlisted">
+<h4 class="unlisted">Kraken2 Report</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-0ba973a55414b22c86aa" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-0ba973a55414b22c86aa">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 20 rows of Example_Data_report.tsv<\/caption>","data":[["83.85","83.80","50.90","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75","50.75"],["1677","1676","1018","1015","1015","1015","1015","1015","1015","1015","1015","1015","1015","1015","1015","1015","1015","1015","1015","1015"],["1","564","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"],["R","R1","D","D1","K","K1","K2","K3","P","P1","P2","P3","P4","P5","P6","P7","P8","P9","C","C1"],["1","131567","2759","33154","33208","6072","33213","33511","7711","89593","7742","7776","117570","117571","8287","1338369","32523","32524","40674","32525"],["root","cellular organisms","Eukaryota","Opisthokonta","Metazoa","Eumetazoa","Bilateria","Deuterostomia","Chordata","Craniata","Vertebrata","Gnathostomata","Teleostomi","Euteleostomi","Sarcopterygii","Dipnotetrapodomorpha","Tetrapoda","Amniota","Mammalia","Theria"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>16.15<\/th>\n      <th>323...2<\/th>\n      <th>323...3<\/th>\n      <th>U<\/th>\n      <th>0<\/th>\n      <th>unclassified<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"16.15","targets":0},{"name":"323...2","targets":1},{"name":"323...3","targets":2},{"name":"U","targets":3},{"name":"0","targets":4},{"name":"unclassified","targets":5}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_20_featurecounts_deconvolution" class="section level1">
+<h1>Step_20_featureCounts_Deconvolution</h1>
+<p><strong>Deconvolution Plots</strong></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.46%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_20_featureCounts_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.46pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.46%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.46pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_20_featureCounts_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.46pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.46pct_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.46%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_20_featureCounts_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.46pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.46%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.46pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_20_featureCounts_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.46pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.46pct_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.78%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_20_featureCounts_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.78pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.78%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.78pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_20_featureCounts_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.78pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.78pct_overlaped_ensembl_IDs.png"></p>
+</div>
+<div id="step_21_gdna_corrected_deconvolution" class="section level1">
+<h1>Step_21_gDNA_Corrected_Deconvolution</h1>
+<p><strong>Deconvolution Plots</strong></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.09%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_21_gDNA_Corrected_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.09pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.09%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.09pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_21_gDNA_Corrected_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.09pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_1.09pct_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.09%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_21_gDNA_Corrected_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.09pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.09%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.09pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_21_gDNA_Corrected_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.09pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_1.09pct_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.02%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_21_gDNA_Corrected_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.02pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.02%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.02pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_21_gDNA_Corrected_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.02pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_featureCounts_gDNA_correction_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_2.02pct_overlaped_ensembl_IDs.png"></p>
+</div>
+<div id="step_22_rsem_deconvolution" class="section level1">
+<h1>Step_22_RSEM_Deconvolution</h1>
+<p><strong>Deconvolution Plots</strong></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_0.83%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_22_RSEM_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_0.83pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_0.83%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_0.83pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_22_RSEM_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_0.83pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTS_AVG_TPM_deconvolution_fraction_0.83pct_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_0.83%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_22_RSEM_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_0.83pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_0.83%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_0.83pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_22_RSEM_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_0.83pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_RSEM_GTEx_v10_SMTSD_AVG_TPM_deconvolution_fraction_0.83pct_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_RSEM_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_1.62%_overlaped_ensembl_IDs.png</em>
+<img src="../Step_22_RSEM_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_RSEM_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_1.62pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_RSEM_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_1.62%_overlaped_ensembl_IDs.png"></p>
+<p><em>Example_Data_Ensembl_ID_TPM_matrix_RSEM_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_1.62pct_overlaped_ensembl_IDs.png</em>
+<img src="../Step_22_RSEM_Deconvolution/Example_Data_Ensembl_ID_TPM_matrix_RSEM_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_1.62pct_overlaped_ensembl_IDs.png" alt="Example_Data_Ensembl_ID_TPM_matrix_RSEM_human_brain_single_cell_atlasV1_31superclusters_AVP_CPM_deconvolution_fraction_1.62pct_overlaped_ensembl_IDs.png"></p>
+</div>
+<div id="step_24_qc_summary" class="section level1">
+<h1>Step_24_QC_Summary</h1>
+<div id="qc-metrics-summary" class="section level4 unlisted">
+<h4 class="unlisted">QC Metrics Summary</h4>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-a862468be86f46aff4c4" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-a862468be86f46aff4c4">{"x":{"filter":"none","vertical":false,"extensions":["Buttons"],"caption":"<caption style=\"caption-side: bottom; text-align: left;\">Showing top 20 rows of Example_Data_QC_matrix.tsv<\/caption>","data":[["Raw Read Counts Number","%GC of Raw Reads","Raw Read Length","ACC motif fraction from UMI region","Average Trimmed Read Length","Number of Trimmed Reads","Percentage of Reads after Trimming","Percentage of Clean Reads Mapped to Human (Kraken)","Percentage of Clean Reads Mapped to Non-human (Kraken)","Percentage of Clean Reads Mapped to Bacteria (Kraken)","Number of Clean Reads Mapped to Escherichia coli","Percentage of Clean Reads Mapped to Escherichia coli","Number of Clean Reads Mapped to Mycoplasma","Percentage of Clean Reads Mapped to Mycoplasma","Percentage of Trimmed Reads Mapped to rRNAs (RiboDetector)","Number of UMI-deduped Input Reads (STAR)","Percentage of UMI-deduped Reads (STAR)","Average Mapped UMI-deduped Fragment Length (STAR)","Percentage of UMI-deduped Reads on the Forward Strand","Percentage of UMI-deduped Reads on the Reverse Strand"],["4000","64.0","151","0.9525","81","4000","100.0",null,null,null,"92","2.3","200","5.0",null,"1945.0","48.62","161.0",null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>Metric<\/th>\n      <th>Value<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"scrollX":true,"dom":"Bfrtip","buttons":["copy","csv","excel"],"columnDefs":[{"name":"Metric","targets":0},{"name":"Value","targets":1}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div id="step_25_emapper_bigwig_quantification" class="section level1">
+<h1>Step_25_EMapper_BigWig_Quantification</h1>
+<div id="generated-bigwig-files" class="section level4 unlisted">
+<h4 class="unlisted">Generated BigWig Files</h4>
+<p>Generated files are available in
+<code>Step_25_EMapper_BigWig_Quantification/EMapper_output/</code>.</p>
+</div>
+</div>
+<div id="step_26_bigwig_density_plot" class="section level1">
+<h1>Step_26_BigWig_Density_Plot</h1>
+<div id="coverage-density-over-rna-types"
+class="section level4 unlisted">
+<h4 class="unlisted">Coverage Density over RNA Types</h4>
+<p><img src="../Step_26_BigWig_Density_Plot/RNA_types/Example_Data_final_unstranded_bed_stacked_profile_RNA_types.png" alt="Example_Data_final_unstranded_bed_stacked_profile_RNA_types.png"></p>
+</div>
+<div id="coverage-density-over-meta-gene-regions"
+class="section level4 unlisted">
+<h4 class="unlisted">Coverage Density over Meta-Gene Regions</h4>
+<p><img src="../Step_26_BigWig_Density_Plot/meta_gene/Example_Data_final_unstranded_bed_stacked_profile_meta_gene.png" alt="Example_Data_final_unstranded_bed_stacked_profile_meta_gene.png"></p>
+<hr />
+</div>
+</div>
+<div id="appendix-session-information" class="section level1">
+<h1>Appendix: Session Information</h1>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>## R version 4.3.1 (2023-06-16)
+## Platform: x86_64-conda-linux-gnu (64-bit)
+## Running under: Ubuntu 22.04.4 LTS
+## 
+## Matrix products: default
+## BLAS/LAPACK: /mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/lib/libopenblasp-r0.3.27.so;  LAPACK version 3.12.0
+## 
+## locale:
+##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C               LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8     LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8    LC_PAPER=en_US.UTF-8       LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C            
+## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## 
+## time zone: America/New_York
+## tzcode source: system (glibc)
+## 
+## attached base packages:
+## [1] tools     stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] tidyr_1.3.1   plotly_4.11.0 ggplot2_3.5.1 stringr_1.5.1 DT_0.33       dplyr_1.1.4   readr_2.1.5   knitr_1.50   
+## 
+## loaded via a namespace (and not attached):
+##  [1] sass_0.4.9         generics_0.1.3     stringi_1.8.4      hms_1.1.3          digest_0.6.37      magrittr_2.0.3     RColorBrewer_1.1-3 evaluate_1.0.3     grid_4.3.1         fastmap_1.2.0      jsonlite_2.0.0     httr_1.4.7         purrr_1.0.4        crosstalk_1.2.1    viridisLite_0.4.2 
+## [16] scales_1.3.0       lazyeval_0.2.2     jquerylib_0.1.4    cli_3.6.5          rlang_1.1.6        crayon_1.5.3       bit64_4.6.0-1      munsell_0.5.1      withr_3.0.2        cachem_1.1.0       yaml_2.3.10        parallel_4.3.1     tzdb_0.5.0         colorspace_2.1-1   vctrs_0.6.5       
+## [31] R6_2.6.1           lifecycle_1.0.4    htmlwidgets_1.6.4  bit_4.6.0          vroom_1.6.5        pkgconfig_2.0.3    pillar_1.10.1      bslib_0.9.0        gtable_0.3.6       glue_1.8.0         data.table_1.17.0  xfun_0.52          tibble_3.2.1       tidyselect_1.2.1   htmltools_0.5.8.1 
+## [46] rmarkdown_2.29     labeling_0.4.3     compiler_4.3.1</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,424 @@
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_HG38_3UTR_noOverlap_featureCoun ... ||
+||                 Summary : Example_Data_HG38_3UTR_noOverlap_featureCoun ... ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_3UTR_noOverlap.saf (SAF)                    ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_18_Genomic_ ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_3UTR_noOverlap.saf ...                           ||
+||    Features : 82490                                                        ||
+||    Meta-features : 82490                                                   ||
+||    Chromosomes/contigs : 24                                                ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 0 (0.0%)                             ||
+||    Running time : 0.00 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_18_Genomic_Regions/Example_Data_HG38_3UTR_noOverlap_featureCoun  ||
+|| ts.tsv.summary"                                                            ||
+||                                                                            ||
+\\============================================================================//
+
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_HG38_5UTR_noOverlap_featureCoun ... ||
+||                 Summary : Example_Data_HG38_5UTR_noOverlap_featureCoun ... ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_5UTR_noOverlap.saf (SAF)                    ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_18_Genomic_ ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_5UTR_noOverlap.saf ...                           ||
+||    Features : 58612                                                        ||
+||    Meta-features : 58612                                                   ||
+||    Chromosomes/contigs : 24                                                ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 1 (0.0%)                             ||
+||    Running time : 0.00 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_18_Genomic_Regions/Example_Data_HG38_5UTR_noOverlap_featureCoun  ||
+|| ts.tsv.summary"                                                            ||
+||                                                                            ||
+\\============================================================================//
+
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_HG38_downstream_2kb_noOverlap_f ... ||
+||                 Summary : Example_Data_HG38_downstream_2kb_noOverlap_f ... ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_downstream_2kb_noOverlap.saf (SAF)          ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_18_Genomic_ ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_downstream_2kb_noOverlap.saf ...                 ||
+||    Features : 105032                                                       ||
+||    Meta-features : 105032                                                  ||
+||    Chromosomes/contigs : 25                                                ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 12 (0.1%)                            ||
+||    Running time : 0.00 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_18_Genomic_Regions/Example_Data_HG38_downstream_2kb_noOverlap_f  ||
+|| eatureCounts.tsv.summary"                                                  ||
+||                                                                            ||
+\\============================================================================//
+
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_HG38_ENCODE_blacklist_V2_featur ... ||
+||                 Summary : Example_Data_HG38_ENCODE_blacklist_V2_featur ... ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_ENCODE_blacklist_V2.saf (SAF)               ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_18_Genomic_ ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_ENCODE_blacklist_V2.saf ...                      ||
+||    Features : 636                                                          ||
+||    Meta-features : 636                                                     ||
+||    Chromosomes/contigs : 24                                                ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 15 (0.1%)                            ||
+||    Running time : 0.00 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_18_Genomic_Regions/Example_Data_HG38_ENCODE_blacklist_V2_featur  ||
+|| eCounts.tsv.summary"                                                       ||
+||                                                                            ||
+\\============================================================================//
+
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_HG38_exon_noOverlap_featureCoun ... ||
+||                 Summary : Example_Data_HG38_exon_noOverlap_featureCoun ... ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_exon_noOverlap.saf (SAF)                    ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_18_Genomic_ ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_exon_noOverlap.saf ...                           ||
+||    Features : 341025                                                       ||
+||    Meta-features : 341025                                                  ||
+||    Chromosomes/contigs : 25                                                ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 7 (0.0%)                             ||
+||    Running time : 0.00 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_18_Genomic_Regions/Example_Data_HG38_exon_noOverlap_featureCoun  ||
+|| ts.tsv.summary"                                                            ||
+||                                                                            ||
+\\============================================================================//
+
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_HG38_intergenic_noOverlap_featu ... ||
+||                 Summary : Example_Data_HG38_intergenic_noOverlap_featu ... ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_intergenic_noOverlap.saf (SAF)              ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_18_Genomic_ ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_intergenic_noOverlap.saf ...                     ||
+||    Features : 49835                                                        ||
+||    Meta-features : 49835                                                   ||
+||    Chromosomes/contigs : 25                                                ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 37 (0.2%)                            ||
+||    Running time : 0.00 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_18_Genomic_Regions/Example_Data_HG38_intergenic_noOverlap_featu  ||
+|| reCounts.tsv.summary"                                                      ||
+||                                                                            ||
+\\============================================================================//
+
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_HG38_intron_noOverlap_featureCo ... ||
+||                 Summary : Example_Data_HG38_intron_noOverlap_featureCo ... ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_intron_noOverlap.saf (SAF)                  ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_18_Genomic_ ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_intron_noOverlap.saf ...                         ||
+||    Features : 197201                                                       ||
+||    Meta-features : 197201                                                  ||
+||    Chromosomes/contigs : 24                                                ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 21 (0.1%)                            ||
+||    Running time : 0.00 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_18_Genomic_Regions/Example_Data_HG38_intron_noOverlap_featureCo  ||
+|| unts.tsv.summary"                                                          ||
+||                                                                            ||
+\\============================================================================//
+
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_HG38_promoter_1500_500bp_noOver ... ||
+||                 Summary : Example_Data_HG38_promoter_1500_500bp_noOver ... ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_promoter_1500_500bp_noOverlap.saf (SAF)     ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_18_Genomic_ ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_promoter_1500_500bp_noOverlap.saf ...            ||
+||    Features : 98419                                                        ||
+||    Meta-features : 98419                                                   ||
+||    Chromosomes/contigs : 25                                                ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : reversely stranded                                    ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 6 (0.0%)                             ||
+||    Running time : 0.00 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_18_Genomic_Regions/Example_Data_HG38_promoter_1500_500bp_noOver  ||
+|| lap_featureCounts.tsv.summary"                                             ||
+||                                                                            ||
+\\============================================================================//
+

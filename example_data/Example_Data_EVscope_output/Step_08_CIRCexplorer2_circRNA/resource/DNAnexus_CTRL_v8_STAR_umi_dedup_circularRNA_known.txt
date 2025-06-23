@@ -1,0 +1,1 @@
+chr	start	end	name	score	strand	thickStart	thickEnd	itemRgb	blockCount	blockSizes	blockStarts	circType	geneName	isoformName	index	flankIntron

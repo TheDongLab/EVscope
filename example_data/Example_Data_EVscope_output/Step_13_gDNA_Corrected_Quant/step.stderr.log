@@ -1,0 +1,53 @@
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	  v2.0.6
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                                                                            ||
+||                           Example_Data_STAR_umi_dedup_Aligned.sortedBy ... ||
+||                                                                            ||
+||             Output file : Example_Data_featureCounts_forward.tsv           ||
+||                 Summary : Example_Data_featureCounts_forward.tsv.summary   ||
+||              Paired-end : yes                                              ||
+||        Count read pairs : yes                                              ||
+||              Annotation : HG38_3659642_combined_RNAs_with_gold_standar ... ||
+||      Dir for temp files : Example_Data_EVscope_output/Step_13_gDNA_Cor ... ||
+||                                                                            ||
+||                 Threads : 20                                               ||
+||                   Level : meta-feature level                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||   Min overlapping bases : 1                                                ||
+||                                                                            ||
+\\============================================================================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file HG38_3659642_combined_RNAs_with_gold_standard_piR ... ||
+||    Features : 6349358                                                      ||
+||    Meta-features : 3659642                                                 ||
+||    Chromosomes/contigs : 591                                               ||
+||                                                                            ||
+|| Process BAM file Example_Data_STAR_umi_dedup_Aligned.sortedByCoord.out ... ||
+||    Strand specific : stranded                                              ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 18107                                                ||
+||    Successfully assigned alignments : 8 (0.0%)                             ||
+||    Running time : 0.01 minutes                                             ||
+||                                                                            ||
+|| Write the final count table.                                               ||
+|| Write the read assignment summary.                                         ||
+||                                                                            ||
+|| Summary of counting results can be found in file "Example_Data_EVscope_ou  ||
+|| tput/Step_13_gDNA_Corrected_Quant/Example_Data_featureCounts_forward.tsv.  ||
+|| summary"                                                                   ||
+||                                                                            ||
+\\============================================================================//
+

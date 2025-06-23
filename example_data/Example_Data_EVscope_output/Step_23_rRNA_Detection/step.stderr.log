@@ -1,0 +1,12 @@
+2025-06-23 04:42:09 : INFO  Using high MCC model
+2025-06-23 04:42:09 : INFO  Log file: Example_Data_EVscope_output/Step_23_rRNA_Detection/Example_Data_ribodetector_summary.log
+2025-06-23 04:42:09 : ERROR  [91mThe number of output rRNA sequence files is invalid![0m
+Traceback (most recent call last):
+  File "/mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/bin/ribodetector_cpu", line 10, in <module>
+    sys.exit(main())
+  File "/mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/lib/python3.10/site-packages/ribodetector/detect_cpu.py", line 825, in main
+    seq_pred.detect()
+  File "/mnt/data/projects/donglab/yiyong_2023/soft/Miniforge_3/lib/python3.10/site-packages/ribodetector/detect_cpu.py", line 593, in detect
+    raise RuntimeError(
+RuntimeError: Ouput rRNA should have no more than two files and they should the same number with input files.
+[0;33m[2025-06-23 04:42:09] WARN:[0m ribodetector may have failed because no rRNA was detected. Creating empty output files to ensure pipeline continuation.

@@ -1,0 +1,3 @@
+2025-06-23 04:42:09 : INFO  Using high MCC model
+2025-06-23 04:42:09 : INFO  Log file: Example_Data_EVscope_output/Step_23_rRNA_Detection/Example_Data_ribodetector_summary.log
+2025-06-23 04:42:09 : ERROR  [91mThe number of output rRNA sequence files is invalid![0m

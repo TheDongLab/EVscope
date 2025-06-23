@@ -1,0 +1,92 @@
+java -ea -Xmx465295m -Xms465295m -cp /home/yz2474/yiyong_2023/EVscope_pipeline/soft/bbmap/current/ align2.BBSplitter ow=t fastareadlen=500 minhits=1 minratio=0.56 maxindel=20 qtrim=rl untrim=t trimq=6 build=1 threads=20 in1=Example_Data_EVscope_output/Step_03_UMI_Adaptor_Trim/Example_Data_R1_clean.fq.gz in2=Example_Data_EVscope_output/Step_03_UMI_Adaptor_Trim/Example_Data_R2_clean.fq.gz ref=/home/yz2474/yiyong_2023/EVscope_pipeline/references/genome/ecoli/E.coli_ge.fa,/home/yz2474/yiyong_2023/EVscope_pipeline/references/genome/mycoplasma/mycoplasma_ge.fa basename=Example_Data_EVscope_output/Step_05_Bacterial_Filter/Example_Data_%_R#.fq.gz ambiguous=best path=Example_Data_EVscope_output/Step_05_Bacterial_Filter
+Executing align2.BBSplitter [ow=t, fastareadlen=500, minhits=1, minratio=0.56, maxindel=20, qtrim=rl, untrim=t, trimq=6, build=1, threads=20, in1=Example_Data_EVscope_output/Step_03_UMI_Adaptor_Trim/Example_Data_R1_clean.fq.gz, in2=Example_Data_EVscope_output/Step_03_UMI_Adaptor_Trim/Example_Data_R2_clean.fq.gz, ref=/home/yz2474/yiyong_2023/EVscope_pipeline/references/genome/ecoli/E.coli_ge.fa,/home/yz2474/yiyong_2023/EVscope_pipeline/references/genome/mycoplasma/mycoplasma_ge.fa, basename=Example_Data_EVscope_output/Step_05_Bacterial_Filter/Example_Data_%_R#.fq.gz, ambiguous=best, path=Example_Data_EVscope_output/Step_05_Bacterial_Filter]
+
+Converted arguments to [ow=t, fastareadlen=500, minhits=1, minratio=0.56, maxindel=20, qtrim=rl, untrim=t, trimq=6, build=1, threads=20, in1=Example_Data_EVscope_output/Step_03_UMI_Adaptor_Trim/Example_Data_R1_clean.fq.gz, in2=Example_Data_EVscope_output/Step_03_UMI_Adaptor_Trim/Example_Data_R2_clean.fq.gz, basename=Example_Data_EVscope_output/Step_05_Bacterial_Filter/Example_Data_%_R#.fq.gz, ambiguous=best, path=Example_Data_EVscope_output/Step_05_Bacterial_Filter, ref_E.coli_ge=/home/yz2474/yiyong_2023/EVscope_pipeline/references/genome/ecoli/E.coli_ge.fa, ref_mycoplasma_ge=/home/yz2474/yiyong_2023/EVscope_pipeline/references/genome/mycoplasma/mycoplasma_ge.fa]
+Creating merged reference file Example_Data_EVscope_output/Step_05_Bacterial_Filter/ref/genome/1/merged_ref_9222017151284483868.fa.gz
+Ref merge time:     	1.914 seconds.
+Executing align2.BBMap [ow=t, fastareadlen=500, minhits=1, minratio=0.56, maxindel=20, qtrim=rl, untrim=t, trimq=6, build=1, threads=20, in1=Example_Data_EVscope_output/Step_03_UMI_Adaptor_Trim/Example_Data_R1_clean.fq.gz, in2=Example_Data_EVscope_output/Step_03_UMI_Adaptor_Trim/Example_Data_R2_clean.fq.gz, ambiguous=best, ref=Example_Data_EVscope_output/Step_05_Bacterial_Filter/ref/genome/1/merged_ref_9222017151284483868.fa.gz, out_E.coli_ge=Example_Data_EVscope_output/Step_05_Bacterial_Filter/Example_Data_E.coli_ge_R#.fq.gz, out_mycoplasma_ge=Example_Data_EVscope_output/Step_05_Bacterial_Filter/Example_Data_mycoplasma_ge_R#.fq.gz]
+Version 39.15
+
+Set MINIMUM_ALIGNMENT_SCORE_RATIO to 0.560
+Set threads to 20
+Retaining first best site only for ambiguous mappings.
+NOTE:	Deleting contents of Example_Data_EVscope_output/Step_05_Bacterial_Filter/ref/genome/1 because reference is specified and overwrite=true
+Writing reference.
+Executing dna.FastaToChromArrays2 [Example_Data_EVscope_output/Step_05_Bacterial_Filter/ref/genome/1/merged_ref_9222017151284483868.fa.gz, 1, writeinthread=false, genscaffoldinfo=true, retain, waitforwriting=false, gz=true, maxlen=536670912, writechroms=true, minscaf=1, midpad=300, startpad=8000, stoppad=8000, nodisk=false]
+
+Set genScaffoldInfo=true
+Writing chunk 1
+Set genome to 1
+
+Loaded Reference:	0.024 seconds.
+Loading index for chunk 1-1, build 1
+No index available; generating from reference genome: /mnt/data/projects/donglab/yiyong_2023/EVscope_pipeline/test_data/test4_github/Example_Data_EVscope_output/Step_05_Bacterial_Filter/ref/index/1/chr1_index_k13_c3_b1.block
+Indexing threads started for block 0-1
+Indexing threads finished for block 0-1
+Generated Index:	15.098 seconds.
+Analyzed Index:   	2.875 seconds.
+Cleared Memory:    	1.633 seconds.
+Processing reads in paired-ended mode.
+Started read stream.
+Started 20 mapping threads.
+Detecting finished threads: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
+
+   ------------------   Results   ------------------   
+
+Genome:                	1
+Key Length:            	13
+Max Indel:             	20
+Minimum Score Ratio:  	0.56
+Mapping Mode:         	normal
+Reads Used:           	4000	(324018 bases)
+
+Mapping:          	2.415 seconds.
+Reads/sec:       	1656.33
+kBases/sec:      	134.17
+
+
+Pairing data:   	pct pairs	num pairs 	pct bases	   num bases
+
+mated pairs:     	  4.9000% 	       98 	  1.2191% 	        3950
+bad pairs:       	  0.0000% 	        0 	  0.0000% 	           0
+insert size avg: 	   23.38
+
+
+Read 1 data:      	pct reads	num reads 	pct bases	   num bases
+
+mapped:          	  6.9500% 	      139 	  1.5965% 	        2593
+unambiguous:     	  3.1000% 	       62 	  0.6890% 	        1119
+ambiguous:       	  3.8500% 	       77 	  0.9075% 	        1474
+low-Q discards:  	  0.0000% 	        0 	  0.0000% 	           0
+
+perfect best site:	  1.0500% 	       21 	  0.1705% 	         277
+semiperfect site:	  1.0500% 	       21 	  0.1705% 	         277
+rescued:         	  0.8500% 	       17
+
+Match Rate:      	      NA 	       NA 	 85.9885% 	        2240
+Error Rate:      	 84.8921% 	      118 	 13.8964% 	         362
+Sub Rate:        	 83.4532% 	      116 	 12.8983% 	         336
+Del Rate:        	  2.1583% 	        3 	  0.4607% 	          12
+Ins Rate:        	  3.5971% 	        5 	  0.5374% 	          14
+N Rate:          	  0.7194% 	        1 	  0.1152% 	           3
+
+
+Read 2 data:      	pct reads	num reads 	pct bases	   num bases
+
+mapped:          	  5.2500% 	      105 	  1.4294% 	        2310
+unambiguous:     	  2.1500% 	       43 	  0.6015% 	         972
+ambiguous:       	  3.1000% 	       62 	  0.8280% 	        1338
+low-Q discards:  	  0.0000% 	        0 	  0.0000% 	           0
+
+perfect best site:	  0.3000% 	        6 	  0.0526% 	          85
+semiperfect site:	  0.3000% 	        6 	  0.0526% 	          85
+rescued:         	  0.3500% 	        7
+
+Match Rate:      	      NA 	       NA 	 83.5557% 	        1941
+Error Rate:      	 94.2857% 	       99 	 16.3151% 	         379
+Sub Rate:        	 93.3333% 	       98 	 14.4210% 	         335
+Del Rate:        	  3.8095% 	        4 	  0.5596% 	          13
+Ins Rate:        	  7.6190% 	        8 	  1.3345% 	          31
+N Rate:          	  0.9524% 	        1 	  0.1291% 	           3
+
+Total time:     	25.537 seconds.

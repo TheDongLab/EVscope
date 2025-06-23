@@ -1,0 +1,72 @@
+RESOURCE TYPE	RESOURCE NAME	SOURCE	IDENTIFIER	NEW/REUSE	ADDITIONAL INFORMATION
+Dataset	GTEx (v10)	https://gtexportal.org/home/datasets	SCR_001618	reuse	Collection date: 2025-03-14
+Dataset	Human Brain Cell Atlas (v1.0)	https://data.humancellatlas.org/hca-bio-networks/nervous-system/atlases/brain-v1-0	10.1126/science.add7046	reuse	Collection date: 2025-03-14
+Dataset	piRBase database (v3.0)	http://bigdata.ibp.ac.cn/piRBase/	10.1093/nar/gkab1108	reuse	Collection date: 2025-02-06
+Dataset	GENCODE Gene Annotation (v45)	https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_45/gencode.v45.chr_patch_hapl_scaff.annotation.gtf.gz	SCR_014966	reuse	Collection date: 2024-04-15
+Dataset	"UCSC Repeats Annotation (RepeatMasker v4.0.7, Dfam v2.0)"	https://hgdownload.cse.ucsc.edu/goldenpath/hg38/database/rmskJoinedCurrent.txt.gz	SCR_012954	reuse	Collection date: 2023-05-10
+Dataset	NCBI Mycoplasma Genome	NCBI RefSeq	https://www.ncbi.nlm.nih.gov/datasets/genome/?taxon=2093	reuse	Collection date: 2025-02-05
+Dataset	NCBI Escherichia coli Genome	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz	https://www.ncbi.nlm.nih.gov/genome/167	reuse	Collection date: 2025-02-05
+Dataset	NCBI Public RNA-seq	Gene Expression Omnibus (GEO)	GEO Acession #: GSE281915;  https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE281915; SCR_005012	reuse	Collection date: 2025-06-10
+Protocol	QIAGEN miRNeasy Micro Kit RNA extraction	protocols.io	dx.doi.org/10.1038/protex.2017.083	reuse	
+Protocol	QIAGEN miRNeasy Serum/Plasma Advanced Kit	protocols.io	dx.doi.org/10.1038/protex.2017.077	reuse	
+Protocol	TRIzol-based RNA extraction	protocols.io	dx.doi.org/10.17504/protocols.io.stmeek6	reuse	
+Protocol	SMARTer Stranded Total RNA-Seq Kit v3-Pico Input Mammalian	Takara (https://www.takarabio.com/products/next-generation-sequencing/rna-seq/legacy-rna-seq-kits/pico-input-strand-specific-total-rna-seq-for-mammalian-samples-v3?srsltid=AfmBOopKRsm2Z9h2CXBguuHK8e10KUg5Se944ifWwq_j7wyqni8_bH5o)	"Cat. # 634485, 634486, 634487 & 634488"	reuse	
+Software/code	EVscope (v1.0.0)	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Comprehensive RNA-seq pipeline for EV RNA analysis
+Software/code	Step_02_calculate_ACC_motif_fraction.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Calculates the fraction of ACC motifs within specified UMI positions from FASTQ data.
+Software/code	Step_02_plot_fastq2UMI_motif.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Generates visualization of UMI motif distributions from FASTQ files.
+Software/code	Step_03_plot_fastq_read_length_dist.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Plots the distribution of read lengths in trimmed FASTQ files.
+Software/code	Step_03_UMIAdapterTrimR1.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Performs trimming of UMI-derived adapter sequences from Read1 FASTQ data.
+Software/code	Step_07_bam2strand.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Determines RNA-seq library strandedness from aligned BAM files.
+Software/code	Step_08_convert_CIRCexplorer2CPM.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Converts CIRCexplorer2 circRNA output into CPM-normalized expression matrix.
+Software/code	Step_09_convert_CIRI2CPM.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Converts CIRI2 circRNA detection results to CPM-normalized expression values.
+Software/code	Step_10_circRNA_merge.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Merges circRNA detection results from CIRCexplorer2 and CIRI2 into a combined summary.
+Software/code	Step_13_gDNA_corrected_featureCounts.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Generates genomic DNA-corrected featureCounts quantification table.
+Software/code	Step_15_combine_total_RNA_expr_matrix.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Combines circRNA and linear RNA expression matrices into an integrated dataset.
+Software/code	Step_15_featureCounts2TPM.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Converts raw featureCounts quantification results to TPM-normalized expression levels.
+Software/code	Step_15_plot_RNA_distribution_1subplot.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Creates RNA type distribution plots in a single-panel format.
+Software/code	Step_15_plot_RNA_distribution_20subplots.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Visualizes RNA type distributions across 20 individual subplots.
+Software/code	Step_15_plot_RNA_distribution_2subplots.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Plots RNA type distributions split into two subplot panels.
+Software/code	Step_15_plot_top_expressed_genes.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Generates bar plots highlighting the top expressed genes by RNA type.
+Software/code	Step_17_RSEM2expr_matrix.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Converts RSEM quantification results into a normalized expression matrix.
+Software/code	Step_18_plot_reads_mapping_stats.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Visualizes read mapping statistics across various genomic regions.
+Software/code	Step_22_run_RNA_deconvolution_ARIC.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Performs RNA-seq tissue deconvolution analysis using reference datasets.
+Software/code	Step_24_generate_QC_matrix.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Compiles comprehensive quality control metrics from RNA-seq analysis.
+Software/code	Step_25_bigWig2CPM.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Transforms BigWig coverage data into CPM-normalized gene expression values.
+Software/code	Step_25_EMapper.py	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Implements EM-based read coverage estimation from aligned RNA-seq data.
+Software/code	Step_26_density_plot_over_meta_gene.sh	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Generates read-density plots across meta-gene genomic regions.
+Software/code	Step_26_density_plot_over_RNA_types.sh	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Produces density plots illustrating read coverage across diverse RNA types.
+Software/code	Step_27_html_report.Rmd	GitHub / Zenodo	https://github.com/TheDongLab/EVscope; 10.5281/zenodo.15577789	new	Creates a comprehensive HTML report summarizing all pipeline analyses and results.
+Software/code	FastQC (v0.12.1)	Babraham Bioinformatics (https://www.bioinformatics.babraham.ac.uk/projects/fastqc)	SCR_014583	reuse	
+Software/code	STAR (v2.7.11b)	GitHub / Alex Dobin (10.1093/bioinformatics/bts635)	SCR_004463	reuse	
+Software/code	CIRI2 (v2.0.6)	GitHub / CIRI2	10.1093/bib/bbx014	reuse	
+Software/code	CIRCexplorer2 (v2.3.8)	GitHub / CIRCexplorer2	10.1186/s13059-016-0917-0	reuse	
+Software/code	UMI-tools (v1.1.5)	GitHub / Ian Sudbery (10.1186/s13059-017-1377-8)	SCR_017048	reuse	
+Software/code	RSEM	GitHub / Bo Li (10.1186/1471-2105-12-323)	SCR_013027	reuse	
+Software/code	Kraken2	GitHub / Derrick Wood	SCR_005484	reuse	
+Software/code	Krona	GitHub / Ondov (10.1186/1471-2105-12-385)	SCR_012785	reuse	
+Software/code	Cutadapt (v4.9)	GitHub / Marcel Martin (10.14806/ej.17.1.200)	SCR_011841	reuse	
+Software/code	Picard (v3.3.0)	Broad Institute (https://broadinstitute.github.io/picard)	SCR_006525	reuse	
+Software/code	RSeQC (5.0.3)	GitHub / Liguo Wang (10.1093/bioinformatics/bts356)	SCR_005275	reuse	
+Software/code	ARIC (v1.0.1)	GitHub (https://github.com/XWangLabTHU/ARIC)	10.1093/bib/bbab362	reuse	
+Software/code	Biopython (v1.78)	GitHub / (10.1093/bioinformatics/btp163)	SCR_007173	reuse	
+Software/code	Numba (v0.60.0)	GitHub / Numba (10.1145/2833157.2833162)	SCR_025056	reuse	
+Software/code	BEDTools (v2.31.1)	GitHub / Aaron Quinlan (10.1093/bioinformatics/btq033)	SCR_006646	reuse	
+Software/code	seqtk (v1.4-r122)	GitHub / Heng Li (https://github.com/lh3/seqtk)	SCR_018927	reuse	
+Software/code	samtools (v1.21)	GitHub / (10.1093/bioinformatics/btp352)	SCR_002105	reuse	
+Software/code	ribodetector (v0.3.1)	GitHub / (https://github.com/hzi-bifo/ribodetector)	N/A	reuse	
+Software/code	Python (v3.10.0)	Python Software Foundation (https://www.python.org)	SCR_008394	reuse	
+Software/code	R (v4.3.1)	The R Foundation (https://www.r-project.org)	SCR_001905	reuse	
+Software/code	BWA (v0.7.18-r1243-dirty)	GitHub / Heng Li (10.1093/bioinformatics/btp698)	SCR_010910	reuse	
+Software/code	R Markdown (v2.29)	GitHub / Rstudio (https://rmarkdown.rstudio.com)	SCR_000432	reuse	
+Software/code	DT (v0.33)	GitHub / (https://rstudio.github.io/DT)	SCR_024270	reuse	
+Software/code	kableExtra (v1.4.0)	GitHub / Hao Zhu (https://github.com/haozhu233/kableExtra)	N/A	reuse	pending
+Software/code	bookdown (v0.42)	GitHub / (https://github.com/rstudio/bookdown)	N/A	reuse	pending
+Software/code	pyBigWig (v0.3.22)	GitHub (https://github.com/deeptools/pyBigWig)	SCR_024807	reuse	
+Software/code	Matplotlib (v3.9.1)	https://matplotlib.org	SCR_008624	reuse	
+Software/code	pysam	https://pysam.readthedocs.io/en/latest/api.html	N/A	reuse	pending
+Software/code	Pandas (v2.2.3)	https://pandas.pydata.org	SCR_018214	reuse	
+Software/code	Bbmap (v39.15)	http://sourceforge.net/projects/bbmap	SCR_016965	reuse	
+Software/code	ggplot2 (v3.5.1)	https://cran.r-project.org/web/packages/ggplot2/index.html	SCR_014601	reuse	
+Software/code	dplyr (v1.1.4)	https://cran.r-project.org/web/packages/dplyr/index.html	SCR_016708	reuse	
+Software/code	featureCounts (v2.0.6)	http://bioinf.wehi.edu.au/featureCounts/	SCR_012919	reuse	
+Software/code	Deeptools (v3.5.5)	https://deeptools.readthedocs.io/en/develop/	SCR_016366	reuse	
