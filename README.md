@@ -1,4 +1,4 @@
-# EVscope: A Comprehensive RNA-Seq Pipeline for Extracellular Vesicle Analysis
+# EVscope: A Comprehensive Bioinformatics Pipeline for Accurate and Robust Total RNA Sequencing Analysis of Extracellular Vesicle 
 
 **EVscope** is an open-source, modular bioinformatics pipeline designed for the analysis of extracellular vesicle (EV) RNA sequencing data. Tailored to address the challenges of EV RNA-seq—low RNA yield, fragmented transcripts, diverse RNA biotypes, and contamination—EVscope processes paired-end or single-end FASTQ files through a robust, end-to-end workflow. It includes quality control, UMI-based deduplication, two-pass STAR alignment, circular RNA detection, expression quantification, contamination screening, tissue deconvolution, and comprehensive reporting. Optimized for the SMARTer Stranded Total RNA-Seq Kit v3 (Pico Input), EVscope introduces a novel expectation-maximization (EM) algorithm for multi-mapping read assignment and a unique read-through detection method for Read1 trimming.
 
