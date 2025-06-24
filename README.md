@@ -82,12 +82,10 @@ EVscope/
 │   ├── Step_26_density_plot_over_RNA_types.sh  # Density plots for RNA types
 │   └── Step_27_html_report.Rmd                 # Generates HTML report
 ├── example_data/                               # Test datasets and run script
-│   ├── CIRIerror.log                           # CIRI2 error log
 │   ├── Example_Data/                           # Test FASTQ files
 │   │   ├── chr21_2000_reads_R1_001.fastq.gz
 │   │   └── chr21_2000_reads_R2_001.fastq.tgz
 │   ├── Example_Data_EVscope_output/            # Sample output
-│   ├── nohup.out                               # Execution log
 │   ├── processing.log                          # Processing log
 │   └── run_EVscope.sh                          # Example run script
 ├── figures/                                    # Pipeline visualization
