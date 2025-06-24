@@ -532,9 +532,6 @@ A: Yes, update `references/` with new genomes, indices, and annotations, and mod
 **Q: How do I increase pipeline speed?**  
 A: Increase `--threads` (e.g., 20) and ensure sufficient RAM (250 GB for Picard).
 
-**Q: Why is the pipeline overview image not displaying?**  
-A: Ensure `figures/EVscope_pipeline.png` is uploaded to GitHub. Check the README image path or use an absolute URL.
-
 ## Contributing
 
 We welcome contributions to enhance EVscope! To contribute:
