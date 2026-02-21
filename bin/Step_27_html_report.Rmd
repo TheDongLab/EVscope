@@ -1,0 +1,997 @@
+---
+title: "EVscope Comprehensive Analysis Report of Total RNAseqs"
+author:
+  - Rambo (Yiyong) Zhao
+  - Himanshu Chintalapudi
+  - Ziqian Xu
+  - Weiqiang Liu
+  - Yuxuan Hu
+  - Ewa Grassin
+  - Xianjun Dong
+
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    theme: flatly
+    highlight: tango
+    number_sections: false
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    self_contained: true
+---
+
+<style type="text/css">
+/* ============================================
+   EVscope Report - Professional Industrial Design
+   ============================================ */
+
+/* --- CSS Variables for Consistent Theming --- */
+:root {
+  --primary-color: #1a5276;
+  --primary-light: #2980b9;
+  --primary-dark: #0e3651;
+  --accent-color: #e74c3c;
+  --accent-light: #f39c12;
+  --success-color: #27ae60;
+  --bg-gradient-start: #f8fafc;
+  --bg-gradient-end: #e8f4fc;
+  --card-bg: #ffffff;
+  --text-primary: #2c3e50;
+  --text-secondary: #5d6d7e;
+  --border-color: #dce4ec;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --toc-width: 500px;
+}
+
+/* --- Global Reset & Base Styles --- */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.main-container {
+  max-width: 1400px !important;
+  margin-left: calc(var(--toc-width) + 50px) !important; /* 自动计算间距 */
+  margin-right: auto !important;
+}
+
+/* --- Floating TOC Sidebar (Industrial Drawer Mode) --- */
+
+#TOC {
+  position: fixed;
+  width: var(--toc-width) !important;
+  min-width: var(--toc-width) !important;
+  top: 80px;
+  left: 20px;
+  width: var(--toc-width); /* Synchronize using variables */
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1.5rem;
+  border: 1px solid rgba(220, 228, 236, 0.6);
+  z-index: 1000;
+  /* Drawer sliding animation */
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+/* Collapsed State: Slide out to the left */
+.toc-collapsed #TOC {
+  transform: translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Expand content area when TOC is hidden */
+.toc-collapsed .main-container {
+  margin-left: auto !important;
+}
+
+/* Sidebar Toggle Switch Button Style */
+#toc-toggle-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1100;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all var(--transition-fast);
+}
+
+#toc-toggle-btn:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+/* --- Responsive Layout Guard --- */
+@media (max-width: 1200px) {
+  #TOC {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-height: none;
+    margin-bottom: 2rem;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  #toc-toggle-btn { display: none; }
+  
+  .main-container { 
+    margin-left: auto !important;
+    max-width: 100% !important; 
+    padding: 20px; 
+  }
+}
+
+/* --- Images with Download Button --- */
+.image-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  margin: 1.5rem auto;
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+.image-container:hover img {
+  box-shadow: var(--shadow-lg);
+}
+
+.download-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  opacity: 0.9;
+}
+
+.download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  opacity: 1;
+}
+
+.download-btn::before {
+  content: '⬇';
+}
+
+/* Legacy img styling for backward compatibility */
+img:not(.image-container img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5rem auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-normal);
+}
+
+img:not(.image-container img):hover {
+  box-shadow: var(--shadow-lg);
+  transform: scale(1.01);
+}
+
+/* --- iFrames (FastQC, Krona Reports) --- */
+iframe {
+  width: 100%;
+  height: 650px;
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  background: var(--card-bg);
+  margin: 1rem 0;
+}
+
+/* --- Data Tables Container --- */
+.dataTables_wrapper {
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  margin: 1rem 0;
+}
+
+/* --- DataTables Styling --- */
+table.dataTable {
+  width: 100% !important;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+table.dataTable thead th {
+  background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 15px;
+  border-bottom: 2px solid var(--primary-light);
+}
+
+table.dataTable tbody tr {
+  transition: background var(--transition-fast);
+}
+
+table.dataTable tbody tr:nth-child(even) {
+  background: #fafbfc;
+}
+
+table.dataTable tbody tr:hover {
+  background: rgba(41, 128, 185, 0.06);
+}
+
+table.dataTable tbody td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #edf2f7;
+  vertical-align: middle;
+}
+
+/* DataTables Buttons */
+.dt-buttons .dt-button {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 10px 18px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-right: 8px !important;
+  transition: all var(--transition-fast) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.dt-buttons .dt-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md) !important;
+  opacity: 0.95;
+}
+
+/* DataTables Search & Length */
+.dataTables_filter input,
+.dataTables_length select {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 16px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.dataTables_filter input:focus,
+.dataTables_length select:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.15);
+  outline: none;
+}
+
+.dataTables_filter label,
+.dataTables_length label,
+.dataTables_info,
+.dataTables_paginate {
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* DataTables Caption */
+table.dataTable caption {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 0.75rem 0;
+}
+
+/* --- Code Blocks --- */
+pre {
+  background: #f8f9fa;
+  color: #212529;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+pre code {
+  background: transparent;
+  color: #212529;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Force all code output to be dark text */
+pre, pre code, pre span, .hljs, code {
+  color: #212529 !important;
+}
+
+code {
+  background: rgba(41, 128, 185, 0.1);
+  color: #212529 !important;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9em;
+}
+
+/* --- Plotly Charts --- */
+.plotly {
+  margin: 1.5rem 0;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Horizontal Rules --- */
+hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+  margin: 3rem 0;
+}
+
+/* --- Links --- */
+a {
+  color: var(--primary-light);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* --- Paragraph Styling --- */
+p {
+  margin: 1rem 0;
+  color: var(--text-primary);
+}
+
+/* --- Strong/Bold Text --- */
+strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* --- Info/Status Messages --- */
+p:contains("not found"),
+p:contains("skipped") {
+  padding: 1rem;
+  background: #fff8e1;
+  border-left: 4px solid var(--accent-light);
+  border-radius: var(--radius-sm);
+  color: #856404;
+}
+
+/* --- Session Info Section --- */
+h1#appendix-session-information {
+  background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  color: white;
+  border-left: 5px solid var(--accent-color);
+}
+
+/* --- Pipeline Introduction Card --- */
+.pipeline-intro {
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin: 2rem 0;
+  border: 1px solid var(--border-color);
+}
+
+/* --- Animations --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h1:not(.title),
+img,
+iframe,
+.dataTables_wrapper {
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* --- Print Styles --- */
+@media print {
+  #TOC {
+    display: none;
+  }
+  
+  body {
+    background: white;
+  }
+  
+  .main-container {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  h1:not(.title) {
+    break-after: avoid;
+  }
+  
+  img, iframe {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+}
+
+/* --- Utility Classes --- */
+.text-center { text-align: center; }
+.text-muted { color: var(--text-secondary); }
+.mt-2 { margin-top: 1rem; }
+.mb-2 { margin-bottom: 1rem; }
+.p-2 { padding: 1rem; }
+
+/* --- Step Status Badges --- */
+.step-complete::after {
+  content: '✓';
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: var(--success-color);
+  font-weight: bold;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var toc = document.getElementById('TOC');
+  
+  if (toc) {
+    // 1. Add professional sidebar title (if it doesn't exist)
+    if (!toc.querySelector('h3')) {
+      var title = document.createElement('h3');
+      title.innerHTML = 'Analysis Steps';
+      title.style.fontSize = '1.1rem';
+      title.style.color = 'var(--primary-color)';
+      title.style.borderBottom = '2px solid var(--primary-light)';
+      title.style.paddingBottom = '0.5rem';
+      title.style.marginBottom = '1.2rem';
+      toc.insertBefore(title, toc.firstChild);
+    }
+
+    // 2. Inject toggle button
+    var btn = document.createElement('button');
+    btn.id = 'toc-toggle-btn';
+    btn.innerHTML = '<span>☰</span> Close Menu'; 
+    document.body.appendChild(btn);
+
+    // 3. Toggle collapse logic
+    btn.addEventListener('click', function() {
+      document.body.classList.toggle('toc-collapsed');
+      
+      if (document.body.classList.contains('toc-collapsed')) {
+        btn.innerHTML = '<span>❯</span> Open Menu';
+      } else {
+        btn.innerHTML = '<span>☰</span> Close Menu';
+      }
+    });
+  }
+  
+  // 4. Smooth scrolling logic (keep only one instance)
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+});
+</script>
+
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+# --- R Environment Setup ---
+knitr::opts_chunk$set(
+  echo = FALSE, fig.align = 'center', message = FALSE, warning = FALSE,
+  fig.width = 12, fig.height = 8, dpi = 120
+)
+options(knitr.duplicate.label = 'allow', width = 300)
+
+# --- Package Management ---
+required_packages <- c("knitr", "readr", "dplyr", "DT", "tools", "stringr", "ggplot2", "plotly", "tidyr", "xfun")
+new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]
+if(length(new_packages) > 0) {
+  install.packages(new_packages, repos = "https://cloud.r-project.org/")
+}
+invisible(lapply(required_packages, library, character.only = TRUE))
+
+# --- Path Configuration ---
+absolute_output_dir <- Sys.getenv("EVscope_OUTPUT_DIR")
+if (!dir.exists(absolute_output_dir)) {
+  stop("FATAL: Output directory not found. EVscope_OUTPUT_DIR was not set or is invalid.")
+}
+
+# --- Retrieve Figures Directory ---
+abs_figures_dir <- Sys.getenv("EVscope_FIGURES_DIR")
+
+# Verify figures directory exists (Strict check)
+if (abs_figures_dir == "" || !dir.exists(abs_figures_dir)) {
+  stop("FATAL: Figures directory not found. EVscope_FIGURES_DIR is missing or invalid.")
+}
+
+# --- Helper Functions ---
+check_step_dir <- function(subdir_name) {
+  dir_path <- file.path(absolute_output_dir, subdir_name)
+  if (!dir.exists(dir_path)) {
+    cat(paste0('<div style="padding: 1rem; background: #fff8e1; border-left: 4px solid #ffb300; border-radius: 6px; margin: 1rem 0; color: #664d03;"><strong>Note:</strong> This step may have been skipped or is not applicable by user.</div>\n\n'))
+    return(FALSE)
+  }
+  return(TRUE)
+}
+
+# Function to embed images directly into HTML using data URI with download button
+display_image <- function(subdir_path, pattern, caption) {
+  full_dir_path <- file.path(absolute_output_dir, subdir_path)
+  img_file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+  if (length(img_file_path) > 0) {
+    cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+    img_uri <- knitr::image_uri(img_file_path[1])
+    img_name <- basename(img_file_path[1])
+    cat(paste0('<div class="image-container">\n'))
+    cat(paste0('<a class="download-btn" href="', img_uri, '" download="', img_name, '">Download</a>\n'))
+    cat(paste0('<img src="', img_uri, '" alt="', img_name, '">\n'))
+    cat(paste0('</div>\n\n'))
+  }
+}
+
+# Function to embed HTML content (e.g., FastQC) into iframe
+display_iframe <- function(subdir_path, pattern, caption) {
+  full_dir_path <- file.path(absolute_output_dir, subdir_path)
+  html_file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+  if (length(html_file_path) > 0) {
+    cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+    data_uri <- xfun::base64_uri(html_file_path[1])
+    cat(paste0('<iframe src="', data_uri, '" title="', caption, '"></iframe>\n\n'))
+  }
+}
+
+display_datatable <- function(subdir_path, pattern, caption, top_n = 10) {
+    full_dir_path <- file.path(absolute_output_dir, subdir_path)
+    file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+    if (length(file_path) > 0 && file.info(file_path[1])$size > 0) {
+        cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+        tryCatch({
+            df <- readr::read_tsv(file_path[1], col_types = cols(.default = "c"), progress = FALSE)
+            datatable(df,
+                      caption = htmltools::tags$caption(style = 'caption-side: bottom; text-align: left; font-style: italic; color: #6c757d;', paste('Total', nrow(df), 'rows from', basename(file_path[1]))),
+                      extensions = 'Buttons',
+                      options = list(pageLength = top_n, scrollX = TRUE, dom = 'Blfrtip', 
+                                     buttons = c('copy', 'csv', 'excel'),
+                                     lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))),
+                      filter = 'none', rownames = FALSE,
+                      class = 'cell-border stripe hover')
+        }, error = function(e) { cat(paste('<div style="padding: 0.75rem; background: #f8d7da; border-radius: 6px; color: #842029;">Could not render table: <code>', basename(file_path[1]), '</code></div>\n\n')) })
+    }
+}
+
+display_csv_datatable <- function(subdir_path, pattern, caption, top_n = 10) {
+    full_dir_path <- file.path(absolute_output_dir, subdir_path)
+    file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+    if (length(file_path) > 0 && file.info(file_path[1])$size > 0) {
+        cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+        tryCatch({
+            df <- readr::read_csv(file_path[1], col_types = cols(.default = "c"), progress = FALSE)
+            datatable(df,
+                      caption = htmltools::tags$caption(style = 'caption-side: bottom; text-align: left; font-style: italic; color: #6c757d;', paste('Total', nrow(df), 'rows from', basename(file_path[1]))),
+                      extensions = 'Buttons',
+                      options = list(pageLength = top_n, scrollX = TRUE, dom = 'Blfrtip', 
+                                     buttons = c('copy', 'csv', 'excel'),
+                                     lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))),
+                      filter = 'none', rownames = FALSE,
+                      class = 'cell-border stripe hover')
+        }, error = function(e) { cat(paste('<div style="padding: 0.75rem; background: #f8d7da; border-radius: 6px; color: #842029;">Could not render table: <code>', basename(file_path[1]), '</code></div>\n\n')) })
+    }
+}
+
+parse_and_display_star_log <- function(subdir_path, pattern, caption) {
+    full_dir_path <- file.path(absolute_output_dir, subdir_path)
+    file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+    if (length(file_path) > 0) {
+        cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+        log_lines <- read_lines(file_path[1])
+        log_df <- tibble(raw = log_lines) %>%
+            filter(str_detect(raw, "\\|")) %>%
+            mutate(
+                Metric = str_trim(str_extract(raw, ".*?(?=\\|)")),
+                Value = str_trim(str_extract(raw, "(?<=\\|).*"))
+            ) %>%
+            select(Metric, Value) %>%
+            filter(!is.na(Metric), Metric != "")
+        
+        datatable(log_df, 
+                  options = list(dom = 'lfrtip', paging = TRUE, pageLength = 10,
+                                 lengthMenu = list(c(10, 25, 50, -1), c('10', '25', '50', 'All'))), 
+                  rownames = FALSE, 
+                  class = 'cell-border stripe compact hover')
+    }
+}
+
+plot_picard_metrics <- function(subdir_path, pattern, caption) {
+    full_dir_path <- file.path(absolute_output_dir, subdir_path)
+    file_path <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+    if (length(file_path) > 0) {
+        cat(paste0("#### ", caption, " {.unlisted}\n\n"))
+        df <- read_tsv(file_path[1], comment = "#", n_max = 1, col_types = cols(.default = "c")) %>%
+            select(starts_with("PCT_")) %>%
+            pivot_longer(everything(), names_to = "Category", values_to = "Percentage") %>%
+            mutate(
+                Percentage = as.numeric(Percentage) * 100,
+                Category = str_remove(Category, "PCT_") %>% str_replace_all("_", " ") %>% str_to_title()
+            )
+
+        # Enhanced color palette
+        custom_colors <- c("#1a5276", "#2980b9", "#3498db", "#5dade2", "#85c1e9", 
+                          "#aed6f1", "#d4e6f1", "#e74c3c", "#f39c12", "#27ae60")
+
+        p <- ggplot(df, aes(x = reorder(Category, -Percentage), y = Percentage, fill = Category)) +
+            geom_col(show.legend = FALSE, width = 0.7) +
+            geom_text(aes(label = sprintf("%.1f%%", Percentage)), vjust = -0.5, size = 3.5, fontface = "bold", color = "#2c3e50") +
+            labs(x = NULL, y = "Percentage of Bases (%)", title = "Distribution of Aligned Bases") +
+            theme_minimal(base_size = 13) +
+            theme(
+              axis.text.x = element_text(angle = 45, hjust = 1, size = 11, color = "#2c3e50"),
+              axis.title.y = element_text(size = 12, face = "bold", color = "#2c3e50"),
+              plot.title = element_text(size = 14, face = "bold", color = "#1a5276", hjust = 0.5),
+              panel.grid.major.x = element_blank(),
+              panel.grid.minor = element_blank()
+            ) +
+            scale_fill_manual(values = custom_colors) +
+            scale_y_continuous(expand = expansion(mult = c(0, 0.15)))
+
+        ggplotly(p, tooltip = c("x", "y")) %>% 
+          layout(margin = list(b = 100))
+    }
+}
+
+# Function to display all images in a directory with download buttons
+display_all_images <- function(subdir_path, pattern, main_caption) {
+  full_dir_path <- file.path(absolute_output_dir, subdir_path)
+  img_files <- list.files(full_dir_path, pattern = pattern, full.names = TRUE)
+  
+  if (length(img_files) > 0) {
+    cat(paste0('<div style="margin-top: 1.5rem;"><strong style="font-size: 1.2rem; color: #1a5276;">📈 ', main_caption, '</strong></div>\n\n'))
+    
+    for (img_path in img_files) {
+      img_uri <- knitr::image_uri(img_path)
+      img_name <- basename(img_path)
+      cat(paste0('<p style="font-size: 1rem; color: #5d6d7e; margin: 0.5rem 0 0.25rem; font-style: italic;">', img_name, '</p>\n'))
+      cat(paste0('<div class="image-container">\n'))
+      cat(paste0('<a class="download-btn" href="', img_uri, '" download="', img_name, '">Download</a>\n'))
+      cat(paste0('<img src="', img_uri, '" alt="', img_name, '">\n'))
+      cat(paste0('</div>\n\n'))
+    }
+  }
+}
+
+```
+
+# EVscope Pipeline Overview {.unlisted}
+
+<div style="background: linear-gradient(135deg, #ffffff 0%, #f0f7fc 100%); padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #dce4ec; margin: 1.5rem 0;">
+
+**EVscope** is an open-source bioinformatics pipeline tailored for processing EV RNA-seq datasets. EVscope employs a two-round expectation-maximization (EM) algorithm: Round 1 resolves positional ambiguity using alignment scores and coverage evidence; Round 2 resolves gene-level ambiguity using abundance-based weights with effective length normalization, significantly improves multi-mapping read assignment at single-base or bined resolution, specifically tailored for fragmented and low-abundance EV RNAs. Notably, EVscope uniquely generates EM-based BigWig files for downstream analysis, a capability currently unavailable in existing EM-based BigWig quantification tools. The pipeline systematically integrates 27 major steps, including quality control, analysis of library structure, contamination assessment, read alignment, read strandedness detection, UMI-based deduplication, RNA quantification, genomic DNA (gDNA) contamination correction, cellular and tissue source inference and visualization with a comprehensive HTML report. EVscope incorporates a comprehensive, updated annotation covering 19 distinct RNA biotypes, encompassing protein-coding genes, lncRNAs, miRNAs, piRNAs, retrotransposons (LINEs, SINEs, ERVs), and additional non-coding RNAs (tRNAs, rRNAs, snoRNAs). Furthermore, it leverages two highly balanced circRNA detection algorithms for robust circular RNA identification. Notably, a downstream module enables the inference of the tissue/cellular origins of EV RNAs using bulk and single-cell RNA-seq reference datasets. EVscope is implemented as a convenient, single-command Bash pipeline leveraging Conda-managed standard software packages and custom scripts, ensuring reproducibility and straightforward deployment.
+
+</div>
+
+```{r intro_image, results='asis'}
+# Pipeline overview diagram
+img_path <- normalizePath(file.path(abs_figures_dir, "EVscope_pipeline.png"), mustWork = FALSE)
+
+if (file.exists(img_path)) {
+    img_uri <- knitr::image_uri(img_path)
+    cat(paste0('<div style="text-align: center; margin: 2rem 0;">'))
+    cat(paste0('<img src="', img_uri, '" alt="EVscope Pipeline Overview" style="max-width: 100%; border: none; padding: 0; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border-radius: 12px;">'))
+    cat(paste0('<p style="font-size: 0.875rem; color: #5d6d7e; margin-top: 1rem; font-style: italic;">Figure: EVscope Pipeline Architecture</p>'))
+    cat(paste0('</div>\n\n'))
+} else {
+    cat('<div style="padding: 1rem; background: #e8f4fc; border-radius: 8px; text-align: center; color: #1a5276;">ℹ Pipeline diagram not available</div>\n\n')
+}
+
+```
+
+<hr>
+
+# Step 01: Raw Data QC
+
+```{r step1, results='asis'}
+if (check_step_dir("Step_01_Raw_QC")) {
+  display_iframe("Step_01_Raw_QC", "_R1_001_fastqc\\.html$", "FastQC Report — Read 1")
+  display_iframe("Step_01_Raw_QC", "_R2_001_fastqc\\.html$", "FastQC Report — Read 2")
+}
+
+```
+
+# Step 02: UMI Analysis
+
+```{r step2, results='asis'}
+if (check_step_dir("Step_02_UMI_Analysis")) {
+  display_image("Step_02_UMI_Analysis", "motif_logo\\.png$", "UMI Motif Logo")
+  display_datatable("Step_02_UMI_Analysis", "_ACC_motif_fraction\\.tsv$", "ACC Motif Fraction")
+}
+
+```
+
+# Step 03: UMI & Adaptor Trimming
+
+```{r step3, results='asis'}
+if (check_step_dir("Step_03_UMI_Adaptor_Trim")) {
+  display_image("Step_03_UMI_Adaptor_Trim", "_read_length_distribution\\.png$", "Read Length Distribution After Trimming")
+  display_image("Step_03_UMI_Adaptor_Trim", "_R1_readthrough_UMI_trimming_pie\\.png$", "Read Categories Distribution (No UMI Readthrough, UMI Readthrough, Too Short)")
+}
+
+```
+
+# Step 04: Trimmed Data QC
+
+```{r step4, results='asis'}
+if (check_step_dir("Step_04_Trimmed_QC")) {
+  display_iframe("Step_04_Trimmed_QC", "_R1_clean_fastqc\\.html$", "Trimmed FastQC Report — Read 1")
+  display_iframe("Step_04_Trimmed_QC", "_R2_clean_fastqc\\.html$", "Trimmed FastQC Report — Read 2")
+}
+
+```
+
+# Step 06: Initial Alignment
+
+```{r step6a, results='asis'}
+if (check_step_dir("Step_06_Alignment_Initial")) {
+  parse_and_display_star_log("Step_06_Alignment_Initial", "Log\\.final\\.out$", "STAR Initial Alignment Summary")
+}
+
+```
+
+# Step 06: Refined Alignment
+
+```{r step6b, results='asis'}
+if (check_step_dir("Step_06_Alignment_Refined")) {
+  parse_and_display_star_log("Step_06_Alignment_Refined", "_STAR_umi_dedup_Log\\.final\\.out$", "STAR Refined Alignment Summary (Post-Deduplication)")
+}
+
+```
+
+# Step 07: Strand Detection
+
+```{r step7, results='asis'}
+if (check_step_dir("Step_07_Strand_Detection")) {
+  display_image("Step_07_Strand_Detection", "bam2strandness_pie\\.png$", "Library Strandedness Distribution")
+  display_datatable("Step_07_Strand_Detection", "bam2strandness\\.tsv$", "Strandedness Details")
+}
+
+```
+
+# Step 08: circRNA Detection(CIRCexplorer2)
+
+```{r step8, results='asis'}
+if (check_step_dir("Step_08_CIRCexplorer2_circRNA")) {
+  display_datatable("Step_08_CIRCexplorer2_circRNA", "_dedup_junction_readcounts_CPM\\.tsv$", "CIRCexplorer2 Expression (CPM)")
+}
+
+```
+
+# Step 09: circRNA Detection(CIRI2)
+
+```{r step9, results='asis'}
+if (check_step_dir("Step_09_CIRI2_circRNA")) {
+  display_datatable("Step_09_CIRI2_circRNA", "_dedup_junction_readcounts_CPM\\.tsv$", "CIRI2 Expression (CPM)")
+}
+
+```
+
+# Step 10: circRNA Integration
+
+```{r step10, results='asis'}
+if (check_step_dir("Step_10_circRNA_Merge")) {
+  display_image("Step_10_circRNA_Merge", "Venn_diagram_of_circRNAs.*\\.png$", "Overlap of circRNA Detection Tools")
+  display_datatable("Step_10_circRNA_Merge", "_combined_CIRCexplorer2_CIRI2\\.tsv$", "Combined circRNA Matrix")
+}
+
+```
+
+# Step 11: RNA Sequencing Metrics
+
+```{r step11, results='asis'}
+if (check_step_dir("Step_11_RNA_Metrics")) {
+  plot_picard_metrics("Step_11_RNA_Metrics", "picard_metrics\\.tsv$", "Picard Aligned Base Distribution")
+  display_image("Step_11_RNA_Metrics", "insert_size_histogram\\.png$", "Insert Size Distribution")
+}
+
+```
+
+# Step 15: featureCounts Expression
+
+```{r step15, results='asis'}
+if (check_step_dir("Step_15_featureCounts_Expression")) {
+  display_datatable("Step_15_featureCounts_Expression", "_combined_expression_matrix_linearRNA_TPM_circRNA_CPM_featureCounts\\.tsv$", "Combined Linear & Circular RNA Expression")
+  display_all_images("Step_15_featureCounts_Expression", "\\.png$", "Expression Analysis Plots")
+}
+
+```
+
+# Step 16: gDNA-Corrected Expression
+
+```{r step16, results='asis'}
+if (check_step_dir("Step_16_gDNA_Corrected_Expression")) {
+  display_datatable("Step_16_gDNA_Corrected_Expression", "_combined_expression_matrix_linearRNA_TPM_circRNA_CPM_gDNA_correction\\.tsv$", "Combined Expression (gDNA Corrected)")
+  display_all_images("Step_16_gDNA_Corrected_Expression", "\\.png$", "gDNA-Corrected Expression Plots")
+}
+
+```
+
+# Step 17: RSEM Expression Quantification
+
+```{r step17, results='asis'}
+if (check_step_dir("Step_17_RSEM_Expression")) {
+  display_datatable("Step_17_RSEM_Expression", "_combined_expression_matrix_linearRNA_TPM_circRNA_CPM\\.tsv$", "Combined Expression (RSEM)")
+  display_all_images("Step_17_RSEM_Expression", "\\.png$", "RSEM-based Expression Plots")
+}
+
+```
+
+# Step 18: Genomic Region Distribution
+
+```{r step18, results='asis'}
+if (check_step_dir("Step_18_Genomic_Regions")) {
+  display_image("Step_18_Genomic_Regions", "reads_mapping_stats_pie\\.png$", "Read Distribution Across Genomic Regions")
+  display_datatable("Step_18_Genomic_Regions", "_readcounts_summary\\.tsv$", "Feature Count Summaries")
+}
+
+```
+
+# Step 19: Taxonomic Classification
+
+```{r step19, results='asis'}
+if (check_step_dir("Step_19_Taxonomy")) {
+  display_iframe("Step_19_Taxonomy", "_krona\\.html$", "Krona Interactive Taxonomy Report")
+}
+
+```
+
+# Step 20: Cellular Deconvolution(featureCounts)
+
+```{r step20, results='asis'}
+if (check_step_dir("Step_20_featureCounts_Deconvolution")) {
+  display_all_images("Step_20_featureCounts_Deconvolution", "_deconvolution_fraction.*\\.png$", "Cell Type Deconvolution Plots")
+}
+
+```
+
+# Step 21: Cellular Deconvolution(gDNA-Corrected)
+
+```{r step21, results='asis'}
+if (check_step_dir("Step_21_gDNA_Corrected_Deconvolution")) {
+  display_all_images("Step_21_gDNA_Corrected_Deconvolution", "_deconvolution_fraction.*\\.png$", "Cell Type Deconvolution Plots (gDNA Corrected)")
+}
+
+```
+
+# Step 22: Cellular Deconvolution(RSEM)
+
+```{r step22, results='asis'}
+if (check_step_dir("Step_22_RSEM_Deconvolution")) {
+  display_all_images("Step_22_RSEM_Deconvolution", "_deconvolution_fraction.*\\.png$", "Cell Type Deconvolution Plots (RSEM)")
+}
+
+```
+
+# Step 24: QC Summary
+
+```{r step24, results='asis'}
+if (check_step_dir("Step_24_MultiQC_Summary")) {
+  # Display top 50 rows for QC Summary
+  display_datatable("Step_24_MultiQC_Summary", "_QC_summary\\.tsv$", "Comprehensive QC Metrics Summary", top_n = 50)
+}
+```
+
+# Step 25: BigWig Generation
+
+```{r step25, results='asis'}
+if (check_step_dir("Step_25_EMapper_BigWig_Quantification")) {
+  cat('<div style="padding: 1.5rem; background: linear-gradient(135deg, #e8f8f5 0%, #d5f5e3 100%); border-radius: 10px; border-left: 4px solid #27ae60; margin: 1rem 0;">')
+  cat('<strong style="color: #1e8449;">✓ BigWig Files Generated</strong><br/>')
+  cat('<span style="color: #5d6d7e;">Coverage track files are available in <code>Step_25_EMapper_BigWig_Quantification/EMapper_output/</code> for genome browser visualization.</span>')
+  cat('</div>\n\n')
+}
+
+```
+
+# Step 26: Coverage Density Analysis
+
+```{r step26, results='asis'}
+if (check_step_dir("Step_26_BigWig_Density_Plot")) {
+  display_image("Step_26_BigWig_Density_Plot/RNA_types", "\\.png$", "Coverage Density over RNA Types")
+  display_image("Step_26_BigWig_Density_Plot/meta_gene", "\\.png$", "Coverage Density over Meta-Gene Regions")
+}
+
+```
+
+<hr>
+
+# Appendix: Session Information {#appendix-session-information}
+
+<div style="background: #f8fafc; padding: 1.5rem; border-radius: 10px; border: 1px solid #dce4ec; margin-top: 1rem;">
+<p style="color: #5d6d7e; font-size: 18px; margin-bottom: 1rem;">This section documents the R environment and package versions used to generate this report, ensuring reproducibility of results.</p>
+</div>
+
+```{r session-info, echo=TRUE}
+sessionInfo()
+
+```
+
+<div style="text-align: center; padding: 2rem; margin-top: 2rem; border-top: 1px solid #dce4ec; color: #5d6d7e; font-size: 18px;">
+<strong>EVscope Comprehensive Analysis Report</strong>
+Generated with R Markdown • Self-contained HTML document
+</div>

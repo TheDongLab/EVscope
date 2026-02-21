@@ -1,0 +1,39 @@
+# macOS
+.DS_Store
+._*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+processing.log
+
+# IDE
+.vscode/
+.idea/
+
+# Large data directories (tracked via Git LFS or separate download)
+references/
+soft/
+example_data/
+Resource/
+
+# Old/archive scripts
+bin/0_resource/
+bin/1_test_data/
+bin/__pycache__/
+
+# Old versions
+*_old_*.py
+*_v1.py
+Step_24_generate_QC_matrix_v1.py
+Step_03_UMIAdapterTrimR1_old_v1.py
+
+# Temporary files
+*.tmp
+*.temp
