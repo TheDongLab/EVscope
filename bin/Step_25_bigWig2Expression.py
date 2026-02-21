@@ -330,7 +330,7 @@ def get_signal_sum(bw: pyBigWig.pyBigWig, chrom: str, start: int, end: int) -> f
     This method is more accurate than stats(nBins=1) which uses binning
     and may drop partial values, especially for large regions.
 
-    FIX: Handles nan values returned by pyBigWig for regions with no coverage.
+    Handles nan values returned by pyBigWig for regions with no coverage.
 
     Args:
         bw: BigWig file handle

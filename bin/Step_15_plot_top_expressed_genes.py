@@ -1,3 +1,16 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Step_15_plot_top_expressed_genes.py
+
+Generates a horizontal bar chart of the top expressed genes from an RNA
+expression matrix, colored by RNA biotype.
+
+Usage:
+    python Step_15_plot_top_expressed_genes.py --input <expr_matrix> \\
+        --meta <gene_meta> --output <output_prefix> [--top_n 50]
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches

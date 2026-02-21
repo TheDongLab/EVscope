@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-#usage: python Step_22_run_RNA_deconvolution_ARIC.py  --input_expr_file ENSG_NDXP_0087_Star_expr.tsv.TPM --ref_expr_file /home/yz2474/yiyong_2023/EVscope/references/deconvolution_HG38/LM22.csv --output_dir . --male_specific_tissue "Prostate" "Testis" --female_specific_tissue "Breast" "Breast-mammary tissue" "Ovary" "Uterus" "Vagina" "Cervix uteri" "Fallopian tube" "Cervix-ectocervix" "Cervix-endocervix"  --sex Male
+# Usage example:
+#   python Step_22_run_RNA_deconvolution_ARIC.py \
+#       --input_expr_file sample_expr.tsv.TPM \
+#       --ref_expr_file references/deconvolution_HG38/LM22.csv \
+#       --output_dir ./results \
+#       --male_specific_tissue "Prostate" "Testis" \
+#       --female_specific_tissue "Breast" "Ovary" "Uterus" \
+#       --sex Male
 
 Generalized RNA deconvolution via ARIC.
 

@@ -17,9 +17,9 @@
 #   - GNU coreutils, gawk, Python 3.8+, R 4.0+
 #   - Conda/Mamba for environment management
 #   - See check_dependencies() for complete tool list
-# Author: [Your Name/Organization]
-# License: [Your License]
-# Last Modified: [Date]
+# Author: Yiyong Zhao, Xianjun Dong
+# License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+# Repository: https://github.com/YiyongZhao/EVscope
 # Changelog:
 #   v1.0.0 - Initial release with 27-step modular workflow
 # ==============================================================================
@@ -146,7 +146,7 @@ log() {
 print_help() {
     cat << EOF
 ${C_BOLD}EVscope RNA-seq Analysis Pipeline v${VERSION}${C_RESET}
-${C_DIM}Industrial-grade modular workflow for comprehensive RNA-seq analysis${C_RESET}
+${C_DIM}Modular workflow for comprehensive EV RNA-seq analysis${C_RESET}
 ${C_BOLD}USAGE:${C_RESET}
     bash ${SCRIPT_NAME} [OPTIONS] --sample_name <n> --input_fastqs <file1> [file2]
 ${C_BOLD}REQUIRED ARGUMENTS:${C_RESET}
