@@ -3,15 +3,20 @@
 Infer strand specificity from a BAM file, generate a TSV summary,
 and produce a pie chart.
 
-Also computes Splice reads per kilobase (splice/kb) as a DNA contamination
+Also computes Splices per Kilobase (splice/kb) as a DNA contamination
 metric. Splice/kb cleanly separates DNase-treated from untreated samples
-(DNase ~1.61 vs no-DNase ~0.19 in EV RNA-seq), unlike overall strand
-specificity which is confounded by ultra-short insert sizes after DNase
-treatment.
+(DNase ~1.67 vs no-DNase ~0.13 in EV RNA-seq), unlike overall strand
+specificity which is confounded by ultra-short insert sizes after DNase.
 
-Since EVscope already incorporates a gDNA correction method (subtracting
-opposite-strand read counts), splice/kb serves as an independent,
-complementary QC metric for residual DNA contamination.
+Metric definition:
+  splice/kb = (total splice junction crossings) / (n_unique_reads x avg_mapped_len / 1000)
+
+Both the STAR log path and the BAM fallback path count splice *junction crossings*
+(not spliced reads). A read with CIGAR 30M500N30M200N30M crosses 2 junctions
+and contributes 2, consistent with STAR "Number of splices: Total".
+
+Since EVscope already incorporates gDNA correction (subtracting opposite-strand
+read counts), splice/kb serves as an independent, complementary QC metric.
 
 Reference: EVscope (https://www.biorxiv.org/content/10.1101/2025.06.24.660984v1)
 
@@ -30,73 +35,83 @@ import matplotlib as mpl
 plt.rcParams["font.family"] = "Arial"
 mpl.rcParams['pdf.fonttype'] = 42
 
+# Compiled regex for splice junction detection in CIGAR
+_SPLICE_RE = re.compile(r'(\d+)N')
+
+
+def count_cigar_junctions(cigar):
+    """Count the number of N operations (splice junctions) in a CIGAR string."""
+    return len(_SPLICE_RE.findall(cigar))
+
 
 def compute_splice_per_kb(bam_file, star_log=None, sample_n=500000):
     """
-    Compute splice reads per kilobase (splice/kb).
+    Compute splices per kilobase (splice/kb).
 
-    Formula: splice/kb = (n_spliced_reads / n_total_reads) * (1000 / avg_mapped_len)
+    Metric: splice/kb = n_splice_junctions / (n_unique_reads x avg_mapped_len / 1000)
 
-    This metric separates DNase-treated (~1.61 splice/kb) from
-    untreated (~0.19 splice/kb) EV RNA-seq libraries.
+    Both paths count splice *junction crossings* (consistent with STAR
+    "Number of splices: Total"). A read spanning 2 introns = 2 junctions.
 
-    If star_log is provided, uses STAR-reported splice count, unique reads,
-    and average mapped length. Otherwise, samples the BAM directly.
+    Primary path: STAR Log.final.out (fast, exact).
+    Fallback: samtools view with up to sample_n uniquely mapped reads (-q 255).
 
-    Returns: (splice_per_kb, n_spliced, n_total, avg_len) or None on failure.
+    Returns: (splice_per_kb, n_junctions, n_reads, avg_len) or None on failure.
     """
     if star_log and os.path.isfile(star_log):
-        # Parse from STAR Log.final.out
-        metrics = {}
         try:
+            metrics = {}
             with open(star_log) as f:
                 for line in f:
                     if "|" in line:
                         k, v = [x.strip() for x in line.split("|")]
                         metrics[k] = v.replace('%', '').strip()
-            n_splices   = int(metrics.get("Number of splices: Total", 0))
+            n_junctions = int(metrics.get("Number of splices: Total", 0))
             n_unique    = int(metrics.get("Uniquely mapped reads number", 0))
             avg_len     = float(metrics.get("Average mapped length", 0))
             if n_unique > 0 and avg_len > 0:
-                splice_per_kb = n_splices * 1000.0 / (n_unique * avg_len)
-                return round(splice_per_kb, 4), n_splices, n_unique, round(avg_len, 1)
+                splice_per_kb = n_junctions * 1000.0 / (n_unique * avg_len)
+                return round(splice_per_kb, 4), n_junctions, n_unique, round(avg_len, 1)
         except Exception as e:
             print(f"Warning: STAR log parse failed ({e}), falling back to BAM sampling.")
 
-    # Fall back: sample reads directly from BAM
+    # Fallback: sample uniquely mapped reads from BAM (-q 255 = unique in STAR)
     try:
-        cmd_total = ["samtools", "view", "-c", "-F", "256", bam_file]
+        cmd_total = [
+            "samtools", "view", "-c", "-F", "256", "-q", "255", bam_file
+        ]
         r_total = subprocess.run(cmd_total, capture_output=True, text=True, check=True)
         n_total = int(r_total.stdout.strip())
+        if n_total == 0:
+            return 0.0, 0, 0, 0.0
 
-        # Sample up to sample_n reads for efficiency
-        frac = min(1.0, sample_n / max(n_total, 1))
+        frac = min(1.0, sample_n / n_total)
         sample_flag = ["-s", f"{frac:.6f}"] if frac < 1.0 else []
-        cmd_view = ["samtools", "view", "-F", "256"] + sample_flag + [bam_file]
+        # -q 255: uniquely mapped only (consistent with STAR path)
+        cmd_view = ["samtools", "view", "-F", "256", "-q", "255"] + sample_flag + [bam_file]
         r_view = subprocess.run(cmd_view, capture_output=True, text=True, check=True)
 
-        lines = [l for l in r_view.stdout.strip().split("\n") if l]
-        if not lines:
-            return None
-
-        n_sampled = len(lines)
-        n_spliced_sampled = 0
+        n_junctions_sampled = 0
         total_len = 0
-        for l in lines:
-            fields = l.split("\t")
+        n_sampled = 0
+        for line in r_view.stdout.splitlines():
+            if not line:
+                continue
+            fields = line.split("\t")
             if len(fields) < 10:
                 continue
-            if re.search(r'\d+N', fields[5]):
-                n_spliced_sampled += 1
+            n_sampled += 1
+            n_junctions_sampled += count_cigar_junctions(fields[5])
             total_len += len(fields[9])
 
-        avg_len = total_len / n_sampled if n_sampled > 0 else 0
-        splice_rate = n_spliced_sampled / n_sampled if n_sampled > 0 else 0
-        splice_per_kb = splice_rate * 1000.0 / avg_len if avg_len > 0 else 0
+        if n_sampled == 0:
+            return 0.0, 0, n_total, 0.0
 
-        # Scale n_spliced back to full BAM
-        n_spliced_est = int(splice_rate * n_total)
-        return round(splice_per_kb, 4), n_spliced_est, n_total, round(avg_len, 1)
+        avg_len = total_len / n_sampled
+        junction_rate = n_junctions_sampled / n_sampled
+        splice_per_kb = junction_rate * 1000.0 / avg_len if avg_len > 0 else 0.0
+        n_junctions_est = int(junction_rate * n_total)
+        return round(splice_per_kb, 4), n_junctions_est, n_total, round(avg_len, 1)
 
     except Exception as e:
         print(f"Warning: BAM-based splice/kb computation failed: {e}")
@@ -105,8 +120,8 @@ def compute_splice_per_kb(bam_file, star_log=None, sample_n=500000):
 
 def run_infer_experiment(bam_file, refgene_bed, test_read_num, output_dir, star_log=None):
     """
-    Runs RSeQC's infer_experiment.py, parses the output, and generates
-    a TSV file and a formatted pie chart. Also computes and saves splice/kb.
+    Runs RSeQC infer_experiment.py, parses the output, and generates a TSV
+    and pie chart. Also computes and appends splice/kb to the TSV.
     """
     if not os.path.isfile(bam_file):
         print(f"Error: Input BAM file not found at {bam_file}")
@@ -114,33 +129,36 @@ def run_infer_experiment(bam_file, refgene_bed, test_read_num, output_dir, star_
 
     os.makedirs(output_dir, exist_ok=True)
     base_name = os.path.basename(bam_file).replace('.bam', '')
+    tsv_path  = os.path.join(output_dir, f"{base_name}_bam2strandness.tsv")
 
-    # --- Run infer_experiment.py and write to TSV ---
-    tsv_path = os.path.join(output_dir, f"{base_name}_bam2strandness.tsv")
     frac_fwd, frac_rev, frac_failed, lib_type = "0", "0", "0", "Unknown"
+    spkb, n_junc, n_tot, avg_l = "NA", "NA", "NA", "NA"
 
     with open(tsv_path, "w") as f:
-        f.write("BAM\tdata type\t'1++,1--,2+-,2-+ (forward)'\t'1+-,1-+,2++,2-- (reverse)'\t"
-                "%reads failed to determine:\tSplice_per_kb\tn_spliced_reads\tn_total_reads\tavg_mapped_len_nt\n")
+        f.write(
+            "BAM\tdata type\t'1++,1--,2+-,2-+ (forward)'\t'1+-,1-+,2++,2-- (reverse)'\t"
+            "%reads failed to determine:\t"
+            "Splice_per_kb\tn_splice_junctions\tn_unique_reads\tavg_mapped_len_nt\n"
+        )
         try:
-            cmd = ["infer_experiment.py", "-i", bam_file, "-r", refgene_bed, "-s", str(test_read_num)]
+            cmd  = ["infer_experiment.py", "-i", bam_file, "-r", refgene_bed,
+                    "-s", str(test_read_num)]
             proc = subprocess.run(cmd, check=True,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            lines = proc.stdout.strip().split('\n')
+            lines       = proc.stdout.strip().split('\n')
             lib_type    = lines[0].strip() if lines else "Library type not found"
             frac_failed = lines[1].split(": ")[1] if len(lines) > 1 else "0"
             frac_fwd    = lines[2].split(": ")[1] if len(lines) > 2 else "0"
             frac_rev    = lines[3].split(": ")[1] if len(lines) > 3 else "0"
 
-            # Compute splice/kb
-            splice_result = compute_splice_per_kb(bam_file, star_log=star_log)
-            if splice_result:
-                spkb, n_spl, n_tot, avg_l = splice_result
-            else:
-                spkb, n_spl, n_tot, avg_l = "NA", "NA", "NA", "NA"
+            result = compute_splice_per_kb(bam_file, star_log=star_log)
+            if result:
+                spkb, n_junc, n_tot, avg_l = result
 
-            f.write(f"{bam_file}\t{lib_type}\t{frac_fwd}\t{frac_rev}\t{frac_failed}\t"
-                    f"{spkb}\t{n_spl}\t{n_tot}\t{avg_l}\n")
+            f.write(
+                f"{bam_file}\t{lib_type}\t{frac_fwd}\t{frac_rev}\t{frac_failed}\t"
+                f"{spkb}\t{n_junc}\t{n_tot}\t{avg_l}\n"
+            )
 
         except subprocess.CalledProcessError as e:
             error_message = f"Error processing {bam_file}: {e.stderr}"
@@ -150,9 +168,9 @@ def run_infer_experiment(bam_file, refgene_bed, test_read_num, output_dir, star_
             sys.exit(1)
 
     print(f"Strandness results written to {tsv_path}")
-    print(f"Splice/kb = {spkb}")
+    print(f"Splice/kb = {spkb}  (n_junctions={n_junc}, n_reads={n_tot}, avg_len={avg_l}nt)")
 
-    # --- Generate Publication-Quality Pie Chart ---
+    # --- Pie chart ---
     try:
         f_failed  = float(frac_failed)
         f_forward = float(frac_fwd)
@@ -166,16 +184,16 @@ def run_infer_experiment(bam_file, refgene_bed, test_read_num, output_dir, star_
     colors = ['#FF4500', '#FFA500', '#87CEEB']
 
     fig, ax = plt.subplots(figsize=(5, 3), dpi=300)
-    wedges, texts = ax.pie(
+    wedges, _ = ax.pie(
         sizes, startangle=90, colors=colors,
         wedgeprops={'edgecolor': 'white', 'linewidth': 1}, radius=1.2
     )
     ax.axis('equal')
-
-    title_str = (f"Percentage of strand specificity\n{lib_type}\n{base_name}\n"
-                 f"Splice/kb = {spkb}")
-    ax.set_title(title_str, fontsize=8, pad=10)
-
+    ax.set_title(
+        f"Percentage of strand specificity\n{lib_type}\n{base_name}\n"
+        f"Splice/kb = {spkb}",
+        fontsize=8, pad=10
+    )
     legend_labels = [f"{lbl} ({sz*100:.1f}%)" for lbl, sz in zip(labels, sizes)]
     ax.legend(wedges, legend_labels, loc='center left',
               bbox_to_anchor=(0.80, 0.5), frameon=False, prop={'size': 7})
@@ -185,32 +203,30 @@ def run_infer_experiment(bam_file, refgene_bed, test_read_num, output_dir, star_
     plt.savefig(pie_pdf, format='pdf', bbox_inches='tight')
     plt.savefig(pie_png, format='png', bbox_inches='tight')
     plt.close()
-
     print(f"Pie chart saved as: {pie_pdf}, {pie_png}")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Infer strand specificity and generate a TSV summary and pie chart. "
-                    "Also computes splice reads per kilobase (splice/kb) as a DNA contamination metric.",
+        description=(
+            "Infer strand specificity and generate a TSV summary and pie chart. "
+            "Also computes splices per kilobase (splice/kb) as a DNA contamination metric."
+        ),
         formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument("--input_bam",    required=True,  help="Input BAM file.")
-    parser.add_argument("--bed",          required=True,  help="Reference gene model in BED format (non-overlapping exon).")
-    parser.add_argument("--test_read_num", type=int, default=100000000,
-                        help="Number of reads to sample for strand inference (default: 100,000,000).")
-    parser.add_argument("--output_dir",   required=True,  help="Directory to save the output files.")
-    parser.add_argument("--star_log",     required=False, default=None,
-                        help="STAR Log.final.out from refined alignment (Step 6). "
-                             "Used for splice/kb computation. If omitted, BAM is sampled directly.")
+    parser.add_argument("--input_bam",     required=True)
+    parser.add_argument("--bed",           required=True,
+                        help="Non-overlapping exon BED for infer_experiment.py.")
+    parser.add_argument("--test_read_num", type=int, default=100000000)
+    parser.add_argument("--output_dir",    required=True)
+    parser.add_argument("--star_log",      required=False, default=None,
+                        help="STAR Log.final.out from Step 6 refined alignment. "
+                             "Primary source for splice/kb (fast, exact). "
+                             "Falls back to BAM sampling if absent.")
     args = parser.parse_args()
-
     run_infer_experiment(
-        args.input_bam,
-        args.bed,
-        args.test_read_num,
-        args.output_dir,
-        star_log=args.star_log
+        args.input_bam, args.bed, args.test_read_num,
+        args.output_dir, star_log=args.star_log
     )
 
 

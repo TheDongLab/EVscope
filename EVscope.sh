@@ -767,11 +767,11 @@ _step_7_impl() {
     local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
     assert_file_exists "$final_bam" "Aligned BAM from Step 6"
     local star_log_refined="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Log.final.out"
-    local star_log_arg=""
-    [[ -f "$star_log_refined" ]] && star_log_arg="--star_log ${star_log_refined}"
+    local star_log_args=()
+    [[ -f "$star_log_refined" ]] && star_log_args=(--star_log "$star_log_refined")
     run_python "${EVscope_PATH}/bin/Step_07_bam2strand.py" \
         --input_bam "$final_bam" --bed "${GENCODE_V45_non_overlapping_exon_BED:-}" \
-        --test_read_num 100000000 --output_dir "$step_dir" ${star_log_arg}
+        --test_read_num 100000000 --output_dir "$step_dir" "${star_log_args[@]}"
 }
 run_step_7() {
     local step_dir="${output_dir}/Step_07_Strand_Detection"

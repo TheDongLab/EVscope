@@ -273,7 +273,7 @@ def main():
         ("Percentage of Mapped Reads on Forward Strand", forward_strand if forward_strand > 0 else "NA"),
         ("Percentage of Mapped Reads on Reverse Strand", reverse_strand if reverse_strand > 0 else "NA"),
         ("Percentage of Mapped Reads with Failed Strand", failed_strand if failed_strand > 0 else "NA"),
-        ("Splice Reads per Kilobase (splice/kb, DNA contamination metric)", splice_per_kb if splice_per_kb != "NA" else "NA"),
+        ("Splices per Kilobase (splice/kb, DNA contamination metric)", splice_per_kb if splice_per_kb != "NA" else "NA"),
         ("Number of Uniquely Mapped Reads (STAR)", star_unique_reads if star_unique_reads > 0 else "NA"),
         ("Percentage of Uniquely Mapped Reads (vs STAR Input)", perc_unique_vs_star_input if perc_unique_vs_star_input > 0 else "NA"),
         ("Number of Multi-mapped Reads (STAR)", star_multi_reads if star_multi_reads > 0 else "NA"),
