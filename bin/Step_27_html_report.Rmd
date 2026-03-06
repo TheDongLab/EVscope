@@ -829,6 +829,29 @@ if (check_step_dir("Step_06_Alignment_Refined")) {
 if (check_step_dir("Step_07_Strand_Detection")) {
   display_image("Step_07_Strand_Detection", "bam2strandness_pie\\.png$", "Library Strandedness Distribution")
   display_datatable("Step_07_Strand_Detection", "bam2strandness\\.tsv$", "Strandedness Details")
+
+  # --- Splice/kb: DNA contamination metric ---
+  tsv_files <- list.files(
+    file.path(sample_dir, "Step_07_Strand_Detection"),
+    pattern = "bam2strandness\\.tsv$", full.names = TRUE
+  )
+  if (length(tsv_files) > 0) {
+    strand_df <- tryCatch(read.delim(tsv_files[1], check.names = FALSE), error = function(e) NULL)
+    if (!is.null(strand_df) && "Splice_per_kb" %in% colnames(strand_df)) {
+      spkb_val <- strand_df[["Splice_per_kb"]][1]
+      cat(paste0(
+        "<div style='border-left:4px solid #2196F3; padding:10px 16px; margin:12px 0;",
+        " background:#f0f7ff; border-radius:4px;'>",
+        "<b>Splice reads per kilobase (splice/kb): ", spkb_val, "</b><br/>",
+        "<span style='color:#555; font-size:0.92em;'>",
+        "DNA contamination metric. Expected: DNase-treated ~1.61 | No DNase ~0.19. ",
+        "Low splice/kb indicates residual gDNA contamination. ",
+        "EVscope applies gDNA correction (opposite-strand subtraction); ",
+        "splice/kb is an independent complementary QC check.",
+        "</span></div>"
+      ))
+    }
+  }
 }
 
 ```

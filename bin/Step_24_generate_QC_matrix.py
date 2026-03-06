@@ -119,8 +119,14 @@ def parse_bam2strand(strand_file):
         fields = f.readline().strip().split("\t")
     forward_pct = float(fields[2]) * 100
     reverse_pct = float(fields[3]) * 100
-    failed_pct = float(fields[4]) * 100
-    return round(forward_pct, 2), round(reverse_pct, 2), round(failed_pct, 2)
+    failed_pct  = float(fields[4]) * 100
+    # splice/kb column added in updated Step_07 (index 5)
+    splice_per_kb = fields[5].strip() if len(fields) > 5 else "NA"
+    try:
+        splice_per_kb = float(splice_per_kb)
+    except (ValueError, TypeError):
+        splice_per_kb = "NA"
+    return round(forward_pct, 2), round(reverse_pct, 2), round(failed_pct, 2), splice_per_kb
 
 def parse_picard_metrics(file_path):
     header, data_line = None, None
@@ -257,7 +263,7 @@ def main():
     star_multi_reads = int(star_metrics.get("Multi-mapping reads number (STAR)", 0))
     perc_multi_vs_star_input = round((star_multi_reads / star_input_reads) * 100, 2) if star_input_reads > 0 else 0
     
-    (forward_strand, reverse_strand, failed_strand) = safe_call(parse_bam2strand, args.bam2strand_file, default=(0, 0, 0))
+    (forward_strand, reverse_strand, failed_strand, splice_per_kb) = safe_call(parse_bam2strand, args.bam2strand_file, default=(0, 0, 0, "NA"))
 
     ordered_metrics.extend([
         ("Total Fragments Mapped to Human (First STAR)", int(initial_star_mapped_fragments) if initial_star_mapped_fragments > 0 else "NA"),
@@ -267,6 +273,7 @@ def main():
         ("Percentage of Mapped Reads on Forward Strand", forward_strand if forward_strand > 0 else "NA"),
         ("Percentage of Mapped Reads on Reverse Strand", reverse_strand if reverse_strand > 0 else "NA"),
         ("Percentage of Mapped Reads with Failed Strand", failed_strand if failed_strand > 0 else "NA"),
+        ("Splice Reads per Kilobase (splice/kb, DNA contamination metric)", splice_per_kb if splice_per_kb != "NA" else "NA"),
         ("Number of Uniquely Mapped Reads (STAR)", star_unique_reads if star_unique_reads > 0 else "NA"),
         ("Percentage of Uniquely Mapped Reads (vs STAR Input)", perc_unique_vs_star_input if perc_unique_vs_star_input > 0 else "NA"),
         ("Number of Multi-mapped Reads (STAR)", star_multi_reads if star_multi_reads > 0 else "NA"),
