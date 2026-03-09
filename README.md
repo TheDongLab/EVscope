@@ -270,7 +270,6 @@ If you use EVscope in your research, please cite:
 - **Weiqiang Liu**: Data curation
 - **Yuxuan Hu**: Validation
 - **Ewa Grassin**: Resources [supporting]
-- **Luke P. Lee**: Resources [supporting]
 - **Xianjun Dong**: Conceptualization, Methodology, Funding, Supervision
 
 **Affiliations**:
