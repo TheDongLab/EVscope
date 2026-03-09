@@ -259,7 +259,7 @@ Please report bugs via [GitHub Issues](https://github.com/YiyongZhao/EVscope/iss
 
 If you use EVscope in your research, please cite:
 
-> Zhao, Y., Chintalapudi, H., Xu, Z., Liu, W., Hu, Y., Grassin, E., Song, M., Hong, S., Lee, L. P., & Dong, X. (2025). EVscope: A Comprehensive Pipeline for Extracellular Vesicle RNA-Seq Analysis. *In preparation*.
+> Zhao, Y., Chintalapudi, H., Xu, Z., Liu, W., Hu, Y., Grassin, E., Lee, L. P., & Dong, X. (2026). EVscope: A Comprehensive Bioinformatics Pipeline for Accurate and Robust Analysis of Total RNA Sequencing from Extracellular Vesicles. *Bioinformatics* (submitted). Zenodo: https://zenodo.org/records/15577789
 
 ## Credits
 
@@ -269,18 +269,23 @@ If you use EVscope in your research, please cite:
 - **Ziqian Xu**: Resources
 - **Weiqiang Liu**: Data curation
 - **Yuxuan Hu**: Validation
-- **Ewa Grassin, Minsun Song, SoonGweon Hong, Luke P. Lee**: Resources
+- **Ewa Grassin**: Resources [supporting]
+- **Luke P. Lee**: Resources [supporting]
 - **Xianjun Dong**: Conceptualization, Methodology, Funding, Supervision
 
 **Affiliations**:
-1. Department of Neurology and Biomedical Informatics and Data Science, Yale School of Medicine, Yale University, New Haven, CT, USA
-2. Aligning Science Across Parkinson's (ASAP) Collaborative Research Network, Chevy Chase, MD, USA
-3. Department of Medicine, Brigham and Women's Hospital, Harvard Medical School, Boston, MA, USA
-4. Department of Bioengineering, University of California at Berkeley, Berkeley, CA, USA
+1. Stephen & Denise Adams Center for Parkinson's Disease Research of Yale School of Medicine, New Haven, CT 06510, USA
+2. Department of Neurology, Yale School of Medicine, Yale University, New Haven, CT 06510, USA
+3. Aligning Science Across Parkinson's (ASAP) Collaborative Research Network, Chevy Chase, MD 20815, USA
+4. Department of Medicine, Brigham and Women's Hospital, Harvard Medical School, Harvard University, Boston, MA, USA
 
 **Funding**:
 - NIH Grants: 1R01NS124916, 1R24NS132738
 - Aligning Science Across Parkinson's: ASAP-000301, ASAP-000529 (via Michael J. Fox Foundation)
+
+**Data Availability**:
+Source code: [https://github.com/TheDongLab/EVscope](https://github.com/TheDongLab/EVscope) and Zenodo (https://zenodo.org/records/15577789) under MIT license.
+Raw sequencing data: NCBI SRA (accession: SRR31350808–SRR31350811).
 
 **Corresponding Author**: Xianjun Dong ([xianjun.dong@yale.edu](mailto:xianjun.dong@yale.edu))
 
@@ -291,4 +296,4 @@ EVscope is licensed under the [Creative Commons Attribution 4.0 International Li
 ## Contact
 
 - **Xianjun Dong**: [xianjun.dong@yale.edu](mailto:xianjun.dong@yale.edu)
-- **GitHub**: [https://github.com/YiyongZhao/EVscope](https://github.com/YiyongZhao/EVscope)
+- **GitHub**: [https://github.com/TheDongLab/EVscope](https://github.com/TheDongLab/EVscope)
