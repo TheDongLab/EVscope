@@ -208,7 +208,7 @@ bash EVscope.sh --sample_name Example_Data \
 | 4 | Quality control of trimmed FASTQs |
 | 5 | Bacterial contamination screening (E. coli, Mycoplasma) using BBSplit |
 | 6 | Two-pass STAR alignment with UMI deduplication |
-| 7 | Library strandedness detection and gDNA assessment |
+| 7 | Library strandedness detection; splice/kb DNA contamination metric (primary source: STAR Log.final.out from Step 6) |
 | 8 | CIRCexplorer2-based circular RNA detection |
 | 9 | CIRI2-based circular RNA detection using BWA alignments |
 | 10 | Merging of CIRCexplorer2 and CIRI2 circRNA results |

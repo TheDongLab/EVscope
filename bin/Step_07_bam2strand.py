@@ -37,11 +37,26 @@ mpl.rcParams['pdf.fonttype'] = 42
 
 # Compiled regex for splice junction detection in CIGAR
 _SPLICE_RE = re.compile(r'(\d+)N')
+# Compiled regex for M (match/mismatch) operations in CIGAR
+_MATCH_RE  = re.compile(r'(\d+)M')
 
 
 def count_cigar_junctions(cigar):
     """Count the number of N operations (splice junctions) in a CIGAR string."""
     return len(_SPLICE_RE.findall(cigar))
+
+
+def cigar_mapped_len(cigar):
+    """Sum of M (match/mismatch) operations in CIGAR string.
+
+    This matches STAR 'Average mapped length': only aligned M bases are counted.
+    Soft-clipped (S) and intronic (N) bases are excluded, consistent with STAR
+    reporting splice junction statistics from uniquely mapped reads only.
+
+    Example: '19M170458N61M' -> 80 nt  (intron N excluded)
+             '1S65M'         -> 65 nt  (soft-clip S excluded)
+    """
+    return sum(int(n) for n in _MATCH_RE.findall(cigar))
 
 
 def compute_splice_per_kb(bam_file, star_log=None, sample_n=500000):
@@ -102,7 +117,7 @@ def compute_splice_per_kb(bam_file, star_log=None, sample_n=500000):
                 continue
             n_sampled += 1
             n_junctions_sampled += count_cigar_junctions(fields[5])
-            total_len += len(fields[9])
+            total_len += cigar_mapped_len(fields[5])  # M-ops only, matches STAR avg_mapped_len
 
         if n_sampled == 0:
             return 0.0, 0, n_total, 0.0
