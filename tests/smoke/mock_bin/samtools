@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+set -euo pipefail
+
+if [[ "${1:-}" == "--version" ]]; then
+  echo "samtools 1.21 (EVscope smoke mock)"
+  exit 0
+fi
+
+command_name="${1:-}"
+shift || true
+if [[ -n "${MOCK_SAMTOOLS_LOG:-}" ]]; then
+  printf '%s %s\n' "$command_name" "$*" >> "$MOCK_SAMTOOLS_LOG"
+fi
+
+case "$command_name" in
+  index)
+    bam="${!#}"
+    printf 'mock BAI\n' > "${bam}.bai"
+    ;;
+  quickcheck)
+    bam="${!#}"
+    [[ -s "$bam" ]]
+    ;;
+  flagstat)
+    echo '2 + 0 in total (QC-passed reads + QC-failed reads)'
+    ;;
+  *)
+    echo "mock samtools: unsupported command ${command_name}" >&2
+    exit 1
+    ;;
+esac

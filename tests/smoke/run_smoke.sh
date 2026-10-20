@@ -5,13 +5,24 @@ repo_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$repo_dir"
 
 mkdir -p tests/smoke/work
-rm -rf tests/smoke/work/emapper
+rm -rf tests/smoke/work/emapper tests/smoke/work/smrna
+chmod +x tests/smoke/mock_bin/*
 
-bash -n EVscope.sh
-for sh in bin/*.sh; do bash -n "$sh"; done
+tr -d '\r' < EVscope.sh | bash -n
+for sh in bin/*.sh; do tr -d '\r' < "$sh" | bash -n; done
 python3 -m py_compile bin/*.py
-bash EVscope.sh --help >/dev/null
+python3 tests/test_summary_report.py
+help_output=$(bash EVscope.sh --help)
+grep -q -- '--kit <kit>' <<< "$help_output"
+grep -q 'smarter_total_rna' <<< "$help_output"
+grep -q 'smarter_smrna' <<< "$help_output"
 bash EVscope.sh --version >/dev/null
+
+if bash EVscope.sh --kit unsupported_kit >/dev/null 2>tests/smoke/work/invalid_kit.stderr; then
+  echo "unsupported --kit value was unexpectedly accepted" >&2
+  exit 1
+fi
+grep -q -- "--kit must be 'smarter_total_rna' or 'smarter_smrna'" tests/smoke/work/invalid_kit.stderr
 
 python3 bin/Step_02_calculate_ACC_motif_fraction.py \
   --input_fastq tests/smoke/data/toy_R2.fastq.gz \
@@ -19,6 +30,78 @@ python3 bin/Step_02_calculate_ACC_motif_fraction.py \
   --output_tsv tests/smoke/work/acc.tsv
 
 test -s tests/smoke/work/acc.tsv
+
+smrna_work="$repo_dir/tests/smoke/work/smrna"
+mkdir -p "$smrna_work"
+(
+  cd "$smrna_work"
+  PATH="$repo_dir/tests/smoke/mock_bin:$PATH" \
+  MOCK_CUTADAPT_LOG="$smrna_work/cutadapt.calls" \
+  MOCK_STAR_LOG="$smrna_work/star.calls" \
+  MOCK_SAMTOOLS_LOG="$smrna_work/samtools.calls" \
+    bash "$repo_dir/EVscope.sh" \
+      --sample_name smarter_smoke \
+      --kit smarter_smrna \
+      --input_fastqs "$repo_dir/tests/smoke/data/smarter_smrna_R1.fastq" "$repo_dir/tests/smoke/data/smarter_smrna_R2.fastq" \
+      --run_steps 2-3,6 \
+      --config "$repo_dir/tests/smoke/minimal.conf"
+)
+
+smrna_output="$smrna_work/smarter_smoke_EVscope_output"
+clean_fastq="$smrna_output/Step_03_UMI_Adaptor_Trim/smarter_smoke_R1_clean.fq.gz"
+clean_fastq2="$smrna_output/Step_03_UMI_Adaptor_Trim/smarter_smoke_R2_clean.fq.gz"
+profile_tsv="$smrna_output/Step_02_UMI_Analysis/smarter_smoke_library_profile.tsv"
+step_meta="$smrna_output/Step_03_UMI_Adaptor_Trim/step.meta.json"
+alignment_meta="$smrna_output/Step_06_Alignment_Refined/step.meta.json"
+analysis_bam="$smrna_output/Step_06_Alignment_Refined/smarter_smoke_STAR_no_dedup_Aligned.sortedByCoord.out.bam"
+gzip -dc "$clean_fastq" | diff -u tests/smoke/expected/smarter_smrna_clean.fastq -
+gzip -dc "$clean_fastq2" | diff -u tests/smoke/expected/smarter_smrna_R2_clean.fastq -
+awk -F '\t' '$1 == "UMI" && $2 == "No" {found=1} END {exit !found}' "$profile_tsv"
+awk -F '\t' '$1 == "Input layout" && $2 == "Paired-end Read 1 / Read 2" {found=1} END {exit !found}' "$profile_tsv"
+grep -q '"kit": "smarter_smrna"' "$step_meta"
+grep -q '"strand": "forward"' "$step_meta"
+grep -Fq -- '-u 3 -U 14 -a AAAAAAAAAA;min_overlap=3' "$smrna_work/cutadapt.calls"
+grep -Fq -- '-A NNNAGATCGGAAGAGC;min_overlap=10' "$smrna_work/cutadapt.calls"
+grep -Fq -- '-q 20 -Q 20 --minimum-length 15' "$smrna_work/cutadapt.calls"
+test ! -e "$smrna_output/Step_03_UMI_Adaptor_Trim/smarter_smoke_R1_umi_tools.fq.gz"
+test -s "$analysis_bam"
+grep -q '"kit": "smarter_smrna"' "$alignment_meta"
+grep -q '"strand": "forward"' "$alignment_meta"
+test -s "$smrna_output/Step_06_Alignment_Initial/smarter_smoke_R1_no_dedup.clean.fq.gz"
+test -s "$smrna_output/Step_06_Alignment_Initial/smarter_smoke_R2_no_dedup.clean.fq.gz"
+test ! -e "$smrna_output/Step_06_Alignment_Initial/smarter_smoke_R1_umi_dedup.clean.fq.gz"
+test "$(wc -l < "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--twopassMode None' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--alignEndsType EndToEnd' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--alignIntronMax 1' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--outFilterMismatchNmax 1' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--outFilterScoreMinOverLread 0' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--outFilterMatchNminOverLread 0' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--outFilterScoreMin 24' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--outFilterMatchNmin 28' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--mockGlobalInjected yes' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--mockSmrnaInjected yes' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--chimSegmentMin 10' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--chimJunctionOverhangMin 10' "$smrna_work/star.calls")" -eq 2
+test "$(grep -Fc -- '--chimOutType Junctions WithinBAM' "$smrna_work/star.calls")" -eq 2
+test -s "$smrna_output/Step_06_Alignment_Refined/smarter_smoke_STAR_no_dedup_Chimeric.out.junction"
+
+if (
+  cd "$smrna_work"
+  PATH="$repo_dir/tests/smoke/mock_bin:$PATH" \
+    bash "$repo_dir/EVscope.sh" \
+      --sample_name smarter_smoke \
+      --kit smarter_total_rna \
+      --input_fastqs "$repo_dir/tests/smoke/data/smarter_smrna_R1.fastq" "$repo_dir/tests/smoke/data/smarter_smrna_R2.fastq" \
+      --run_steps 2 \
+      --resume \
+      --config "$repo_dir/tests/smoke/minimal.conf"
+) >/dev/null 2>"$smrna_work/cross_kit_resume.stderr"
+then
+  echo "cross-kit --resume unexpectedly reused SMARTer smRNA results" >&2
+  exit 1
+fi
+grep -q 'metadata does not match current inputs/config/parameters' "$smrna_work/cross_kit_resume.stderr"
 
 if python3 - <<'PY'
 import importlib.util, sys

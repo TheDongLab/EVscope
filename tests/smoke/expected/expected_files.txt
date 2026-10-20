@@ -1,4 +1,8 @@
 work/acc.tsv
+work/smrna/smarter_smoke_EVscope_output/Step_02_UMI_Analysis/smarter_smoke_library_profile.tsv
+work/smrna/smarter_smoke_EVscope_output/Step_03_UMI_Adaptor_Trim/smarter_smoke_R1_clean.fq.gz
+work/smrna/smarter_smoke_EVscope_output/Step_03_UMI_Adaptor_Trim/smarter_smoke_R2_clean.fq.gz
+work/smrna/smarter_smoke_EVscope_output/Step_06_Alignment_Refined/smarter_smoke_STAR_no_dedup_Aligned.sortedByCoord.out.bam
 work/read_length.pdf
 work/read_length.png
 work/emapper/out/tiny_readcounts.txt

@@ -84,8 +84,10 @@ def clean_sample_name_from_bam_basename(base_name):
     """Convert EVscope BAM basename to display sample name for plotting."""
     suffixes = [
         '_STAR_umi_dedup_Aligned.sortedByCoord.out',
+        '_STAR_no_dedup_Aligned.sortedByCoord.out',
         '_Aligned.sortedByCoord.out',
         '_Aligned.sortedByCoord_umi_dedup.out',
+        '_Aligned.sortedByCoord_no_dedup.out',
     ]
     sample_name = base_name
     for suffix in suffixes:

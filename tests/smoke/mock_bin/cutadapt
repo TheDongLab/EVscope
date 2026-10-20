@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""Small cutadapt test double for EVscope's SMARTer smRNA smoke test.
+
+It implements only the options used by the two Step 3 cutadapt calls. The
+production pipeline continues to use the real cutadapt executable.
+"""
+
+import gzip
+import json
+import os
+import sys
+from pathlib import Path
+
+
+def open_text(path, mode):
+    if str(path).endswith(".gz"):
+        return gzip.open(path, mode, encoding="utf-8", newline="")
+    return open(path, mode, encoding="utf-8", newline="")
+
+
+def parse_args(argv):
+    options = {
+        "cut": 0,
+        "cut2": 0,
+        "adapter": None,
+        "adapter2": None,
+        "minimum_length": 0,
+        "quality": None,
+        "quality2": None,
+    }
+    output = None
+    output2 = None
+    json_path = None
+    positional = []
+    value_options = {
+        "-u": "cut",
+        "-U": "cut2",
+        "-a": "adapter",
+        "-A": "adapter2",
+        "-m": "minimum_length",
+        "--minimum-length": "minimum_length",
+        "-q": "quality",
+        "-Q": "quality2",
+    }
+    ignored_value_options = {"--overlap", "-j"}
+    i = 0
+    while i < len(argv):
+        arg = argv[i]
+        if arg in value_options:
+            i += 1
+            options[value_options[arg]] = argv[i]
+        elif arg in ignored_value_options:
+            i += 1
+        elif arg == "-o":
+            i += 1
+            output = argv[i]
+        elif arg == "-p":
+            i += 1
+            output2 = argv[i]
+        elif arg == "--json":
+            i += 1
+            json_path = argv[i]
+        elif arg.startswith("-"):
+            raise SystemExit(f"mock cutadapt: unsupported option {arg}")
+        else:
+            positional.append(arg)
+        i += 1
+
+    expected_inputs = 2 if output2 is not None else 1
+    if output is None or len(positional) != expected_inputs:
+        raise SystemExit(f"mock cutadapt: expected {expected_inputs} input(s) and matching output(s)")
+    options["cut"] = int(options["cut"])
+    options["cut2"] = int(options["cut2"])
+    options["minimum_length"] = int(options["minimum_length"])
+    options["quality"] = int(options["quality"]) if options["quality"] is not None else None
+    options["quality2"] = int(options["quality2"]) if options["quality2"] is not None else None
+    return positional, (output, output2), json_path, options
+
+
+def read_fastq(path):
+    with open_text(path, "rt") as handle:
+        while True:
+            header = handle.readline()
+            if not header:
+                return
+            sequence = handle.readline().rstrip("\r\n")
+            plus = handle.readline()
+            quality = handle.readline().rstrip("\r\n")
+            if not plus or len(sequence) != len(quality):
+                raise SystemExit("mock cutadapt: invalid FASTQ input")
+            yield header.rstrip("\r\n"), sequence, plus.rstrip("\r\n"), quality
+
+
+def trim_record(record, cut, adapter, quality_cutoff, minimum_length):
+    header, sequence, plus, quality = record
+    if cut > 0:
+        sequence = sequence[cut:]
+        quality = quality[cut:]
+
+    if adapter:
+        adapter = adapter.split(";", 1)[0]
+        wildcard_prefix = len(adapter) - len(adapter.lstrip("N"))
+        search_adapter = adapter[wildcard_prefix:]
+        adapter_start = sequence.find(search_adapter)
+        if adapter_start >= wildcard_prefix:
+            adapter_start -= wildcard_prefix
+        if adapter_start >= 0:
+            sequence = sequence[:adapter_start]
+            quality = quality[:adapter_start]
+
+    if quality_cutoff is not None:
+        while quality and ord(quality[-1]) - 33 < quality_cutoff:
+            sequence = sequence[:-1]
+            quality = quality[:-1]
+
+    if len(sequence) < minimum_length:
+        return None
+    return header, sequence, plus, quality
+
+
+def main():
+    if "--version" in sys.argv[1:]:
+        print("cutadapt 4.9 (EVscope smoke mock)")
+        return
+
+    input_paths, output_paths, json_path, options = parse_args(sys.argv[1:])
+    invocation_log = os.environ.get("MOCK_CUTADAPT_LOG")
+    if invocation_log:
+        with open(invocation_log, "a", encoding="utf-8") as handle:
+            handle.write(" ".join(sys.argv[1:]) + "\n")
+
+    written = 0
+    output_path, output_path2 = output_paths
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    if output_path2 is None:
+        with open_text(output_path, "wt") as output_handle:
+            for record in read_fastq(input_paths[0]):
+                trimmed = trim_record(
+                    record, options["cut"], options["adapter"],
+                    options["quality"], options["minimum_length"]
+                )
+                if trimmed is None:
+                    continue
+                output_handle.write("{}\n{}\n{}\n{}\n".format(*trimmed))
+                written += 1
+    else:
+        Path(output_path2).parent.mkdir(parents=True, exist_ok=True)
+        with open_text(output_path, "wt") as output_handle1, open_text(output_path2, "wt") as output_handle2:
+            for record1, record2 in zip(read_fastq(input_paths[0]), read_fastq(input_paths[1])):
+                trimmed1 = trim_record(
+                    record1, options["cut"], options["adapter"],
+                    options["quality"], options["minimum_length"]
+                )
+                trimmed2 = trim_record(
+                    record2, options["cut2"], options["adapter2"],
+                    options["quality2"], options["minimum_length"]
+                )
+                if trimmed1 is None or trimmed2 is None:
+                    continue
+                output_handle1.write("{}\n{}\n{}\n{}\n".format(*trimmed1))
+                output_handle2.write("{}\n{}\n{}\n{}\n".format(*trimmed2))
+                written += 1
+
+    if json_path:
+        Path(json_path).write_text(json.dumps({"mock": True, "written": written}) + "\n", encoding="utf-8")
+
+
+if __name__ == "__main__":
+    main()

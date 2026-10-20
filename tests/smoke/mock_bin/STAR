@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+set -euo pipefail
+
+if [[ "${1:-}" == "--version" ]]; then
+  echo "STAR_2.7.11b (EVscope smoke mock)"
+  exit 0
+fi
+
+prefix=""
+args=("$@")
+for ((i = 0; i < ${#args[@]}; i++)); do
+  if [[ "${args[$i]}" == "--outFileNamePrefix" ]]; then
+    prefix="${args[$((i + 1))]}"
+    break
+  fi
+done
+[[ -n "$prefix" ]]
+mkdir -p "$(dirname "$prefix")"
+printf 'mock BAM\n' > "${prefix}Aligned.sortedByCoord.out.bam"
+printf 'Number of input reads | 2\nUniquely mapped reads number | 2\nAverage input read length | 22\nAverage mapped length | 22\n' > "${prefix}Log.final.out"
+printf 'mock junction\n' > "${prefix}Chimeric.out.junction"
+printf 'mock splice junction\n' > "${prefix}SJ.out.tab"
+
+if [[ -n "${MOCK_STAR_LOG:-}" ]]; then
+  printf '%s\n' "$*" >> "$MOCK_STAR_LOG"
+fi

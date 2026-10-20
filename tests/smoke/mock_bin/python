@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+set -euo pipefail
+
+# Step 3 plotting is not what this branch test exercises. CI also runs the real
+# plotting smoke test below when matplotlib is installed.
+if [[ "${1:-}" == *"Step_03_plot_fastq_read_length_dist.py" ]]; then
+  shift
+  output_pdf=""
+  output_png=""
+  while (( $# > 0 )); do
+    case "$1" in
+      --output_pdf)
+        output_pdf="$2"
+        shift 2
+        ;;
+      --output_png)
+        output_png="$2"
+        shift 2
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+  [[ -n "$output_pdf" && -n "$output_png" ]]
+  printf 'EVscope smoke plot placeholder\n' > "$output_pdf"
+  printf 'EVscope smoke plot placeholder\n' > "$output_png"
+  exit 0
+fi
+
+exec python3 "$@"

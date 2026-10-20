@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 # ==============================================================================
 # EVscope.sh: Modular RNA-seq Analysis Pipeline
-# Version: 1.0.0
+# Version: 1.1.0
 # Description:
 #   RNA-seq pipeline with comprehensive error handling, strict
 #   variable scoping, robust input validation, and production-grade QC. Features
@@ -23,6 +23,7 @@
 # Repository: https://github.com/TheDongLab/EVscope
 # Changelog:
 #   v1.0.0 - Initial release with 27-step modular workflow
+#   v1.1.0 - Add kit-aware SMARTer smRNA-seq preprocessing and no-UMI mode
 # ==============================================================================
 # ------------------------------------------------------------------------------
 # SHELL OPTIONS AND SAFETY SETTINGS
@@ -42,7 +43,7 @@ if command -v realpath &>/dev/null; then
 else
     readonly SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 fi
-readonly VERSION="1.0.0"
+readonly VERSION="1.1.0"
 readonly PIPELINE_BASE_DIR="$SCRIPT_DIR"
 readonly MIN_BASH_VERSION="4.0"
 readonly MAX_PIPELINE_STEPS=27
@@ -59,6 +60,9 @@ declare -- circ_tool="both"
 declare -- read_count_mode="uniq"
 declare -- gDNA_correction="no"
 declare -- strand="unstrand"
+declare -- kit="smarter_total_rna"
+declare -- alignment_tag="umi_dedup"
+declare -- result_dedup_tag="dedup"
 declare -- config_file=""
 declare -- output_dir=""
 declare -- fastq_read1=""
@@ -155,15 +159,16 @@ ${C_BOLD}USAGE:${C_RESET}
     bash ${SCRIPT_NAME} [OPTIONS] --sample_name <n> --input_fastqs <file1> [file2]
 ${C_BOLD}REQUIRED ARGUMENTS:${C_RESET}
     --sample_name <n>         Unique sample identifier (alphanumeric, underscore, hyphen, dot)
-    --input_fastqs <files>    Input FASTQ file(s): one for SE, two for PE (space- or comma-separated)
+    --input_fastqs <files>    Input FASTQ(s): Total RNA and smRNA accept SE or paired R1/R2
 ${C_BOLD}OPTIONAL ARGUMENTS:${C_RESET}
     --threads <int>           CPU threads for parallel operations (default: 1)
+    --kit <kit>               Library kit: smarter_total_rna (default) or smarter_smrna
     --run_steps <spec>        Steps to execute: "all" or comma-separated list/ranges
     --skip_steps <spec>       Steps to skip (same format as --run_steps)
     --circ_tool <tool>        circRNA detection tool (default: both)
     --read_count_mode <mode>  Read counting strategy (default: uniq)
     --gDNA_correction <bool>  Apply genomic DNA correction (default: no)
-    --strand <strand>         Library strand orientation (default: unstrand)
+    --strand <strand>         Library strand orientation (default: unstrand; smRNA: forward)
     --config <path>           Path to configuration file
     --resume                  Resume an existing output directory after metadata checks
     --force                   Re-run steps and allow overwriting an existing output directory
@@ -197,6 +202,22 @@ check_bash_version() {
 sanitize_string() {
     local input="${1:-}"
     echo "${input//[^a-zA-Z0-9_.-]/_}"
+}
+normalize_kit() {
+    local value="${1:-}"
+    value="${value,,}"
+    value="${value//-/_}"
+    case "$value" in
+        smarter_total_rna|smartseq_total_rna|smartseq_total|total_rna)
+            printf '%s\n' "smarter_total_rna"
+            ;;
+        smarter_smrna|smarter_smrna_seq|smrna|smrna_seq)
+            printf '%s\n' "smarter_smrna"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 get_absolute_path() {
     local path="${1:-}"
@@ -334,7 +355,10 @@ check_dependencies() {
     fi
 
     any_step_selected 1 4 && add_unique_item core_dependencies "fastqc"
-    step_is_selected 3 && { add_unique_item core_dependencies "umi_tools"; add_unique_item core_dependencies "cutadapt"; }
+    step_is_selected 3 && add_unique_item core_dependencies "cutadapt"
+    if [[ "$kit" == "smarter_total_rna" ]] && any_step_selected 3 6; then
+        add_unique_item core_dependencies "umi_tools"
+    fi
     step_is_selected 6 && { add_unique_item core_dependencies "STAR"; add_unique_item core_dependencies "samtools"; }
     any_step_selected 7 8 11 12 13 18 25 && add_unique_item core_dependencies "samtools"
     step_is_selected 9 && { add_unique_item core_dependencies "bwa"; add_unique_item core_dependencies "perl"; }
@@ -464,6 +488,18 @@ validate_config_vars() {
         exit 1
     fi
 
+    if step_is_selected 6; then
+        local declaration
+        for var in STAR_COMMON_ARGS STAR_TOTAL_RNA_ARGS STAR_SMRNA_SE_ARGS STAR_SMRNA_PE_ARGS \
+                   STAR_EXTRA_ARGS STAR_TOTAL_RNA_EXTRA_ARGS STAR_SMRNA_EXTRA_ARGS; do
+            declaration="$(declare -p "$var" 2>/dev/null || true)"
+            if [[ "$declaration" != "declare -a "* ]]; then
+                log 4 "ERROR" "STAR configuration variable must be a Bash indexed array: '${var}'"
+                missing_vars=$((missing_vars + 1))
+            fi
+        done
+    fi
+
     for var in "${path_vars[@]}"; do
         path="${!var:-}"
         if [[ -z "$path" ]]; then
@@ -522,6 +558,37 @@ validate_config_vars() {
     log 2 "INFO" "Selected-step configuration variables validated."
     return 0
 }
+
+set_star_config_defaults() {
+    # Backward compatibility for custom configuration files created before v1.1.0.
+    declare -p STAR_COMMON_ARGS &>/dev/null || STAR_COMMON_ARGS=(
+        --readFilesCommand zcat --outFilterMultimapNmax 100
+        --winAnchorMultimapNmax 100 --outSAMtype BAM SortedByCoordinate
+    )
+    declare -p STAR_TOTAL_RNA_ARGS &>/dev/null || STAR_TOTAL_RNA_ARGS=(
+        --twopassMode Basic --chimSegmentMin 10 --chimJunctionOverhangMin 10
+        --chimScoreMin 1 --chimOutType Junctions WithinBAM
+    )
+    declare -p STAR_SMRNA_SE_ARGS &>/dev/null || STAR_SMRNA_SE_ARGS=(
+        --twopassMode None --alignEndsType EndToEnd --alignIntronMax 1
+        --outFilterMismatchNmax 1 --outFilterMultimapScoreRange 0
+        --outFilterScoreMinOverLread 0 --outFilterMatchNminOverLread 0
+        --outFilterScoreMin 12 --outFilterMatchNmin 14
+        --chimSegmentMin 10 --chimJunctionOverhangMin 10
+        --chimScoreMin 1 --chimOutType Junctions WithinBAM
+    )
+    declare -p STAR_SMRNA_PE_ARGS &>/dev/null || STAR_SMRNA_PE_ARGS=(
+        --twopassMode None --alignEndsType EndToEnd --alignIntronMax 1
+        --outFilterMismatchNmax 1 --outFilterMultimapScoreRange 0
+        --outFilterScoreMinOverLread 0 --outFilterMatchNminOverLread 0
+        --outFilterScoreMin 24 --outFilterMatchNmin 28
+        --chimSegmentMin 10 --chimJunctionOverhangMin 10
+        --chimScoreMin 1 --chimOutType Junctions WithinBAM
+    )
+    declare -p STAR_EXTRA_ARGS &>/dev/null || STAR_EXTRA_ARGS=()
+    declare -p STAR_TOTAL_RNA_EXTRA_ARGS &>/dev/null || STAR_TOTAL_RNA_EXTRA_ARGS=()
+    declare -p STAR_SMRNA_EXTRA_ARGS &>/dev/null || STAR_SMRNA_EXTRA_ARGS=()
+}
 assert_file_exists() {
     local filepath="${1:-}"
     local description="${2:-file}"
@@ -568,6 +635,15 @@ assert_valid_bam() {
         exit 1
     fi
     return 0
+}
+link_or_copy_file() {
+    local source_path="${1:-}"
+    local destination_path="${2:-}"
+    assert_file_exists "$source_path" "source file for no-dedup pass-through"
+    rm -f -- "$destination_path"
+    if ! ln -- "$source_path" "$destination_path" 2>/dev/null; then
+        cp -- "$source_path" "$destination_path"
+    fi
 }
 assert_dir_exists() {
     local dirpath="${1:-}"
@@ -635,6 +711,7 @@ current_run_signature() {
         printf 'version=%s\n' "$VERSION"
         printf 'step=%s\n' "$step_name"
         printf 'sample=%s\n' "$sample_name"
+        printf 'kit=%s\n' "$kit"
         printf 'is_paired_end=%s\n' "$is_paired_end"
         printf 'strand=%s\n' "$strand"
         printf 'gDNA_correction=%s\n' "$gDNA_correction"
@@ -669,8 +746,8 @@ write_step_meta() {
         printf '  "config_file": "%s",\n' "$(json_escape "$config_file")"
         printf '  "fastq_read1": "%s",\n' "$(json_escape "$fastq_read1")"
         printf '  "fastq_read2": "%s",\n' "$(json_escape "$fastq_read2")"
-        printf '  "parameters": {"strand": "%s", "gDNA_correction": "%s", "circ_tool": "%s", "read_count_mode": "%s", "threads": "%s"}\n' \
-            "$(json_escape "$strand")" "$(json_escape "$gDNA_correction")" "$(json_escape "$circ_tool")" "$(json_escape "$read_count_mode")" "$(json_escape "$thread_count")"
+        printf '  "parameters": {"kit": "%s", "strand": "%s", "gDNA_correction": "%s", "circ_tool": "%s", "read_count_mode": "%s", "threads": "%s"}\n' \
+            "$(json_escape "$kit")" "$(json_escape "$strand")" "$(json_escape "$gDNA_correction")" "$(json_escape "$circ_tool")" "$(json_escape "$read_count_mode")" "$(json_escape "$thread_count")"
         printf '}\n'
     } > "$meta_file"
 }
@@ -802,8 +879,31 @@ declare -A STEP_DESCRIPTIONS=(
     [24]="MultiQC comprehensive QC summary"
     [25]="Coverage analysis and BigWig generation (EMapper)"
     [26]="Coverage density plots (RNA types and meta-gene regions)"
-    [27]="Final HTML report generation"
+    [27]="Detailed and concise standalone HTML report generation"
 )
+apply_kit_profile() {
+    local strand_was_set="${1:-false}"
+    case "$kit" in
+        smarter_total_rna)
+            alignment_tag="umi_dedup"
+            result_dedup_tag="dedup"
+            ;;
+        smarter_smrna)
+            alignment_tag="no_dedup"
+            result_dedup_tag="no_dedup"
+            if [[ "$strand_was_set" != "true" ]]; then
+                strand="forward"
+            fi
+            STEP_DESCRIPTIONS[2]="SMARTer smRNA library-structure profile (no UMI)"
+            STEP_DESCRIPTIONS[3]="SMARTer smRNA 5-prime/poly(A) and quality trimming"
+            STEP_DESCRIPTIONS[6]="STAR alignment without UMI deduplication"
+            ;;
+        *)
+            log 5 "FATAL" "Internal error: unsupported normalized kit '${kit}'"
+            exit 1
+            ;;
+    esac
+}
 print_pipeline_steps() {
     log 2 "INFO" "EVscope Pipeline Steps (Version: ${VERSION})"
     log 2 "INFO" "========================================"
@@ -933,10 +1033,10 @@ get_circ_expr_matrix() {
             circ_matrix="${output_dir}/Step_10_circRNA_Merge/${sample_name}_combined_CIRCexplorer2_CIRI2.tsv"
             ;;
         CIRCexplorer2)
-            circ_matrix="${output_dir}/Step_08_CIRCexplorer2_circRNA/${sample_name}_CIRCexplorer2_dedup_junction_readcounts_CPM.tsv"
+            circ_matrix="${output_dir}/Step_08_CIRCexplorer2_circRNA/${sample_name}_CIRCexplorer2_${result_dedup_tag}_junction_readcounts_CPM.tsv"
             ;;
         CIRI2)
-            circ_matrix="${output_dir}/Step_09_CIRI2_circRNA/${sample_name}_CIRI2_dedup_junction_readcounts_CPM.tsv"
+            circ_matrix="${output_dir}/Step_09_CIRI2_circRNA/${sample_name}_CIRI2_${result_dedup_tag}_junction_readcounts_CPM.tsv"
             ;;
     esac
     echo "$circ_matrix"
@@ -967,6 +1067,29 @@ run_step_1() {
 }
 _step_2_impl() {
     local step_dir="${output_dir}/Step_02_UMI_Analysis"
+    if [[ "$kit" == "smarter_smrna" ]]; then
+        local input_layout="Single-end Read 1"
+        [[ "$is_paired_end" == "true" ]] && input_layout="Paired-end Read 1 / Read 2"
+        {
+            printf 'Parameter\tValue\n'
+            printf 'Kit\tSMARTer smRNA-Seq Kit for Illumina\n'
+            printf 'Input layout\t%s\n' "$input_layout"
+            printf 'Read orientation\tSense\n'
+            printf 'UMI\tNo\n'
+            printf 'R1 structure\t3-nt template-switch sequence + RNA insert + poly(A)\n'
+            printf '5-prime fixed trim\t3 nt\n'
+            printf '3-prime adapter\tAAAAAAAAAA\n'
+            if [[ "$is_paired_end" == "true" ]]; then
+                printf 'R2 structure\t14-nt poly(T) + reverse-complement RNA insert + 3-nt template-switch sequence + Illumina adapter\n'
+                printf 'R2 5-prime fixed trim\t14 nt\n'
+                printf 'R2 3-prime adapter\tNNNAGATCGGAAGAGC\n'
+            fi
+            printf 'Minimum retained length\t15 nt\n'
+            printf 'Molecular deduplication\tDisabled\n'
+        } > "${step_dir}/${sample_name}_library_profile.tsv"
+        return 0
+    fi
+
     local input_fq="${fastq_read2:-${fastq_read1}}"
     run_python "${EVscope_PATH}/bin/Step_02_plot_fastq2UMI_motif.py" \
         -head "${sample_name}" -fq "${input_fq}" -n 14 -r 1000000 -o "$step_dir"
@@ -988,6 +1111,44 @@ _step_3_impl() {
     local r2_umi_trim="${step_dir}/${sample_name}_R2_adapter_UMI_trimmed.fq.gz"
     local r1_clean="${step_dir}/${sample_name}_R1_clean.fq.gz"
     local r2_clean="${step_dir}/${sample_name}_R2_clean.fq.gz"
+
+    if [[ "$kit" == "smarter_smrna" ]]; then
+        # Takara's recommended structure trimming is: -m 15 -u 3 -a AAAAAAAAAA.
+        # Quality trimming remains a separate pass so the length plot can distinguish
+        # protocol-derived trimming from the pipeline's general Q20 filtering.
+        if [[ "$is_paired_end" == "true" ]]; then
+            cutadapt -u 3 -U 14 \
+                -a 'AAAAAAAAAA;min_overlap=3' \
+                -A 'NNNAGATCGGAAGAGC;min_overlap=10' \
+                --minimum-length 15 -j "$thread_count" \
+                --json "${step_dir}/${sample_name}_structure_trimming.cutadapt.json" \
+                -o "$r1_trim" -p "$r2_trim" "$fastq_read1" "$fastq_read2"
+            cutadapt -q 20 -Q 20 --minimum-length 15 -j "$thread_count" \
+                --json "${step_dir}/${sample_name}_quality_trimming.cutadapt.json" \
+                -o "$r1_clean" -p "$r2_clean" "$r1_trim" "$r2_trim"
+            run_python "${EVscope_PATH}/bin/Step_03_plot_fastq_read_length_dist.py" \
+                --input_fastqs "$r1_trim" "$r1_clean" "$r2_clean" \
+                --titles "R1 Structure-Trimmed" "R1 Clean" "R2 Clean" \
+                --output_pdf "${step_dir}/${sample_name}_read_length_distribution.pdf" \
+                --output_png "${step_dir}/${sample_name}_read_length_distribution.png"
+            assert_valid_gzip "$r2_clean" "SMARTer smRNA clean R2 FASTQ"
+        else
+            cutadapt -u 3 -a AAAAAAAAAA --overlap 3 --minimum-length 15 \
+                -j "$thread_count" --json "${step_dir}/${sample_name}_structure_trimming.cutadapt.json" \
+                -o "$r1_trim" "$fastq_read1"
+            cutadapt -q 20 --minimum-length 15 -j "$thread_count" \
+                --json "${step_dir}/${sample_name}_quality_trimming.cutadapt.json" \
+                -o "$r1_clean" "$r1_trim"
+            run_python "${EVscope_PATH}/bin/Step_03_plot_fastq_read_length_dist.py" \
+                --input_fastqs "$fastq_read1" "$r1_trim" "$r1_clean" \
+                --titles "Raw R1" "Structure-Trimmed R1" "Clean R1" \
+                --output_pdf "${step_dir}/${sample_name}_read_length_distribution.pdf" \
+                --output_png "${step_dir}/${sample_name}_read_length_distribution.png"
+        fi
+        assert_valid_gzip "$r1_clean" "SMARTer smRNA clean R1 FASTQ"
+        return 0
+    fi
+
     if [[ "$is_paired_end" == "true" ]]; then
         umi_tools extract --bc-pattern='NNNNNNNNNNNNNN' \
             --stdin="${fastq_read2}" --stdout="$r2_umi" \
@@ -1066,85 +1227,108 @@ run_step_5() {
     local step_dir="${output_dir}/Step_05_Bacterial_Filter"
     run_step "$step_dir" "false" _step_5_impl
 }
+configure_star_protocol_args() {
+    if [[ "$kit" == "smarter_smrna" ]]; then
+        if [[ "$is_paired_end" == "true" ]]; then
+            STAR_PROTOCOL_ARGS=("${STAR_COMMON_ARGS[@]}" "${STAR_SMRNA_PE_ARGS[@]}" \
+                "${STAR_EXTRA_ARGS[@]}" "${STAR_SMRNA_EXTRA_ARGS[@]}")
+        else
+            STAR_PROTOCOL_ARGS=("${STAR_COMMON_ARGS[@]}" "${STAR_SMRNA_SE_ARGS[@]}" \
+                "${STAR_EXTRA_ARGS[@]}" "${STAR_SMRNA_EXTRA_ARGS[@]}")
+        fi
+    else
+        STAR_PROTOCOL_ARGS=("${STAR_COMMON_ARGS[@]}" "${STAR_TOTAL_RNA_ARGS[@]}" \
+            "${STAR_EXTRA_ARGS[@]}" "${STAR_TOTAL_RNA_EXTRA_ARGS[@]}")
+    fi
+}
 _step_6_initial_impl() {
     local step_dir="${output_dir}/Step_06_Alignment_Initial"
     local r1_clean="${output_dir}/Step_03_UMI_Adaptor_Trim/${sample_name}_R1_clean.fq.gz"
     local r2_clean="${output_dir}/Step_03_UMI_Adaptor_Trim/${sample_name}_R2_clean.fq.gz"
     local initial_bam="${step_dir}/${sample_name}_Aligned.sortedByCoord.out.bam"
-    local dedup_bam="${step_dir}/${sample_name}_Aligned.sortedByCoord_umi_dedup.out.bam"
-    local r1_dedup="${step_dir}/${sample_name}_R1_umi_dedup.clean.fq.gz"
-    local r2_dedup="${step_dir}/${sample_name}_R2_umi_dedup.clean.fq.gz"
+    local processed_bam="${step_dir}/${sample_name}_Aligned.sortedByCoord_${alignment_tag}.out.bam"
+    local r1_processed="${step_dir}/${sample_name}_R1_${alignment_tag}.clean.fq.gz"
+    local r2_processed="${step_dir}/${sample_name}_R2_${alignment_tag}.clean.fq.gz"
     assert_file_exists "$r1_clean" "R1 clean FASTQ"
     mkdir -p "$step_dir"
+    configure_star_protocol_args
     if [[ "$is_paired_end" == "true" ]]; then
         assert_file_exists "$r2_clean" "R2 clean FASTQ"
         STAR --genomeDir "$STAR_INDEX" --readFilesIn "$r1_clean" "$r2_clean" \
              --outFileNamePrefix "${step_dir}/${sample_name}_" \
-             --runThreadN "$thread_count" --twopassMode Basic --runMode alignReads \
-             --readFilesCommand zcat --outFilterMultimapNmax 100 --winAnchorMultimapNmax 100 \
-             --outSAMtype BAM SortedByCoordinate --chimSegmentMin 10 --chimJunctionOverhangMin 10 \
-             --chimScoreMin 1 --chimOutType Junctions WithinBAM --outBAMsortingThreadN "$thread_count"
+             --runThreadN "$thread_count" --runMode alignReads \
+             --outBAMsortingThreadN "$thread_count" \
+             "${STAR_PROTOCOL_ARGS[@]}"
         samtools index -@ "$thread_count" "$initial_bam"
         assert_valid_bam "$initial_bam" "initial STAR BAM"
         assert_nonempty_file "${initial_bam}.bai" "initial STAR BAM index"
-        umi_tools dedup -I "$initial_bam" -S "$dedup_bam" \
-            --log="${step_dir}/${sample_name}_umi_dedup.log" --extract-umi-method=read_id --paired
-        samtools index -@ "$thread_count" "$dedup_bam"
-        samtools fastq -@ "$thread_count" -1 "$r1_dedup" -2 "$r2_dedup" \
-            -0 /dev/null -s /dev/null -n "$dedup_bam"
+        if [[ "$kit" == "smarter_total_rna" ]]; then
+            umi_tools dedup -I "$initial_bam" -S "$processed_bam" \
+                --log="${step_dir}/${sample_name}_umi_dedup.log" --extract-umi-method=read_id --paired
+            samtools index -@ "$thread_count" "$processed_bam"
+            samtools fastq -@ "$thread_count" -1 "$r1_processed" -2 "$r2_processed" \
+                -0 /dev/null -s /dev/null -n "$processed_bam"
+        else
+            link_or_copy_file "$initial_bam" "$processed_bam"
+            link_or_copy_file "${initial_bam}.bai" "${processed_bam}.bai"
+            link_or_copy_file "$r1_clean" "$r1_processed"
+            link_or_copy_file "$r2_clean" "$r2_processed"
+        fi
     else
         STAR --genomeDir "$STAR_INDEX" --readFilesIn "$r1_clean" \
              --outFileNamePrefix "${step_dir}/${sample_name}_" \
-             --runThreadN "$thread_count" --twopassMode Basic --runMode alignReads \
-             --readFilesCommand zcat --outFilterMultimapNmax 100 --winAnchorMultimapNmax 100 \
-             --outSAMtype BAM SortedByCoordinate --chimSegmentMin 10 --chimJunctionOverhangMin 10 \
-             --chimScoreMin 1 --chimOutType Junctions WithinBAM --outBAMsortingThreadN "$thread_count"
+             --runThreadN "$thread_count" --runMode alignReads \
+             --outBAMsortingThreadN "$thread_count" \
+             "${STAR_PROTOCOL_ARGS[@]}"
         samtools index -@ "$thread_count" "$initial_bam"
         assert_valid_bam "$initial_bam" "initial STAR BAM"
         assert_nonempty_file "${initial_bam}.bai" "initial STAR BAM index"
-        umi_tools dedup -I "$initial_bam" -S "$dedup_bam" \
-            --log="${step_dir}/${sample_name}_umi_dedup.log" --extract-umi-method=read_id
-        samtools index -@ "$thread_count" "$dedup_bam"
-        samtools fastq -@ "$thread_count" "$dedup_bam" | gzip > "$r1_dedup"
+        if [[ "$kit" == "smarter_total_rna" ]]; then
+            umi_tools dedup -I "$initial_bam" -S "$processed_bam" \
+                --log="${step_dir}/${sample_name}_umi_dedup.log" --extract-umi-method=read_id
+            samtools index -@ "$thread_count" "$processed_bam"
+            samtools fastq -@ "$thread_count" "$processed_bam" | gzip > "$r1_processed"
+        else
+            link_or_copy_file "$initial_bam" "$processed_bam"
+            link_or_copy_file "${initial_bam}.bai" "${processed_bam}.bai"
+            link_or_copy_file "$r1_clean" "$r1_processed"
+        fi
     fi
-    assert_valid_bam "$dedup_bam" "UMI deduplicated BAM"
-    assert_nonempty_file "${dedup_bam}.bai" "UMI deduplicated BAM index"
-    assert_valid_gzip "$r1_dedup" "R1 UMI deduplicated FASTQ"
+    assert_valid_bam "$processed_bam" "kit-processed BAM"
+    assert_nonempty_file "${processed_bam}.bai" "kit-processed BAM index"
+    assert_valid_gzip "$r1_processed" "R1 kit-processed FASTQ"
     if [[ "$is_paired_end" == "true" ]]; then
-        assert_valid_gzip "$r2_dedup" "R2 UMI deduplicated FASTQ"
+        assert_valid_gzip "$r2_processed" "R2 kit-processed FASTQ"
     fi
 }
 _step_6_refined_impl() {
     local step_dir="${output_dir}/Step_06_Alignment_Refined"
-    local r1_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R1_umi_dedup.clean.fq.gz"
-    local r2_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R2_umi_dedup.clean.fq.gz"
-    local final_bam="${step_dir}/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
-    assert_file_exists "$r1_dedup" "R1 dedup FASTQ from Step 6 initial"
+    local r1_processed="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R1_${alignment_tag}.clean.fq.gz"
+    local r2_processed="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R2_${alignment_tag}.clean.fq.gz"
+    local final_bam="${step_dir}/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.bam"
+    assert_file_exists "$r1_processed" "R1 processed FASTQ from Step 6 initial"
     mkdir -p "$step_dir"
+    configure_star_protocol_args
     if [[ "$is_paired_end" == "true" ]]; then
-        assert_file_exists "$r2_dedup" "R2 dedup FASTQ from Step 6 initial"
-        STAR --genomeDir "$STAR_INDEX" --readFilesIn "$r1_dedup" "$r2_dedup" \
-             --outFileNamePrefix "${step_dir}/${sample_name}_STAR_umi_dedup_" \
-             --runThreadN "$thread_count" --twopassMode Basic --runMode alignReads \
-             --quantMode GeneCounts --readFilesCommand zcat --outFilterMultimapNmax 100 \
-             --winAnchorMultimapNmax 100 --outSAMtype BAM SortedByCoordinate \
-             --chimSegmentMin 10 --chimJunctionOverhangMin 10 --chimScoreMin 1 \
-             --chimOutType Junctions WithinBAM --outBAMsortingThreadN "$thread_count"
+        assert_file_exists "$r2_processed" "R2 processed FASTQ from Step 6 initial"
+        STAR --genomeDir "$STAR_INDEX" --readFilesIn "$r1_processed" "$r2_processed" \
+             --outFileNamePrefix "${step_dir}/${sample_name}_STAR_${alignment_tag}_" \
+             --runThreadN "$thread_count" --runMode alignReads \
+             --quantMode GeneCounts --outBAMsortingThreadN "$thread_count" \
+             "${STAR_PROTOCOL_ARGS[@]}"
     else
-        STAR --genomeDir "$STAR_INDEX" --readFilesIn "$r1_dedup" \
-             --outFileNamePrefix "${step_dir}/${sample_name}_STAR_umi_dedup_" \
-             --runThreadN "$thread_count" --twopassMode Basic --runMode alignReads \
-             --quantMode GeneCounts --readFilesCommand zcat --outFilterMultimapNmax 100 \
-             --winAnchorMultimapNmax 100 --outSAMtype BAM SortedByCoordinate \
-             --chimSegmentMin 10 --chimJunctionOverhangMin 10 --chimScoreMin 1 \
-             --chimOutType Junctions WithinBAM --outBAMsortingThreadN "$thread_count"
+        STAR --genomeDir "$STAR_INDEX" --readFilesIn "$r1_processed" \
+             --outFileNamePrefix "${step_dir}/${sample_name}_STAR_${alignment_tag}_" \
+             --runThreadN "$thread_count" --runMode alignReads \
+             --quantMode GeneCounts --outBAMsortingThreadN "$thread_count" \
+             "${STAR_PROTOCOL_ARGS[@]}"
     fi
     samtools index -@ "$thread_count" "$final_bam"
     samtools flagstat -@ "$thread_count" "$final_bam" > \
-        "${step_dir}/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.flagstat"
+        "${step_dir}/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.flagstat"
     assert_valid_bam "$final_bam" "refined STAR BAM"
     assert_nonempty_file "${final_bam}.bai" "refined STAR BAM index"
-    assert_nonempty_file "${step_dir}/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.flagstat" "refined STAR flagstat"
+    assert_nonempty_file "${step_dir}/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.flagstat" "refined STAR flagstat"
 }
 _step_6_impl() {
     mkdir -p "${output_dir}/Step_06_Alignment_Initial"
@@ -1158,9 +1342,9 @@ run_step_6() {
 }
 _step_7_impl() {
     local step_dir="${output_dir}/Step_07_Strand_Detection"
-    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
+    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.bam"
     assert_file_exists "$final_bam" "Aligned BAM from Step 6"
-    local star_log_refined="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Log.final.out"
+    local star_log_refined="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Log.final.out"
     local star_log_args=()
     [[ -f "$star_log_refined" ]] && star_log_args=(--star_log "$star_log_refined")
     run_python "${EVscope_PATH}/bin/Step_07_bam2strand.py" \
@@ -1173,11 +1357,11 @@ run_step_7() {
 }
 _step_8_impl() {
     local step_dir="${output_dir}/Step_08_CIRCexplorer2_circRNA"
-    local chimeric="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Chimeric.out.junction"
+    local chimeric="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Chimeric.out.junction"
     local bsj_bed="${step_dir}/${sample_name}_back_spliced_junction.bed"
     local known_circs="${step_dir}/${sample_name}_circularRNA_known.txt"
-    local final_out="${step_dir}/${sample_name}_CIRCexplorer2_dedup_junction_readcounts_CPM.tsv"
-    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
+    local final_out="${step_dir}/${sample_name}_CIRCexplorer2_${result_dedup_tag}_junction_readcounts_CPM.tsv"
+    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.bam"
     assert_file_exists "$chimeric" "Chimeric junctions from Step 6"
     assert_file_exists "$final_bam" "Aligned BAM from Step 6"
     CIRCexplorer2 parse -t STAR -b "$bsj_bed" "$chimeric"
@@ -1196,15 +1380,15 @@ run_step_8() {
 }
 _step_9_impl() {
     local step_dir="${output_dir}/Step_09_CIRI2_circRNA"
-    local r1_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R1_umi_dedup.clean.fq.gz"
-    local r2_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R2_umi_dedup.clean.fq.gz"
-    local bwa_sam="${step_dir}/${sample_name}_umi_dedup.bwa.sam"
+    local r1_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R1_${alignment_tag}.clean.fq.gz"
+    local r2_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R2_${alignment_tag}.clean.fq.gz"
+    local bwa_sam="${step_dir}/${sample_name}_${alignment_tag}.bwa.sam"
     local ciri2_out="${step_dir}/${sample_name}_CIRI2_out.tsv"
-    local final_out="${step_dir}/${sample_name}_CIRI2_dedup_junction_readcounts_CPM.tsv"
-    assert_valid_gzip "$r1_dedup" "R1 dedup FASTQ from Step 6"
+    local final_out="${step_dir}/${sample_name}_CIRI2_${result_dedup_tag}_junction_readcounts_CPM.tsv"
+    assert_valid_gzip "$r1_dedup" "R1 processed FASTQ from Step 6"
     trap 'rm -f "$bwa_sam"' RETURN
     if [[ "$is_paired_end" == "true" ]]; then
-        assert_valid_gzip "$r2_dedup" "R2 dedup FASTQ from Step 6"
+        assert_valid_gzip "$r2_dedup" "R2 processed FASTQ from Step 6"
         bwa mem -t "$thread_count" -T 19 "${BWA_INDEX:-}" "$r1_dedup" "$r2_dedup" > "$bwa_sam"
     else
         bwa mem -t "$thread_count" -T 19 "${BWA_INDEX:-}" "$r1_dedup" > "$bwa_sam"
@@ -1228,8 +1412,8 @@ run_step_9() {
 }
 _step_10_impl() {
     local step_dir="${output_dir}/Step_10_circRNA_Merge"
-    local cirexp="${output_dir}/Step_08_CIRCexplorer2_circRNA/${sample_name}_CIRCexplorer2_dedup_junction_readcounts_CPM.tsv"
-    local ciri2="${output_dir}/Step_09_CIRI2_circRNA/${sample_name}_CIRI2_dedup_junction_readcounts_CPM.tsv"
+    local cirexp="${output_dir}/Step_08_CIRCexplorer2_circRNA/${sample_name}_CIRCexplorer2_${result_dedup_tag}_junction_readcounts_CPM.tsv"
+    local ciri2="${output_dir}/Step_09_CIRI2_circRNA/${sample_name}_CIRI2_${result_dedup_tag}_junction_readcounts_CPM.tsv"
     assert_file_exists "$cirexp" "CIRCexplorer2 results from Step 8"
     assert_file_exists "$ciri2" "CIRI2 results from Step 9"
     run_python "${EVscope_PATH}/bin/Step_10_circRNA_merge.py" \
@@ -1247,7 +1431,7 @@ run_step_10() {
 }
 _step_11_impl() {
     local step_dir="${output_dir}/Step_11_RNA_Metrics"
-    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
+    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.bam"
     local picard_out="${step_dir}/${sample_name}_picard_metrics.tsv"
     local insert_out="${step_dir}/${sample_name}_insert_size_metrics.tsv"
     local insert_pdf="${step_dir}/${sample_name}_insert_size_histogram.pdf"
@@ -1281,7 +1465,7 @@ run_step_11() {
 }
 _step_12_impl() {
     local step_dir="${output_dir}/Step_12_featureCounts_Quant"
-    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
+    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.bam"
     assert_file_exists "$final_bam" "Aligned BAM from Step 6"
     if [[ "$is_paired_end" == "true" ]]; then
         featureCounts -a "$TOTAL_GENE_GTF" -o "${step_dir}/${sample_name}_featureCounts.tsv" \
@@ -1298,7 +1482,7 @@ run_step_12() {
 }
 _step_13_impl() {
     local step_dir="${output_dir}/Step_13_gDNA_Corrected_Quant"
-    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
+    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.bam"
     local forward_counts="${step_dir}/${sample_name}_featureCounts_s1_forward.tsv"
     local reverse_counts="${step_dir}/${sample_name}_featureCounts_s2_reverse.tsv"
     local corrected="${step_dir}/${sample_name}_gDNA_corrected_counts.tsv"
@@ -1328,14 +1512,14 @@ run_step_13() {
 }
 _step_14_impl() {
     local step_dir="${output_dir}/Step_14_RSEM_Quant"
-    local r1_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R1_umi_dedup.clean.fq.gz"
-    local r2_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R2_umi_dedup.clean.fq.gz"
+    local r1_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R1_${alignment_tag}.clean.fq.gz"
+    local r2_dedup="${output_dir}/Step_06_Alignment_Initial/${sample_name}_R2_${alignment_tag}.clean.fq.gz"
     local rsem_strand="$strand"
     [[ "$rsem_strand" == "unstrand" ]] && rsem_strand="none"
-    assert_file_exists "$r1_dedup" "R1 dedup FASTQ from Step 6"
+    assert_file_exists "$r1_dedup" "R1 processed FASTQ from Step 6"
     mkdir -p "${step_dir}/tmp"
     if [[ "$is_paired_end" == "true" ]]; then
-        assert_file_exists "$r2_dedup" "R2 dedup FASTQ from Step 6"
+        assert_file_exists "$r2_dedup" "R2 processed FASTQ from Step 6"
         perl "$RSEM_CALC_EXPR" --paired-end --bowtie2 --strandedness "$rsem_strand" \
             --bowtie2-k 2 -p "$thread_count" --no-bam-output --seed 12345 \
             "$r1_dedup" "$r2_dedup" "${RSEM_BOWTIE2_INDEX:-}" \
@@ -1368,7 +1552,8 @@ _run_expression_analysis_impl() {
             --gene_expr "$base_matrix" --circRNA_expr "$circ_matrix" --out_matrix "$combined"
     else
         log 3 "WARN" "circRNA matrix not found, using gene expression only"
-        cp "$base_matrix" "$combined"
+        run_python "${EVscope_PATH}/bin/Step_15_combine_total_RNA_expr_matrix.py" \
+            --gene_expr "$base_matrix" --out_matrix "$combined"
     fi
     run_python "${EVscope_PATH}/bin/Step_15_plot_RNA_distribution_1subplot.py" \
         --sample_name "${sample_name}" --Expr_matrix "$combined" \
@@ -1423,7 +1608,8 @@ _step_17_impl() {
             --gene_expr "$base_matrix" --circRNA_expr "$circ_matrix" --out_matrix "$combined"
     else
         log 3 "WARN" "circRNA matrix not found, using gene expression only"
-        cp "$base_matrix" "$combined"
+        run_python "${EVscope_PATH}/bin/Step_15_combine_total_RNA_expr_matrix.py" \
+            --gene_expr "$base_matrix" --out_matrix "$combined"
     fi
     run_python "${EVscope_PATH}/bin/Step_15_plot_RNA_distribution_1subplot.py" \
         --sample_name "${sample_name}" --Expr_matrix "$combined" \
@@ -1446,7 +1632,7 @@ run_step_17() {
 # Step 18: Parallel featureCounts for genomic regions - OPTIMIZED
 _step_18_impl() {
     local step_dir="${output_dir}/Step_18_Genomic_Regions"
-    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
+    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.bam"
     assert_file_exists "$final_bam" "Aligned BAM from Step 6"
 
     # Use pre-built merged SAF (7 regions, 801K features, mutually exclusive)
@@ -1615,7 +1801,7 @@ run_step_23() {
 _step_24_impl() {
     local step_dir="${output_dir}/Step_24_MultiQC_Summary"
     local -a multiqc_dirs=()
-    local -a qc_args=("--output" "${step_dir}/${sample_name}_QC_summary.tsv")
+    local -a qc_args=("--output" "${step_dir}/${sample_name}_QC_summary.tsv" "--kit" "$kit")
     local -a potential_dirs=(
         "${output_dir}/Step_01_Raw_QC"
         "${output_dir}/Step_04_Trimmed_QC"
@@ -1679,16 +1865,16 @@ _step_24_impl() {
     done < <(find "$ribo_dir" -maxdepth 1 -type f -name "${sample_name}_rRNA_*.fq.gz" -print0 2>/dev/null | sort -z || true)
     [[ -f "${ribo_dir}/step.done" ]] && qc_args+=("--ribo_fastqs" "${ribo_fqs[@]}")
     
-    local star_log_refined="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Log.final.out"
+    local star_log_refined="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Log.final.out"
     [[ -f "$star_log_refined" ]] && qc_args+=("--STAR_log" "$star_log_refined")
     
     local star_log_initial="${output_dir}/Step_06_Alignment_Initial/${sample_name}_Log.final.out"
     [[ -f "$star_log_initial" ]] && qc_args+=("--STAR_log_initial" "$star_log_initial")
 
-    local strand_file="${output_dir}/Step_07_Strand_Detection/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out_bam2strandness.tsv"
+    local strand_file="${output_dir}/Step_07_Strand_Detection/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out_bam2strandness.tsv"
     [[ -f "$strand_file" ]] && qc_args+=("--bam2strand_file" "$strand_file")
 
-    local length_strandness_file="${output_dir}/Step_07_Strand_Detection/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out_read_length_stratified_strandness.tsv"
+    local length_strandness_file="${output_dir}/Step_07_Strand_Detection/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out_read_length_stratified_strandness.tsv"
     [[ -f "$length_strandness_file" ]] && qc_args+=("--length_strandness_file" "$length_strandness_file")
     
     local picard_insert="${output_dir}/Step_11_RNA_Metrics/${sample_name}_insert_size_metrics.tsv"
@@ -1750,15 +1936,19 @@ run_step_24() {
 }
 _step_25_emapper_impl() {
     local step_dir="${output_dir}/Step_25_EMapper_BigWig_Quantification/EMapper_output"
-    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_umi_dedup_Aligned.sortedByCoord.out.bam"
+    local final_bam="${output_dir}/Step_06_Alignment_Refined/${sample_name}_STAR_${alignment_tag}_Aligned.sortedByCoord.out.bam"
     assert_file_exists "$final_bam" "Aligned BAM from Step 6"
     mkdir -p "$step_dir"
+    local -a polya_args=()
+    if [[ "$kit" == "smarter_total_rna" ]]; then
+        polya_args=(--polyA_tail_detection)
+    fi
     run_python "${EVscope_PATH}/bin/Step_25_EMapper.py" \
         --num_threads "$thread_count" --input_bam "$final_bam" \
         --prefix "${sample_name}" --output_dir "$step_dir" \
         --strandness "$strand" --reference_fasta "$HUMAN_GENOME_FASTA" \
         --gtf "$TOTAL_GENE_GTF" --positional_assignment EM \
-        --gene_disambiguation EM --no-cleanup --polyA_tail_detection
+        --gene_disambiguation EM --no-cleanup "${polya_args[@]}"
 }
 _step_25_expression_impl() {
     local step_dir="${output_dir}/Step_25_EMapper_BigWig_Quantification/bigwig2expression"
@@ -1883,12 +2073,34 @@ _step_27_impl() {
     local abs_step_dir="${abs_output_dir}/Step_27_HTML_Report"
     local rmd_input="${abs_bin_dir}/Step_27_html_report.Rmd"
     local report_file="${sample_name}_final_report.html"
+    local summary_script="${abs_bin_dir}/Step_27_generate_summary_report.py"
+    local summary_file="${sample_name}_summary_report.html"
     local local_rmd="${abs_step_dir}/${sample_name}_report.Rmd"
     assert_file_exists "$rmd_input" "R Markdown template"
+    assert_file_exists "$summary_script" "concise summary report generator"
     mkdir -p "$abs_step_dir"
     cp "$rmd_input" "$local_rmd"
+
+    local qc_summary="${abs_output_dir}/Step_24_MultiQC_Summary/${sample_name}_QC_summary.tsv"
+    local expression_matrix="${abs_output_dir}/Step_15_featureCounts_Expression/${sample_name}_combined_expression_matrix_linearRNA_TPM_circRNA_CPM_featureCounts.tsv"
+    if [[ ! -f "$expression_matrix" ]]; then
+        expression_matrix="${abs_output_dir}/Step_15_featureCounts_Expression/${sample_name}_Gene_readcounts_normalized_expression_matrix_featureCounts.tsv"
+    fi
+    local -a summary_args=(
+        --sample-name "$sample_name"
+        --kit "$kit"
+        --strand "$strand"
+        --paired-end "$is_paired_end"
+        --output "${abs_step_dir}/${summary_file}"
+    )
+    [[ -f "$qc_summary" ]] && summary_args+=(--qc-summary "$qc_summary")
+    [[ -f "$expression_matrix" ]] && summary_args+=(--expression-matrix "$expression_matrix")
+    run_python "$summary_script" "${summary_args[@]}"
+    assert_nonempty_file "${abs_step_dir}/${summary_file}" "standalone concise summary report"
+
     export EVscope_OUTPUT_DIR="$abs_output_dir"
     export EVscope_FIGURES_DIR="$abs_figures_dir"
+    export EVscope_KIT="$kit"
     export EVscope_RMD_INPUT="$local_rmd"
     export EVscope_REPORT_FILE="$report_file"
     export EVscope_REPORT_DIR="$abs_step_dir"
@@ -1916,6 +2128,7 @@ main() {
     local config_file_input="$config_file"
     local -a input_fastqs=()
     local dry_run="false"
+    local strand_was_set="false"
 
     while (( $# > 0 )); do
         case "$1" in
@@ -1927,6 +2140,14 @@ main() {
                 [[ ! "$2" =~ ^[0-9]+$ ]] && { log 5 "FATAL" "--threads must be a positive integer"; exit 1; }
                 (( $2 < 1 )) && { log 5 "FATAL" "--threads must be >= 1"; exit 1; }
                 thread_count="$2"; shift 2 ;;
+            --kit)
+                [[ -z "${2:-}" ]] && { log 5 "FATAL" "--kit requires a value"; exit 1; }
+                local normalized_kit=""
+                if ! normalized_kit="$(normalize_kit "$2")"; then
+                    log 5 "FATAL" "--kit must be 'smarter_total_rna' or 'smarter_smrna' (received: '$2')"
+                    exit 1
+                fi
+                kit="$normalized_kit"; shift 2 ;;
             --run_steps)
                 [[ -z "${2:-}" ]] && { log 5 "FATAL" "--run_steps requires a value"; exit 1; }
                 run_steps="$2"; shift 2 ;;
@@ -1948,7 +2169,7 @@ main() {
             --strand)
                 [[ -z "${2:-}" ]] && { log 5 "FATAL" "--strand requires a value"; exit 1; }
                 [[ ! "$2" =~ ^(reverse|forward|unstrand)$ ]] && { log 5 "FATAL" "--strand must be 'reverse', 'forward', or 'unstrand'"; exit 1; }
-                strand="$2"; shift 2 ;;
+                strand="$2"; strand_was_set="true"; shift 2 ;;
             --config)
                 [[ -z "${2:-}" ]] && { log 5 "FATAL" "--config requires a value"; exit 1; }
                 config_file="$2"; config_file_input="$2"; shift 2 ;;
@@ -1989,6 +2210,10 @@ main() {
         esac
     done
 
+    apply_kit_profile "$strand_was_set"
+    if [[ "$kit" == "smarter_smrna" && "$strand_was_set" == "true" && "$strand" != "forward" ]]; then
+        log 3 "WARN" "SMARTer smRNA Read 1 is sense; explicit --strand ${strand} will override the recommended forward setting."
+    fi
     if [[ "$gDNA_correction" == "yes" && "$strand" == "unstrand" ]]; then
         log 5 "FATAL" "Logic Error: --gDNA_correction yes requires --strand forward/reverse."
         exit 1
@@ -2006,7 +2231,6 @@ main() {
         log 5 "FATAL" "Provided: ${#input_fastqs[@]} files"
         exit 1
     fi
-
     output_dir="${sample_name}_EVscope_output"
     if [[ -d "$output_dir" ]]; then
         if [[ -n "$(find "$output_dir" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" && "$resume_mode" != "true" && "$force_mode" != "true" ]]; then
@@ -2073,6 +2297,7 @@ main() {
     # shellcheck source=/dev/null
     source "$config_file"
     log 2 "INFO" "Loaded configuration from: ${config_file}"
+    set_star_config_defaults
     validate_config_vars
     check_dependencies
     check_conda_envs
@@ -2101,6 +2326,7 @@ main() {
     log 2 "INFO" "EVscope Pipeline v${VERSION}"
     log 2 "INFO" "============================================================"
     log 2 "INFO" "Sample name:      ${sample_name}"
+    log 2 "INFO" "Library kit:      ${kit}"
     log 2 "INFO" "Output directory: ${output_dir} (${abs_output_dir})"
     log 2 "INFO" "Paired-end mode:  ${is_paired_end}"
     log 2 "INFO" "Thread count:     ${thread_count}"

@@ -73,11 +73,17 @@ def parse_args():
         sys.exit("Error: No input parameters provided.")
 
     parser.add_argument("--raw_fastqc_zips", nargs='+', required=False, help="List of raw FastQC zip files from Step 1.")
+    parser.add_argument(
+        "--kit",
+        choices=("smarter_total_rna", "smarter_smrna"),
+        default="smarter_total_rna",
+        help="Library kit profile used for kit-aware QC labels (default: smarter_total_rna).",
+    )
     parser.add_argument("--trimmed_fastqs", nargs='+', required=False, help="List of trimmed FASTQ files from Step 3.")
     parser.add_argument("--ecoli_fastqs", nargs='*', required=False, help="List of E.coli FASTQ files from BBSplit (Step 5). Empty list means Step 5 ran and found 0 reads.")
     parser.add_argument("--myco_fastqs", nargs='*', required=False, help="List of Mycoplasma FASTQ files from BBSplit (Step 5). Empty list means Step 5 ran and found 0 reads.")
     parser.add_argument("--ribo_fastqs", nargs='*', required=False, help="List of rRNA FASTQ files from RiboDetector (Step 23). Empty list means Step 23 ran and found 0 reads.")
-    parser.add_argument("--ACC_motif_fraction", required=False, help="ACC motif fraction TSV file from Step 2.")
+    parser.add_argument("--ACC_motif_fraction", required=False, help="ACC motif fraction TSV file from Step 2 (SMARTer Total RNA only).")
     parser.add_argument("--kraken_report", required=False, help="Kraken2 report file from Step 19.")
     parser.add_argument("--bam2strand_file", required=False, help="bam2strandness output file from Step 7.")
     parser.add_argument("--length_strandness_file", required=False, help="Read-length-stratified strandness TSV from Step 7.")
@@ -358,7 +364,7 @@ def process_featureCounts_file(file_path):
 
 def main():
     args = parse_args()
-    ordered_metrics = []
+    ordered_metrics = [("Library Kit", args.kit)]
 
     total_raw_reads, raw_gcs, raw_lengths = 0, [], []
     if args.raw_fastqc_zips:
@@ -377,7 +383,9 @@ def main():
         
     avg_raw_gc = mean(raw_gcs) if raw_gcs else 0
     avg_raw_read_length = mean(raw_lengths) if raw_lengths else 0
-    acc_fraction = safe_call(extract_acc_motif_fraction, args.ACC_motif_fraction, default="NA")
+    acc_fraction = "NA"
+    if args.kit == "smarter_total_rna":
+        acc_fraction = safe_call(extract_acc_motif_fraction, args.ACC_motif_fraction, default="NA")
 
     total_trimmed_reads = 0
     avg_trimmed_read_length = 0
@@ -395,7 +403,7 @@ def main():
     ordered_metrics.append(("Total Raw Read Pairs (Fragments)", int(total_raw_read_pairs) if total_raw_read_pairs > 0 else "NA"))
     ordered_metrics.append(("%GC of Raw Reads", round(avg_raw_gc, 2) if avg_raw_gc > 0 else "NA"))
     ordered_metrics.append(("Average Raw Read Length", int(round(avg_raw_read_length)) if avg_raw_read_length > 0 else "NA"))
-    ordered_metrics.append(("ACC motif fraction from UMI region", acc_fraction))
+    ordered_metrics.append(("ACC motif fraction from UMI region (SMARTer Total RNA only)", acc_fraction))
     ordered_metrics.append(("Total Trimmed Reads (R1+R2)", int(total_trimmed_reads) if total_trimmed_reads > 0 else "NA"))
     ordered_metrics.append(("Average Trimmed Read Length", int(round(avg_trimmed_read_length)) if avg_trimmed_read_length > 0 else "NA"))
     ordered_metrics.append(("Percentage of Reads Remaining after Trimming", percent_reads_after_trimming if total_raw_reads > 0 else "NA"))
@@ -426,7 +434,9 @@ def main():
     star_metrics = safe_call(parse_star_log, args.STAR_log, default={})
     star_input_reads = int(star_metrics.get("Number of input reads (STAR)", 0))
     
-    perc_reads_after_dedup = round((star_input_reads / initial_star_mapped_fragments) * 100, 2) if initial_star_mapped_fragments > 0 else 0
+    perc_reads_after_dedup = "NA"
+    if args.kit == "smarter_total_rna" and initial_star_mapped_fragments > 0:
+        perc_reads_after_dedup = round((star_input_reads / initial_star_mapped_fragments) * 100, 2)
     
     star_unique_reads = int(star_metrics.get("Uniquely mapped reads number (STAR)", 0))
     perc_unique_vs_star_input = round((star_unique_reads / star_input_reads) * 100, 2) if star_input_reads > 0 else 0
@@ -447,10 +457,20 @@ def main():
     splice_per_kb_source = sanitize_splice_per_kb_source(splice_per_kb_source, args.STAR_log)
     splice_available = splice_per_kb != "NA"
 
+    if args.kit == "smarter_total_rna":
+        refined_input_metrics = [
+            ("Number of Reads after UMI-deduplication (STAR Input)", star_input_reads if star_input_reads > 0 else "NA"),
+            ("Percentage of UMI-dedup Fragments", perc_reads_after_dedup),
+        ]
+    else:
+        refined_input_metrics = [
+            ("Number of Reads in Refined STAR Input (No UMI Deduplication)", star_input_reads if star_input_reads > 0 else "NA"),
+            ("Percentage of UMI-dedup Fragments (Not Applicable: No UMI Deduplication)", "NA"),
+        ]
+
     ordered_metrics.extend([
         ("Total Fragments Mapped to Human (First STAR)", int(initial_star_mapped_fragments) if initial_star_mapped_fragments > 0 else "NA"),
-        ("Number of Reads after UMI-deduplication (STAR Input)", star_input_reads if star_input_reads > 0 else "NA"),
-        ("Percentage of UMI-dedup Fragments", perc_reads_after_dedup if perc_reads_after_dedup > 0 else "NA"),
+        *refined_input_metrics,
         ("Average Input Read Length (STAR)", float(star_metrics.get("Average input read length (STAR)", 0))),
         ("Average Mapped Length per Unique Fragment (STAR)", float(star_metrics.get("Average mapped length (STAR)", 0))),
         ("Percentage of Mapped Reads on Forward Strand", value_or_na(forward_strand, strand_available)),

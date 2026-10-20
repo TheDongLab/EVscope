@@ -41,3 +41,7 @@ Step_03_UMIAdapterTrimR1_old_v1.py
 # Backup files
 *.bak*
 *.bak_*
+
+# Local configuration and sample results
+EVscope.local.conf
+*_EVscope_output/

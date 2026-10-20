@@ -1,21 +1,34 @@
 artifact_id	role	path_or_accession	external_url_or_doi	sha256	size_bytes	license_or_terms	notes
-source_tree	code	.	https://github.com/TheDongLab/EVscope	NA	NA	MIT	Use exact public Git tag/commit for authoritative source-tree identity; local candidate tag is manuscript-v5-rigorous-local until public release.
-README_md	documentation	README.md	NA	364b98b069a67c435d7ec3d216e48bf57dfb8506f2a747a0dcccfdfb8e7f6188	20989	MIT	User-facing installation, usage, scope and smoke-test documentation.
+source_tree	code	.	https://github.com/TheDongLab/EVscope	NA	NA	MIT	Use the exact public Git tag/commit for authoritative source-tree identity.
+README_md	documentation	README.md	NA	1395372d2fef6dc6ae2edc3fd0487924ca36f78ad848dd594dfe76632dc0ac8e	29089	MIT	User-facing installation, kit selection, usage, scope and smoke-test documentation.
 LICENSE	license	LICENSE	NA	8003003ded85bbc27a43f9719d604a358993818007a6dc7a35eb45e06c749e15	1082	MIT	MIT license for EVscope source code.
-EVscope_sh	code	EVscope.sh	NA	0e3c0bb85dc8303c9cce36bece86ff406c3a61fc11f66e1f218efa921d65b0ed	100517	MIT	Main Bash entry point.
-EVscope_conf	configuration	EVscope.conf	NA	bf94ca778d2d1c0295cddcb8a451975d6b4fadbca784cabee1ee0be3b09d956b	6104	MIT	Default reference/tool path configuration; users should edit local paths.
+EVscope_sh	code	EVscope.sh	NA	d990fbfef5f7737e998ebc5f53600e1f3378f2186bda460dee2facb8c14207e6	111426	MIT	Main Bash entry point with Total RNA and SMARTer smRNA kit profiles and separate Step 27 reports.
+EVscope_conf	configuration	EVscope.conf	NA	33ba6396cca8ff2301be81b394c64bbf45327b14153c74b6a4bb57787d37b6db	7713	MIT	Default reference/tool path and injectable STAR-parameter configuration; users should edit local paths.
 bin_Step_25_EMapper_py	code	bin/Step_25_EMapper.py	NA	d13483469a4e47a25104fd7619289ce106d0fcfc25ebb055aed5dbfcd8a52ba2	117075	MIT	EMapper EM-weighted BigWig/coverage and gene-summary module.
 bin_Step_25_bigWig2Expression_py	code	bin/Step_25_bigWig2Expression.py	NA	412b4c1d64f511918031a44896ae7be0f0929ebd25c0261d76e84d540b77ae04	37500	MIT	BigWig signal-per-million/TPM-like annotation summary module.
 bin_Step_26_density_plot_over_RNA_types_sh	code	bin/Step_26_density_plot_over_RNA_types.sh	NA	2b8bb70804ccd527e229c9016b428abf1cca0e5835d4cdd25b0c837352a1ca31	7894	MIT	RNA-type BigWig density plotting wrapper.
 bin_Step_26_density_plot_over_meta_gene_sh	code	bin/Step_26_density_plot_over_meta_gene.sh	NA	1778752d48d9da3eb8e5f6a99d6c2ecc5b941e686119edebe8835050801c7291	8516	MIT	Meta-gene BigWig density plotting wrapper.
-bin_Step_27_html_report_Rmd	code	bin/Step_27_html_report.Rmd	NA	2919740bc39bae68cefa0c1e7079c14407115a1089690e64d77b7fad39aa32eb	44066	MIT	HTML reporting template.
+bin_Step_07_bam2strand_py	code	bin/Step_07_bam2strand.py	NA	270775851426458c286b59f31cbbeb74fa8e67633ab442d080e23813e7e57aed	30758	MIT	Strandness reporting with kit-aware alignment basename handling.
+bin_Step_24_generate_QC_matrix_py	code	bin/Step_24_generate_QC_matrix.py	NA	8168717fc3ddd95b4eac9d566e7ef221ab4ffae682de682e9a0fae570b5a46dd	28878	MIT	Kit-aware consolidated QC matrix generation.
+bin_Step_27_html_report_Rmd	code	bin/Step_27_html_report.Rmd	NA	064b4a9a91d2a6c5ba0f45dca2815ff97e24d19ea60fde16f63c54406d1029ec	45734	MIT	Kit-aware comprehensive HTML reporting template with 90-percent data-table width.
+bin_Step_27_generate_summary_report_py	code	bin/Step_27_generate_summary_report.py	NA	117a2203bc4af999ae793a069275c7c073a9bda049360e891a408f082321d0ea	12125	MIT	Standalone one-paragraph RNA-seq summary report generator.
 github_workflows_smoke_yml	ci	.github/workflows/smoke.yml	NA	58eb25da24ec299883e2c1b3a60a972476fe3d0c7db4aef00c50966c6dfaa09e	521	MIT	GitHub Actions smoke-test workflow.
-tests_smoke_run_smoke_sh	test	tests/smoke/run_smoke.sh	NA	2e10439cccafe7348a9c06529f79b33be14839e3c2b3a51774eb666a95d7f681	3436	MIT	Local/CI smoke test covering syntax, CLI, toy FASTQ, tiny EMapper/BigWig when dependencies are available.
+tests_smoke_run_smoke_sh	test	tests/smoke/run_smoke.sh	NA	01fec2b146a92eb676f72a8d8918bf6db22490e4493025553756f9eac78900bf	8119	MIT	Local/CI smoke test covering kit CLI validation, SMARTer smRNA paired trimming/no-dedup STAR alignment, summary reporting, config injection, resume isolation, and existing lightweight checks.
+tests_test_summary_report_py	test	tests/test_summary_report.py	NA	df96c28ac7f64a27581718ae72acaaa9495f31b08d9e78034c1a5ce0e926002a	4686	MIT	Synthetic unit tests for concise summary metrics, orientation, top-gene parsing, and HTML escaping.
 tests_smoke_data_toy_R2_fastq_gz	test_data	tests/smoke/data/toy_R2.fastq.gz	NA	4f817aa0b325b273c2e94e57e19aee0e6c0a6e200e7f679687dd0a151c3cc7ce	72	MIT	Tiny synthetic FASTQ for smoke testing.
-tests_smoke_expected_expected_files_txt	test	tests/smoke/expected/expected_files.txt	NA	0a4ad44f7e3244443e7647debc398b462333aca99a0266ccb28147b7b7a49754	214	MIT	Expected smoke-test output paths.
-repro_README_md	documentation	repro/README.md	NA	4156fbc760db76834fb1ad62d3d9c57c7775f64c6ac2d7efdc9f92dc4006440d	941	MIT	Release-level reproducibility index.
-repro_manifest_tsv	metadata	repro/manifest.tsv	NA	NA	4904	MIT	This manifest; checksum intentionally omitted to avoid self-reference. Validate with git commit/tag and repro/checksums.sha256.
-repro_checksums_sha256	checksum	repro/checksums.sha256	NA	NA	4383	MIT	Checksum file; self-checksum intentionally omitted.
+tests_smoke_data_smarter_smrna_R1_fastq	test_data	tests/smoke/data/smarter_smrna_R1.fastq	NA	e8dbb54045c744a40b49f1ee069a82703b3fa9acf56f00c19b9c1a809e038412	294	MIT	Synthetic SMARTer smRNA R1 records covering poly(A), minimum-length filtering and no-poly(A) reads.
+tests_smoke_data_smarter_smrna_R2_fastq	test_data	tests/smoke/data/smarter_smrna_R2.fastq	NA	e835bc8327e9d41dc2fb0a1c741824336644eaaf87186e66f15f7baac748a7bd	344	MIT	Synthetic SMARTer smRNA R2 records covering the 14-nt poly(T), reverse-complement insert and 3' adapter structure.
+tests_smoke_expected_smarter_smrna_clean_fastq	test	tests/smoke/expected/smarter_smrna_clean.fastq	NA	7bf9bf3bc51d54589ab699492aff2fcee116662a40840dcc9b1199127261ae30	122	MIT	Expected clean FASTQ for the SMARTer smRNA fixture.
+tests_smoke_expected_smarter_smrna_R2_clean_fastq	test	tests/smoke/expected/smarter_smrna_R2_clean.fastq	NA	05dcb4361adcde7000e30fde4de63040222c6348b51072e224e993e010b5533d	122	MIT	Expected clean R2 FASTQ for the paired SMARTer smRNA fixture.
+tests_smoke_minimal_conf	test	tests/smoke/minimal.conf	NA	9696908a77da99a50f3819a623880b508a45642ad3c3f01a3399d46aad40cb68	1261	MIT	Minimal configuration with STAR profile and injection arrays for kit-aware pipeline smoke tests.
+tests_smoke_mock_cutadapt	test	tests/smoke/mock_bin/cutadapt	NA	25d54b2785e68da067602ce73418ab8e423ac0d37a390dbb0d4baf496f9d6e78	5933	MIT	Deterministic paired-aware cutadapt test double for synthetic protocol trimming.
+tests_smoke_mock_python	test	tests/smoke/mock_bin/python	NA	3ef5ebfa90ed8e407eea5b712290b3d073b1bf074a4cc37cbe7885412c0b6d89	747	MIT	Plotting test double used by the kit branch smoke test.
+tests_smoke_mock_STAR	test	tests/smoke/mock_bin/STAR	NA	3f2ac3f7d728632793016d698f75f452053a2e0287b45c26414d0caf65e11f10	808	MIT	STAR test double used to verify no-dedup alignment routing.
+tests_smoke_mock_samtools	test	tests/smoke/mock_bin/samtools	NA	ebe67cefd2ff77407eeef562beecf7b7e2886172e83dc5eb0f44b41a2940045a	640	MIT	samtools test double used to verify no-dedup alignment routing.
+tests_smoke_expected_expected_files_txt	test	tests/smoke/expected/expected_files.txt	NA	ea770e19e9b888df93ec92e7f0945baacc05ead12ab8124b431c5993cd8e04df	621	MIT	Expected smoke-test output paths.
+repro_README_md	documentation	repro/README.md	NA	1e65d09e089ff5990606bde7312fe0960e7981aade3cd13446fa11e736017535	1196	MIT	Release-level reproducibility index.
+repro_manifest_tsv	metadata	repro/manifest.tsv	NA	NA	8068	MIT	This manifest; checksum intentionally omitted to avoid self-reference. Validate with git commit/tag and repro/checksums.sha256.
+repro_checksums_sha256	checksum	repro/checksums.sha256	NA	NA	5616	MIT	Checksum file; self-checksum intentionally omitted.
 repro_metadata_software_versions_tsv	metadata	repro/metadata/software_versions.tsv	NA	e37c5a511bfa1d6235abe058cf2941f7ccfdc45fef7d9ff30a56c7387b588434	588	MIT	Representative software/version metadata.
 repro_benchmarks_EMapper_MAQC_qPCR_README_md	documentation	repro/benchmarks/EMapper_MAQC_qPCR/README.md	NA	767c5b88b1c8ca7349ba0efb4a71f758ef78bd27d62c4e36cae04b38ae675688	1064	MIT	Benchmark/qPCR documentation and final-release artifact requirements.
 repro_figures_README_md	documentation	repro/figures/README.md	NA	593f85dc44c8faeb6a5d5c2dcc036bf229e97f52139070259c193a8af753637b	1023	MIT	Per-figure reproducibility organization notes.
