@@ -417,11 +417,12 @@ iframe {
 /* --- Data Tables Container --- */
 .dataTables_wrapper {
   background: var(--card-bg);
+  width: 90%;
   padding: 1.5rem;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
-  margin: 1rem 0;
+  margin: 1rem auto;
 }
 
 /* --- DataTables Styling --- */
@@ -753,6 +754,19 @@ if (!dir.exists(absolute_output_dir)) {
   stop("FATAL: Output directory not found. EVscope_OUTPUT_DIR was not set or is invalid.")
 }
 
+# --- Library Kit Profile ---
+evscope_kit <- Sys.getenv("EVscope_KIT", unset = "smarter_total_rna")
+if (!evscope_kit %in% c("smarter_total_rna", "smarter_smrna")) {
+  warning("Unknown EVscope_KIT value '", evscope_kit, "'; using smarter_total_rna.")
+  evscope_kit <- "smarter_total_rna"
+}
+is_smarter_smrna <- identical(evscope_kit, "smarter_smrna")
+kit_display_name <- if (is_smarter_smrna) {
+  "SMARTer smRNA-seq Kit"
+} else {
+  "SMARTer Stranded Total RNA-Seq Kit"
+}
+
 # --- Retrieve Figures Directory ---
 abs_figures_dir <- Sys.getenv("EVscope_FIGURES_DIR")
 
@@ -1037,7 +1051,9 @@ display_all_images <- function(subdir_path, pattern, main_caption) {
 
 <div style="background: linear-gradient(135deg, #ffffff 0%, #f0f7fc 100%); padding: 2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #dce4ec; margin: 1.5rem 0;">
 
-**EVscope** is an open-source bioinformatics pipeline tailored for EV-enriched total RNA-seq datasets. EVscope includes EMapper, a two-round expectation-maximization (EM) module: Round 1 resolves positional ambiguity using alignment scores and local coverage evidence, and Round 2 resolves gene-level ambiguity for overlapping annotations using abundance-based weights with effective-length normalization. EMapper's primary novelty is not a claim of superior conventional gene readcount quantification over tools such as RSEM; instead, it generates EM-weighted genome-coordinate BigWig coverage tracks at single-base or binned resolution, with strand-aware outputs and RNA annotation support for downstream genome-browser inspection, RNA-biotype density plots, and meta-gene coverage profiling. The pipeline systematically integrates 27 major steps, including quality control, library-structure analysis, contamination assessment, read alignment, strandedness detection, UMI-based deduplication, feature/RNA annotation, expression matrix generation, optional genomic DNA (gDNA) sensitivity summaries, exploratory source-enrichment analysis, and visualization in a comprehensive HTML report. EVscope incorporates a comprehensive, updated annotation covering 20 RNA biotypes, including protein-coding genes, lncRNAs, miRNAs, piRNAs, retrotransposons (LINEs, SINEs, ERVs), and additional non-coding RNAs (tRNAs, rRNAs, snoRNAs). It also includes complementary circRNA detection modules. EVscope is implemented as a convenient, single-command Bash pipeline leveraging Conda-managed standard software packages and custom scripts, supporting reproducible deployment and transparent QC reporting.
+**EVscope** is an open-source, kit-aware bioinformatics pipeline for EV-enriched RNA sequencing generated with either the SMARTer Stranded Total RNA-Seq Kit or the SMARTer smRNA-seq Kit. The active library profile is selected through EVscope_KIT. Kit-aware preprocessing applies the appropriate library-structure and adapter handling: UMI extraction, UMI read-through trimming, and UMI-based deduplication are used only for the Total RNA profile, while the smRNA profile follows a no-UMI-deduplication workflow. EVscope includes EMapper, a two-round expectation-maximization (EM) module: Round 1 resolves positional ambiguity using alignment scores and local coverage evidence, and Round 2 resolves gene-level ambiguity for overlapping annotations using abundance-based weights with effective-length normalization. EMapper generates EM-weighted genome-coordinate BigWig coverage tracks at single-base or binned resolution, with strand-aware outputs and RNA annotation support for downstream genome-browser inspection, RNA-biotype density plots, and meta-gene coverage profiling. The workflow integrates quality control, library-structure analysis, contamination assessment, read alignment, feature/RNA annotation, expression matrix generation, optional genomic DNA sensitivity summaries, exploratory source-enrichment analysis, and visualization in a comprehensive HTML report.
+
+**Selected library kit:** `r kit_display_name`
 
 </div>
 
@@ -1069,22 +1085,28 @@ if (check_step_dir("Step_01_Raw_QC")) {
 
 ```
 
-# Step 02: UMI Analysis
+# Step 02: Library Structure Analysis
 
 ```{r step2, results='asis'}
 if (check_step_dir("Step_02_UMI_Analysis")) {
-  display_image("Step_02_UMI_Analysis", "motif_logo\\.png$", "UMI Motif Logo")
-  display_datatable("Step_02_UMI_Analysis", "_ACC_motif_fraction\\.tsv$", "ACC Motif Fraction")
+  if (is_smarter_smrna) {
+    display_datatable("Step_02_UMI_Analysis", "_library_profile\\.tsv$", "SMARTer smRNA-seq Library Profile")
+  } else {
+    display_image("Step_02_UMI_Analysis", "motif_logo\\.png$", "UMI Motif Logo")
+    display_datatable("Step_02_UMI_Analysis", "_ACC_motif_fraction\\.tsv$", "ACC Motif Fraction")
+  }
 }
 
 ```
 
-# Step 03: UMI & Adaptor Trimming
+# Step 03: Library Preprocessing and Adapter Trimming
 
 ```{r step3, results='asis'}
 if (check_step_dir("Step_03_UMI_Adaptor_Trim")) {
   display_image("Step_03_UMI_Adaptor_Trim", "_read_length_distribution\\.png$", "Read Length Distribution After Trimming")
-  display_image("Step_03_UMI_Adaptor_Trim", "_R1_readthrough_UMI_trimming_pie\\.png$", "Read Categories Distribution (No UMI Readthrough, UMI Readthrough, Too Short)")
+  if (!is_smarter_smrna) {
+    display_image("Step_03_UMI_Adaptor_Trim", "_R1_readthrough_UMI_trimming_pie\\.png$", "Read Categories Distribution (No UMI Readthrough, UMI Readthrough, Too Short)")
+  }
 }
 
 ```
@@ -1112,7 +1134,11 @@ if (check_step_dir("Step_06_Alignment_Initial")) {
 
 ```{r step6b, results='asis'}
 if (check_step_dir("Step_06_Alignment_Refined")) {
-  parse_and_display_star_log("Step_06_Alignment_Refined", "_STAR_umi_dedup_Log\\.final\\.out$", "STAR Refined Alignment Summary (Post-Deduplication)")
+  if (is_smarter_smrna) {
+    parse_and_display_star_log("Step_06_Alignment_Refined", "_STAR_no_dedup_Log\\.final\\.out$", "STAR Refined Alignment Summary (No UMI Deduplication)")
+  } else {
+    parse_and_display_star_log("Step_06_Alignment_Refined", "_STAR_umi_dedup_Log\\.final\\.out$", "STAR Refined Alignment Summary (Post-UMI-Deduplication)")
+  }
 }
 
 ```

@@ -1,6 +1,6 @@
 # EVscope: A Comprehensive Bioinformatics Workflow for Accurate and Robust Analysis of Total RNA Sequencing from Extracellular Vesicles
 
-**EVscope** is an open-source, modular bioinformatics pipeline designed for the analysis of extracellular vesicle (EV)-enriched total RNA sequencing data. Tailored to EV RNA-seq challenges - low RNA yield, fragmented inserts, diverse RNA biotypes, high multi-mapping, and contamination risk - EVscope processes paired-end or single-end FASTQ files through an end-to-end workflow. It includes quality control, UMI-based deduplication, two-pass STAR alignment, circular RNA detection, expression matrix generation, contamination screening, exploratory source-enrichment analysis, and comprehensive reporting. Optimized for the SMARTer Stranded Total RNA-Seq Kit v3 (Pico Input), EVscope introduces EMapper, an expectation-maximization (EM) module whose main EMapper-specific contribution in EVscope is EM-weighted genome-coordinate BigWig/coverage generation with RNA annotation support; gene-level count concordance with featureCounts/RSEM is used as a sanity check, not as a claim that EMapper is superior to RSEM for conventional gene readcount quantification.
+**EVscope** is an open-source, modular bioinformatics pipeline designed for extracellular-vesicle (EV) RNA sequencing data. It provides kit-aware processing for the SMARTer Stranded Total RNA-Seq Kit v3 (Pico Input) and the SMARTer smRNA-Seq Kit for Illumina. Select the protocol with `--kit smarter_total_rna` (the backward-compatible default) or `--kit smarter_smrna`. Tailored to EV RNA-seq challenges - low RNA yield, fragmented inserts, diverse RNA biotypes, high multi-mapping, and contamination risk - EVscope processes supported paired-end or single-end FASTQ inputs through an end-to-end workflow. It includes quality control, kit-appropriate duplicate handling, kit-specific STAR alignment, circular RNA detection, expression matrix generation, contamination screening, exploratory source-enrichment analysis, and comprehensive reporting. EVscope also introduces EMapper, an expectation-maximization (EM) module whose main EMapper-specific contribution is EM-weighted genome-coordinate BigWig/coverage generation with RNA annotation support; gene-level count concordance with featureCounts/RSEM is used as a sanity check, not as a claim that EMapper is superior to RSEM for conventional gene readcount quantification.
 
 <p align="center">
   <img src="./figures/EVscope_pipeline.png" alt="EVscope Pipeline Overview" width="600"/>
@@ -29,22 +29,23 @@
 
 ## Key Features
 
-- **Novel Read-Through Detection**: Trims UMI-derived adapter sequences from Read1 using reverse-complemented Read2 UMIs (`bin/Step_03_UMIAdapterTrimR1.py`).
+- **Kit-Aware Preprocessing**: Preserves the existing 14-bp UMI workflow for `smarter_total_rna`, while `smarter_smrna` uses the official SMARTer smRNA 5'/poly(A) trimming profile without UMI extraction or deduplication.
+- **Novel Read-Through Detection for Total RNA**: Trims UMI-derived adapter sequences from Read1 using reverse-complemented Read2 UMIs (`bin/Step_03_UMIAdapterTrimR1.py`) when `--kit smarter_total_rna` is selected.
 - **EM-Weighted BigWig Coverage Profiling**: Uses a genome-wide expectation-maximization algorithm to assign multi-mapped fragments at single-base or binned resolution and generate strand-aware, RPM-normalized BigWig tracks (`bin/Step_25_EMapper.py`).
 - **Comprehensive RNA Annotation**: Supports 3,659,642 RNAs across 20 biotypes (e.g., protein-coding, lncRNAs, miRNAs, piRNAs, retrotransposons) from GENCODE v45, piRBase v3.0, and RepeatMasker.
-- **Dual circRNA Detection**: Integrates CIRCexplorer2 and CIRI2 for robust circular RNA identification, with merged results for enhanced sensitivity (`bin/Step_10_circRNA_merge.py`).
+- **Dual circRNA Detection**: Integrates CIRCexplorer2 and CIRI2 for circular RNA identification, with merged results (`bin/Step_10_circRNA_merge.py`); SMARTer smRNA libraries use the no-dedup reads and kit-specific STAR chimeric output.
 - **Tissue Deconvolution**: Infers EV RNA cellular origins using GTEx v10 and Human Brain Cell Atlas v1.0 references (`bin/Step_22_run_RNA_deconvolution_ARIC.py`).
 - **Contamination Screening**: Filters bacterial (BBSplit) and microbial (Kraken2) contamination, with optional genomic DNA correction via strand-specific subtraction.
-- **Extensive Quality Control**: Validates raw and trimmed FASTQs (FastQC), UMI motifs, and alignment metrics (`bin/Step_24_generate_QC_matrix.py`).
+- **Extensive Quality Control**: Validates raw and trimmed FASTQs (FastQC), generates a kit-aware library profile, and summarizes alignment metrics (`bin/Step_24_generate_QC_matrix.py`).
 - **Expression Quantification**: Produces TPM/CPM matrices using featureCounts and RSEM, with RNA distribution visualizations (`bin/Step_15_plot_RNA_distribution_*.py`).
-- **Interactive Reporting**: Generates bigWig tracks, density plots, and a comprehensive HTML report via R Markdown (`bin/Step_27_html_report.Rmd`).
+- **Interactive Reporting**: Generates bigWig tracks, density plots, a comprehensive HTML report via R Markdown (`bin/Step_27_html_report.Rmd`), and a separate one-paragraph RNA-seq summary covering read retention, human/E. coli/Mycoplasma mapping, alignment type, genomic regions, strand orientation, and the top 10 genes.
 - **Reproducibility**: Single-command Bash script with Conda environments, containerization support, and detailed logging.
 
 ## Motivation
 
 Extracellular vesicles (EVs) are critical mediators of intercellular communication, carrying diverse RNAs that serve as potential biomarkers for diseases like cancer and neurodegeneration. However, EV RNA sequencing faces unique challenges: low RNA abundance, fragmented transcripts, contamination from genomic DNA or bacterial RNA, and the presence of non-polyadenylated RNAs (e.g., miRNAs, lncRNAs). Standard RNA-seq pipelines, designed for cellular RNA, often fail to address these issues, leading to unreliable results due to multi-mapping reads, incomplete RNA annotations, or unfiltered contaminants.
 
-EVscope provides a specialized, end-to-end pipeline optimized for EV-enriched total RNA-seq. Its distinctive contribution is not to replace transcript quantifiers such as RSEM for ordinary gene readcount estimation, but to connect EV-oriented QC, broad RNA annotation, EM-weighted genome-coordinate BigWig tracks, RNA-biotype/meta-gene coverage profiling, and report generation in one reproducible workflow.
+EVscope provides a specialized, end-to-end pipeline with profiles for EV-enriched SMARTer Total RNA and SMARTer smRNA sequencing. Its distinctive contribution is not to replace transcript quantifiers such as RSEM for ordinary gene readcount estimation, but to connect kit-aware EV RNA preprocessing, broad RNA annotation, EM-weighted genome-coordinate BigWig tracks, RNA-biotype/meta-gene coverage profiling, and report generation in one reproducible workflow.
 
 ## Directory Structure
 
@@ -53,7 +54,7 @@ The EVscope repository is organized as follows:
 ```
 EVscope/
 ├── EVscope.conf                                # Configuration file for tool and reference paths
-├── EVscope.sh                                  # Main pipeline script (v1.0.0)
+├── EVscope.sh                                  # Main pipeline script (v1.1.0)
 ├── README.md                                   # This documentation
 ├── bin/                                        # Custom scripts for pipeline steps
 │   ├── Step_02_calculate_ACC_motif_fraction.py  # Calculates ACC motif fractions
@@ -79,7 +80,8 @@ EVscope/
 │   ├── Step_25_EMapper.py                      # EM-based read coverage estimation
 │   ├── Step_26_density_plot_over_meta_gene.sh  # Density plots for meta-gene regions
 │   ├── Step_26_density_plot_over_RNA_types.sh  # Density plots for RNA types
-│   └── Step_27_html_report.Rmd                 # Generates HTML report
+│   ├── Step_27_generate_summary_report.py      # Generates standalone concise summary
+│   └── Step_27_html_report.Rmd                 # Generates comprehensive HTML report
 ├── figures/                                    # Pipeline visualization
 │   └── EVscope_pipeline.png                    # Pipeline overview image
 ├── references/                                 # Reference genomes, annotations, and indices
@@ -168,39 +170,49 @@ For a full end-to-end run, download the Zenodo reference bundle and use the SRA 
 ## Usage
 
 ### Command Syntax
+
 ```bash
-bash EVscope.sh --sample_name <name> --input_fastqs <files> [options]
+bash EVscope.sh --sample_name <name> --input_fastqs <files> [--kit <kit>] [options]
 ```
 
 **Required Arguments**:
+
 - `--sample_name <name>`: Unique sample identifier (used for output files).
-- `--input_fastqs <files>`: FASTQ file paths: one file for single-end input or two files for paired-end input. Space-separated (`R1.fq.gz R2.fq.gz`) and comma-separated (`R1.fq.gz,R2.fq.gz`) forms are accepted; R1 must be listed before R2.
+- `--input_fastqs <files>`: FASTQ file paths. Both kit profiles accept one single-end file or two paired-end files. Paired-end inputs may be space-separated (`R1.fq.gz R2.fq.gz`) or comma-separated (`R1.fq.gz,R2.fq.gz`), with R1 first.
 
 **Optional Arguments**:
+
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--threads <int>` | Number of CPU threads | 1 |
+| `--kit <kit>` | Library kit (`smarter_total_rna` or `smarter_smrna`) | `smarter_total_rna` |
 | `--run_steps <list>` | Steps to run (e.g., `1,3,5-8`, `all`) | `all` |
 | `--skip_steps <list>` | Steps to skip (e.g., `2,4`) | None |
 | `--circ_tool <tool>` | circRNA detection tool (`CIRCexplorer2`, `CIRI2`, `both`) | `both` |
 | `--gDNA_correction <yes\|no>` | Apply genomic DNA correction | `no` |
-| `--strand <strand>` | Library strandedness (`forward`, `reverse`, `unstrand`) | `unstrand` |
+| `--strand <strand>` | Library strandedness (`forward`, `reverse`, `unstrand`); when omitted for `smarter_smrna`, R1 is treated as sense and `forward` is selected | `unstrand` for Total RNA; `forward` for smRNA |
 | `--config <path>` | Custom configuration file | `EVscope.conf` |
 | `--resume` | Resume an existing output directory only when step metadata match current inputs/config/parameters | off |
 | `--force` | Allow re-running selected steps in an existing output directory | off |
 | `--dry-run` | Validate inputs/config/dependencies and print execution plan without running steps | off |
 | `-V, --verbosity <level>` | Logging level (1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=FATAL) | 2 |
-
-**Resume behavior**: EVscope refuses to reuse a non-empty output directory unless `--resume` or `--force` is provided. `--resume` only skips steps whose `step.meta.json` matches the current inputs/config/parameters. Legacy output directories created before this metadata file existed may require `--force` or cleanup before rerunning.
-
-**Report R environment**: Step 27 can render through a configured Conda R environment. Set `REPORT_R_ENV` in `EVscope.conf` to a Conda R environment name (for example, `r_env_4.4.3`) and, if needed, `CONDA_EXE` to the Conda executable. The default public config leaves `REPORT_R_ENV` empty and uses `Rscript` from `PATH`.
 | `-h, --help` | Display help message | - |
 | `-v, --version` | Show pipeline version | - |
 
-### Example: Full Pipeline
+**Resume behavior**: EVscope refuses to reuse a non-empty output directory unless `--resume` or `--force` is provided. `--resume` only skips steps whose `step.meta.json` matches the current inputs, configuration, pipeline version, and parameters including `--kit`. EVscope v1.1 adds the kit to the run signature, so output directories created by v1.0 have incompatible signatures and must be regenerated with `--force` (or removed and rerun); they cannot be safely resumed with v1.1.
+
+**Report R environment**: Step 27 can render through a configured Conda R environment. Set `REPORT_R_ENV` in `EVscope.conf` to a Conda R environment name (for example, `r_env_4.4.3`) and, if needed, `CONDA_EXE` to the Conda executable. The default public config leaves `REPORT_R_ENV` empty and uses `Rscript` from `PATH`.
+
+**Local configuration**: Copy `EVscope.conf` to `EVscope.local.conf`, set your installation and reference paths there, and pass `--config EVscope.local.conf`. This local file and sample output directories (`*_EVscope_output/`) are ignored by Git. The public configuration uses placeholder paths.
+
+**STAR parameter injection**: Step 6 reads STAR options from Bash arrays in `EVscope.conf`. `STAR_COMMON_ARGS` applies to all libraries; `STAR_TOTAL_RNA_ARGS`, `STAR_SMRNA_SE_ARGS`, and `STAR_SMRNA_PE_ARGS` define the protocol profiles. Add new options to `STAR_EXTRA_ARGS`, `STAR_TOTAL_RNA_EXTRA_ARGS`, or `STAR_SMRNA_EXTRA_ARGS`. Keep each option and value as separate array elements, for example `STAR_SMRNA_EXTRA_ARGS=(--limitBAMsortRAM 30000000000)`. To change an option already present, edit it in its profile array instead of adding the same option again. Input/output paths, threads, run mode, sorting threads, and refined-run gene counting remain pipeline-controlled.
+
+### Example: SMARTer Stranded Total RNA-Seq Kit v3
+
 ```bash
-bash EVscope.sh --sample_name Example_Data \
+bash EVscope.sh --sample_name Total_RNA_Example \
     --input_fastqs R1.fq.gz R2.fq.gz \
+    --kit smarter_total_rna \
     --threads 20 \
     --run_steps all \
     --gDNA_correction yes \
@@ -208,22 +220,45 @@ bash EVscope.sh --sample_name Example_Data \
     --verbosity 2
 ```
 
+Omitting `--kit` gives the same `smarter_total_rna` behavior for backward compatibility.
+
+### Example: SMARTer smRNA-Seq Kit for Illumina
+
+```bash
+bash EVscope.sh --sample_name smRNA_Example \
+    --input_fastqs R1.fq.gz R2.fq.gz \
+    --kit smarter_smrna \
+    --threads 20 \
+    --run_steps all \
+    --verbosity 2
+```
+
+In this example `--strand` is intentionally omitted, so EVscope uses `forward` because SMARTer smRNA R1 is the sense read.
+Steps 8-10 remain available for this kit. EVscope runs circRNA detection on the no-dedup processed reads and retains STAR chimeric-junction output for CIRCexplorer2. Because the library's 3'-polyadenylation workflow is not optimized for intact circRNA capture, interpret circRNA calls cautiously and validate important back-splice junctions independently.
+
 ## Input Data Format
 
-- **FASTQ Files**: Gzipped, paired-end (`R1.fastq.gz`, `R2.fastq.gz`) or single-end.
-- **Sequencing Protocol**: Optimized for SMARTer Stranded Total RNA-Seq Kit v3 (Pico Input) with 14-bp UMIs in Read2.
+- **FASTQ files**: Gzipped FASTQ input with R1 listed first whenever paired-end input is permitted.
 - **Quality**: High-quality reads suitable for EV RNA-seq.
+
+| Kit | `--kit` value | Accepted input | Orientation and default strand | Steps 2-3 and duplicate handling |
+|-----|---------------|----------------|--------------------------------|--------------------------------|
+| SMARTer Stranded Total RNA-Seq Kit v3 (Pico Input) | `smarter_total_rna` | Single-end or paired-end; paired-end requires R1 then R2 | Existing strand behavior; default `unstrand` | Existing UMI/ACC profiling and 14-bp UMI workflow, adapter and Q20 trimming, read-through UMI removal, and UMI-based deduplication |
+| SMARTer smRNA-Seq Kit for Illumina | `smarter_smrna` | Single-end R1 or paired-end R1/R2 | R1 is sense; if `--strand` is omitted, EVscope selects `forward` | R1 uses `-u 3` and poly(A) trimming. For PE data, R2 uses a fixed 14-nt 5' poly(T) trim and removes `NNNAGATCGGAAGAGC` from the 3' end. Reads shorter than 15 nt are discarded, Q20 trimming is applied to both mates, no UMI deduplication is performed, and circRNA Steps 8-10 operate on no-dedup reads. |
+
+The SMARTer smRNA profile follows Takara Bio's official [supplemental product information and data-processing guidance](https://catalog.takara-bio.co.jp/PDFS/SMARTer_smRNA-Seq_Kit_for_Illumina.pdf). Takara's [read-trimming FAQ](https://help.takarabio.com/36168/kb/article/109694/do-i-have-to-perform-any-nucleotide-trimming-of-the-smarter-smrnasequencing-reads-prior-to-mapping) explains the R1 5' three-nucleotide and 3' poly(A) trimming requirements, and its [UMI FAQ](https://help.takarabio.com/36168/kb/article/109681) confirms that SMARTer smRNA libraries do not incorporate UMIs. The PE extension uses the observed complementary R2 structure: 14 technical 5' bases, reverse-complement insert, three template-switch-derived bases, then the Illumina adapter.
+Because this protocol introduces an artificial poly(A) tract, EMapper's biological poly(A)-tail detection is disabled under `smarter_smrna`.
 
 ## Pipeline Steps
 
 | Step | Description |
 |------|-------------|
 | 1 | Raw FASTQ quality control using FastQC |
-| 2 | UMI motif analysis and ACC motif fraction calculation |
-| 3 | UMI extraction, adapter trimming, and read-through UMI removal |
+| 2 | Kit-aware library profiling: UMI motif/ACC analysis for `smarter_total_rna`, or a no-UMI library profile for `smarter_smrna` |
+| 3 | Kit-aware preprocessing: existing UMI extraction, adapter trimming, and read-through removal for Total RNA; official 5'/poly(A) trimming followed by Q20 trimming for smRNA |
 | 4 | Quality control of trimmed FASTQs |
 | 5 | Bacterial contamination screening (E. coli, Mycoplasma) using BBSplit |
-| 6 | Two-pass STAR alignment with UMI deduplication |
+| 6 | Kit-aware STAR alignment: Total RNA retains two-pass/splice/chimeric alignment and UMI deduplication; smRNA uses end-to-end, unspliced short-read alignment with absolute match thresholds and no UMI deduplication |
 | 7 | Library strandedness detection; splice/kb complementary gDNA-contamination QC proxy (primary source: STAR Log.final.out from Step 6) |
 | 8 | CIRCexplorer2-based circular RNA detection |
 | 9 | CIRI2-based circular RNA detection using BWA alignments |
@@ -242,7 +277,7 @@ bash EVscope.sh --sample_name Example_Data \
 | 24 | Comprehensive quality control summary generation |
 | 25 | Coverage analysis and bigWig generation using EMapper |
 | 26 | Coverage density plots for RNA types and meta-gene regions |
-| 27 | Final interactive HTML report generation |
+| 27 | Final interactive HTML report plus a separate concise RNA-seq summary report |
 
 **splice/kb interpretation.** EVscope reports splice junction crossings per kilobase of uniquely mapped aligned sequence as a complementary genomic-DNA-contamination QC proxy. For paired-end STAR logs, the denominator uses both mates' uniquely mapped aligned bases per fragment/read-pair, not insert size: `splice/kb = Number of splices: Total x 1000 / (Uniquely mapped reads number x Average mapped length)`. In an in-house EV RNA-seq pilot using EXODUS-M isolation, miRNeasy Advanced extraction and 400 uL plasma input (N=5), the single no-DNase control had splice/kb = 0.13; the TURBO DNase pilot libraries had splice/kb values of 1.67 (0.5 U, 10 min), 0.63 (0.25 U, 10 min), 1.64 (0.5 U, 5 min), and 0.94 (0.25 U, 5 min). Values closer to the no-DNase pilot value may indicate higher residual genomic-DNA-derived contribution, whereas higher values are directionally compatible with increased spliced/transcript-derived signal after DNase treatment. These empirical values are exploratory reference guides, not universal cutoffs and not a direct DNA quantification assay.
 
@@ -253,12 +288,12 @@ Each sample generates an output directory with the following structure:
 ```
 <sample_name>_EVscope_output/
 ├── Step_01_Raw_QC/                    # FastQC reports for raw reads
-├── Step_02_UMI_Analysis/              # UMI motif analysis and ACC fraction
-├── Step_03_UMI_Adaptor_Trim/          # UMI extraction, adapter trimming, clean FASTQs
+├── Step_02_UMI_Analysis/              # Kit-aware library profile; UMI/ACC only for Total RNA
+├── Step_03_UMI_Adaptor_Trim/          # Kit-aware trimming and clean FASTQs
 ├── Step_04_Trimmed_QC/                # FastQC reports for trimmed reads
 ├── Step_05_Bacterial_Filter/          # BBSplit bacterial/mycoplasma screening
-├── Step_06_Alignment_Initial/         # Initial STAR alignment and UMI-deduplicated FASTQs
-├── Step_06_Alignment_Refined/         # Refined STAR alignment and UMI-deduplicated BAM
+├── Step_06_Alignment_Initial/         # Initial STAR alignment and kit-appropriate duplicate handling
+├── Step_06_Alignment_Refined/         # Refined STAR alignment and final BAM
 ├── Step_07_Strand_Detection/          # Strandedness and splice/kb metrics
 ├── Step_08_CIRCexplorer2_circRNA/     # CIRCexplorer2 circRNA results
 ├── Step_09_CIRI2_circRNA/             # CIRI2 circRNA results
@@ -277,9 +312,13 @@ Each sample generates an output directory with the following structure:
 ├── Step_24_MultiQC_Summary/           # QC summary matrix
 ├── Step_25_EMapper_BigWig_Quantification/ # EMapper coverage and bigWig
 ├── Step_26_BigWig_Density_Plot/       # RNA type and meta-gene density plots
-├── Step_27_HTML_Report/               # Interactive HTML report
+├── Step_27_HTML_Report/               # Detailed and standalone concise HTML reports
 └── EVscope_pipeline.log               # Pipeline execution log
 ```
+
+The historical Step 2, Step 3, and Step 6 directory names are retained for output-path compatibility. Under `smarter_smrna`, Step 2 contains the smRNA library profile, Step 3 contains the trimmed/clean R1 and, for PE input, R2, while Step 6 does not perform UMI extraction or UMI-based deduplication. UMI/ACC and read-through-specific files are produced only by `smarter_total_rna`.
+
+For `smarter_smrna`, STAR is run with end-to-end, unspliced alignment (`--alignEndsType EndToEnd`, `--alignIntronMax 1`) and at most one mismatch. The normalized score/match filters are disabled and replaced with absolute floors derived from the 15-nt post-trimming minimum: 12 alignment-score and 14 matched bases per mate (24/28 for PE). Equally best multi-mapping loci are retained, up to the existing limit of 100, because many short ncRNAs are not uniquely mappable. Two-pass alignment remains disabled, while chimeric-junction output is enabled for the circRNA workflow.
 
 ## Troubleshooting
 
@@ -290,14 +329,26 @@ Each sample generates an output directory with the following structure:
 
 ## FAQ
 
-**Q: Can EVscope process non-SMARTer-seq data?**
-A: Yes, modify UMI parameters in `bin/Step_02_*.py` and `bin/Step_03_UMIAdapterTrimR1.py`.
+**Q: Which library kits are supported?**
+A: Use `--kit smarter_total_rna` for the SMARTer Stranded Total RNA-Seq Kit v3 (the default) or `--kit smarter_smrna` for the SMARTer smRNA-Seq Kit for Illumina. Other library protocols are not represented by these profiles and require separately validated preprocessing.
+
+**Q: Can `smarter_smrna` process paired-end FASTQs?**
+A: Yes. Provide R1 first and R2 second. R1 is trimmed with the official `-u 3`/poly(A) profile. R2 is trimmed by 14 nt at its 5' poly(T) end and by the `NNNAGATCGGAAGAGC` structure at its 3' end. Both mates remain synchronized and are passed to paired-end alignment without UMI deduplication.
+
+**Q: How does EVscope preprocess SMARTer smRNA reads?**
+A: R1 is treated as the sense read. Step 2 records a no-UMI library profile. Step 3 applies `cutadapt -m 15 -u 3 -a AAAAAAAAAA`, followed by the existing Q20 quality trimming. It does not run UMI extraction, UMI read-through removal, or UMI-based deduplication. Steps 8-10 can detect circRNAs from the no-dedup reads, although calls from this 3'-polyadenylation protocol should be interpreted cautiously.
+
+**Q: Do I need to specify `--strand forward` for SMARTer smRNA?**
+A: No. If `--strand` is omitted with `--kit smarter_smrna`, EVscope selects `forward`. An explicitly supplied `--strand` value is honored.
+
+**Q: Can I resume a v1.0 output directory with EVscope v1.1?**
+A: No. v1.1 includes the kit and pipeline version in step signatures. Use `--force` to regenerate the selected steps, or remove the old output directory and start a fresh run.
 
 **Q: How do I run specific pipeline steps?**
 A: Use `--run_steps`, e.g., `--run_steps 1,3,5-8`.
 
 **Q: How do I view the final report?**
-A: Open `Step_27_HTML_Report/<sample_name>_final_report.html` in a web browser.
+A: Open `Step_27_HTML_Report/<sample_name>_final_report.html` for the comprehensive report, or `<sample_name>_summary_report.html` in the same directory for the standalone one-paragraph summary.
 
 ## Contributing
 

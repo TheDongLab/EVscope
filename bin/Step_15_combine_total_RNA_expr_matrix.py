@@ -18,7 +18,10 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Merge gene and circRNA expression tables.")
     parser.add_argument("--gene_expr", required=True)
-    parser.add_argument("--circRNA_expr", required=True)
+    parser.add_argument(
+        "--circRNA_expr",
+        help="Optional circRNA expression matrix. Omit it to normalize a gene-only matrix.",
+    )
     parser.add_argument("--out_matrix", required=True)
     return parser.parse_args()
 
@@ -103,7 +106,7 @@ def write_merged_matrix(rows: Iterable[Dict[str, str]], output_path: str) -> Non
 def main() -> None:
     args = parse_args()
     gene_data = read_gene_data(args.gene_expr)
-    circ_data = read_circ_data(args.circRNA_expr)
+    circ_data = read_circ_data(args.circRNA_expr) if args.circRNA_expr else []
     write_merged_matrix(gene_data + circ_data, args.out_matrix)
 
 

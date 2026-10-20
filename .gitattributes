@@ -1,0 +1,4 @@
+# Keep text byte-for-byte reproducible across Linux and Windows checkouts.
+* text=auto eol=lf
+*.png binary
+*.gz binary
