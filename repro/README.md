@@ -13,4 +13,4 @@ sha256sum -c repro/checksums.sha256
 
 The smoke test covers syntax, CLI help/version, toy FASTQ processing, read-length plotting when matplotlib is available, and a tiny synthetic EMapper/BigWig/bigWig2Expression run when `pysam`, `pyBigWig`, `numba`, and `numpy` are available.
 
-`repro/checksums.sha256` covers tracked release-critical files except itself. Git commit/tag identity remains the authoritative source-tree integrity record.
+`repro/checksums.sha256` covers tracked release-critical files except itself. Text files use LF line endings through `.gitattributes` so hashes match across platforms. Git commit/tag identity remains the authoritative source-tree integrity record.
