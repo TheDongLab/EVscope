@@ -1,0 +1,24 @@
+{
+  "vector_label_replacements": 15,
+  "pdf_figures_sanitized": 11,
+  "svg_figures_sanitized": 2,
+  "image_and_download_uris_replaced": 26,
+  "embedded_html_sanitized": 5,
+  "interactive_tables_preserved": 8,
+  "table_cells_verified": 1061,
+  "main_figures_preserved": 21,
+  "embedded_reports_preserved": 5,
+  "private_identifier_scan_passed": 1,
+  "original_file_unchanged": 1,
+  "browser_validation": {
+    "all_main_figures_loaded": true,
+    "embedded_reports_loaded": 5,
+    "interactive_table_search_passed": true,
+    "javascript_error_count": 0,
+    "external_request_count": 0,
+    "taxonomy_canvas_initialized": true,
+    "image_download_filenames_verified": 20
+  },
+  "embedded_scientific_tables_and_taxonomy_values_preserved": true,
+  "unique_png_metadata_assets_checked": 59
+}

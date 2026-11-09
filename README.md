@@ -10,6 +10,7 @@
 ## Table of Contents
 
 - [Key Features](#key-features)
+- [Visual Example](#visual-example)
 - [Motivation](#motivation)
 - [Directory Structure](#directory-structure)
 - [Requirements](#requirements)
@@ -41,6 +42,14 @@
 - **Interactive Reporting**: Generates bigWig tracks, density plots, a comprehensive HTML report via R Markdown (`bin/Step_27_html_report.Rmd`), and a separate one-paragraph RNA-seq summary covering read retention, human/E. coli/Mycoplasma mapping, alignment type, genomic regions, strand orientation, and the top 10 genes.
 - **Reproducibility**: Single-command Bash script with Conda environments, containerization support, and detailed logging.
 
+## Visual Example
+
+An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the SMARTer smRNA workflow, including FastQC reports, alignment and strandness QC, RNA composition, taxonomy, and coverage plots.
+
+Download [EVscope_example_report.html](Visual_exmaple/EVscope_example_report.html) using GitHub's **Download raw file** button, then open it in a local browser. The self-contained report works offline and includes interactive tables and embedded reports. Names, project/sample identifiers, private paths, and run dates have been removed or replaced; original analysis values are retained.
+
+![Anonymized EVscope report showing strandness and splice-junction quality control](Visual_exmaple/report_preview.png)
+
 ## Motivation
 
 Extracellular vesicles (EVs) are critical mediators of intercellular communication, carrying diverse RNAs that serve as potential biomarkers for diseases like cancer and neurodegeneration. However, EV RNA sequencing faces unique challenges: low RNA abundance, fragmented transcripts, contamination from genomic DNA or bacterial RNA, and the presence of non-polyadenylated RNAs (e.g., miRNAs, lncRNAs). Standard RNA-seq pipelines, designed for cellular RNA, often fail to address these issues, leading to unreliable results due to multi-mapping reads, incomplete RNA annotations, or unfiltered contaminants.
@@ -56,6 +65,7 @@ EVscope/
 ├── EVscope.conf                                # Configuration file for tool and reference paths
 ├── EVscope.sh                                  # Main pipeline script (v1.1.0)
 ├── README.md                                   # This documentation
+├── Visual_exmaple/                             # Anonymized HTML report and preview screenshot
 ├── bin/                                        # Custom scripts for pipeline steps
 │   ├── Step_02_calculate_ACC_motif_fraction.py  # Calculates ACC motif fractions
 │   ├── Step_02_plot_fastq2UMI_motif.py         # Visualizes UMI motif distributions
