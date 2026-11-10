@@ -46,10 +46,6 @@
 
 An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the SMARTer smRNA workflow, including FastQC reports, alignment and strandness QC, RNA composition, taxonomy, and coverage plots.
 
-Download [EVscope_example_report.html](Visual_exmaple/EVscope_example_report.html) using GitHub's **Download raw file** button, then open it in a local browser. The self-contained report works offline and includes interactive tables and embedded reports. Names, project/sample identifiers, private paths, and run dates have been removed or replaced; original analysis values are retained.
-
-![Anonymized EVscope report showing strandness and splice-junction quality control](Visual_exmaple/report_preview.png)
-
 ## Motivation
 
 Extracellular vesicles (EVs) mediate intercellular communication and carry diverse RNAs that are studied as candidate biomarkers for diseases such as cancer and neurodegeneration. EV RNA-seq libraries have distinctive properties: low RNA input, short and fragmented inserts, a high proportion of multi-mapping reads, abundant non-polyadenylated RNAs (e.g., miRNAs, piRNAs and other small non-coding RNAs), and possible contamination with genomic DNA or bacterial RNA. General-purpose RNA-seq pipelines are designed primarily for abundant, intact cellular RNA, so EV data benefit from dedicated processing and quality-control steps.
