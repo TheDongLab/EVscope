@@ -420,8 +420,6 @@ Source code: [https://github.com/TheDongLab/EVscope](https://github.com/TheDongL
 Example EV total RNA-seq data: NCBI GEO GSE281915 (SRA runs SRR31350808-SRR31350811).  
 MAQC/SEQC benchmark data: NCBI SRA runs SRR1215996, SRR1216024, SRR1216052 and SRR1216080.
 
-**Corresponding Authors**: Yiyong Zhao ([yz3676@cornell.edu](mailto:yz3676@cornell.edu)) and Xianjun Dong ([xianjun.dong@yale.edu](mailto:xianjun.dong@yale.edu))
-
 ## License
 
 EVscope source code is licensed under the [MIT License](LICENSE).
