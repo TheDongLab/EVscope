@@ -413,7 +413,6 @@ If you use EVscope in your research, please cite:
 2. Department of Neurology, Yale School of Medicine, Yale University, New Haven, CT 06510, USA
 3. Aligning Science Across Parkinson's (ASAP) Collaborative Research Network, Chevy Chase, MD 20815, USA
 4. Department of Medicine, Brigham and Women's Hospital, Harvard Medical School, Harvard University, Boston, MA, USA
-5. Current address (Yiyong Zhao): Institute for Genomic Diversity, Cornell University, Ithaca, NY, USA
 
 **Data Availability**:
 Source code: [https://github.com/TheDongLab/EVscope](https://github.com/TheDongLab/EVscope) and Zenodo (https://doi.org/10.5281/zenodo.15577788), licensed under the MIT License.
@@ -426,6 +425,6 @@ EVscope source code is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-- **Yiyong Zhao**: [yz3676@cornell.edu](mailto:yz3676@cornell.edu)
+- **Yiyong Zhao**: [yiyongzhao199@gmail.com](mailto:yiyongzhao199@gmail.com)
 - **Xianjun Dong**: [xianjun.dong@yale.edu](mailto:xianjun.dong@yale.edu)
 - **GitHub**: [https://github.com/TheDongLab/EVscope](https://github.com/TheDongLab/EVscope)
