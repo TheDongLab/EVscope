@@ -2,3 +2,4 @@
 * text=auto eol=lf
 *.png binary
 *.gz binary
+*.bw binary

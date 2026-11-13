@@ -44,9 +44,7 @@
 
 ## Visual Example
 
-An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the SMARTer smRNA workflow, including FastQC reports, alignment and strandness QC, RNA composition, taxonomy, and coverage plots.
-
-Download [EVscope_example_report.html](Visual_exmaple/EVscope_example_report.html) using GitHub's **Download raw file** button, then open it in a local browser. The self-contained report works offline and includes interactive tables and embedded reports. Names, project/sample identifiers, private paths, and run dates have been removed or replaced; original analysis values are retained.
+An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the paired-end SMARTer Stranded Total RNA-Seq workflow, including UMI and trimming QC, post-UMI-deduplication alignment, insert-size distribution, circRNA results, RNA composition, cellular-source estimates, taxonomy, and coverage plots. The example includes 33 main figures, 5 embedded reports, and 8 interactive tables; its folder provides download instructions and preview images. [Chromosome-1 strand BigWigs](Visual_exmaple/bigwig/) are also available for genome-browser inspection.
 
 ![Anonymized EVscope report showing strandness and splice-junction quality control](Visual_exmaple/report_preview.png)
 
@@ -120,7 +118,7 @@ EVscope/
   - BBMap (v39.15), Kraken2, ribodetector (v0.3.1)
   - seqtk (v1.4), BWA (v0.7.18), Picard (v3.3.0), deepTools (v3.5.5)
   - R (v4.3.1) with rmarkdown, DT, kableExtra, bookdown, ggplot2, dplyr
-  - Python (v3.10.0) with pandas, numpy, matplotlib, biopython, numba, pyBigWig, pysam
+  - Python (v3.10.0) with pandas, numpy, matplotlib, seaborn, ARIC, biopython, numba, pyBigWig, pysam
 
 ### Hardware
 - **CPU**: 20+ threads recommended for optimal performance.

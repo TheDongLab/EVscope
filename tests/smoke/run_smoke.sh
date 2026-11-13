@@ -13,6 +13,16 @@ python3 -m py_compile bin/*.py
 bash EVscope.sh --help >/dev/null
 bash EVscope.sh --version >/dev/null
 
+if python3 - <<'PY'
+import importlib.util, sys
+sys.exit(0 if all(importlib.util.find_spec(name) for name in ('seaborn', 'ARIC')) else 1)
+PY
+then
+  python3 bin/Step_22_run_RNA_deconvolution_ARIC.py --help >/dev/null
+else
+  echo "seaborn or ARIC not installed; skipping deconvolution import smoke test"
+fi
+
 python3 bin/Step_02_calculate_ACC_motif_fraction.py \
   --input_fastq tests/smoke/data/toy_R2.fastq.gz \
   --positions 1-3 \

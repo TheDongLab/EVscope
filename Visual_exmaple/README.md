@@ -1,17 +1,23 @@
 # Visual example
 
-This folder contains an anonymized EVscope report from a paired-end SMARTer smRNA analysis. It illustrates the report layout, embedded FastQC and Krona reports, interactive QC tables, RNA composition figures, and coverage plots.
+This folder contains an anonymized report from a paired-end SMARTer Stranded Total RNA-Seq analysis. It includes UMI motif and read-through trimming QC, initial and post-UMI-deduplication alignment, insert-size distribution, circRNA results, expression figures, taxonomy, cellular-source composition, and coverage profiles.
+
+The report contains 33 main figures, 5 embedded reports, and 8 interactive tables. Nine cellular-source figures cover immune-cell, GTEx tissue, and brain cell atlas references across featureCounts, gDNA-corrected, and RSEM estimates.
 
 | File | Description |
 | --- | --- |
-| [EVscope_example_report.html](EVscope_example_report.html) | Self-contained interactive HTML report, approximately 28 MB. |
-| [report_preview.png](report_preview.png) | Screenshot of the strandness and splice-junction QC section. |
-| [validation.json](validation.json) | Checks covering identifiers, retained table values, figures, embedded reports, and offline browser behavior. |
+| [EVscope_example_report.html](EVscope_example_report.html) | Self-contained interactive HTML report, about 51 MiB. |
+| [report_preview.png](report_preview.png) | Screenshot of strandness and splice-junction QC. |
+| [deconvolution_preview.png](deconvolution_preview.png) | Comparison of the nine cellular-source figures included in the report. |
+| [validation.json](validation.json) | Identifier, numerical-content, image, embedded-report, and offline-browser checks. |
+| [bigwig/](bigwig/) | Repository location of the two chromosome-1 F1R2/F2R1 BigWig files. |
 
-To view the complete report, open the HTML file on GitHub, click **Download raw file**, and open the downloaded file in a browser. A repository clone also contains everything needed to view it offline.
+Names, project/sample identifiers, sequencing file identifiers, private filesystem paths, and run dates/times have been removed or replaced, including identifiers in embedded reports, figure labels, and downloadable images. The example uses the sample identifier `Example_001`.
 
-Names, project/sample identifiers, sequencing file identifiers, private filesystem paths, and run dates/times have been removed or replaced, including identifiers inside embedded reports, figure labels, and downloadable images. The example uses the sample identifier `Example_001`.
+Original analysis values, gene and species names, sequence content, public software versions, and license information are retained. For raster figures, only identifying label regions were edited; pixels outside those regions were verified unchanged. This example contains real analysis results. The source report was left unchanged, and no original-to-example identifier mapping is included.
 
-Original analysis values, gene and species names, sequence content, public software versions, and license information are retained. This is an example with identifying labels removed; it contains real analysis results. The original report was left unchanged, and no original-to-example identifier mapping is included.
+File integrity is recorded in [the repository checksum list](../repro/checksums.sha256) and [artifact manifest](../repro/manifest.tsv).
 
-![Strandness and splice-junction QC in the anonymized EVscope report](report_preview.png)
+![Strandness and splice-junction QC](report_preview.png)
+
+![Cellular-source composition across references and quantification methods](deconvolution_preview.png)

@@ -324,6 +324,16 @@ if missing:
     raise SystemExit("Missing Python modules: " + ", ".join(missing))
 PYMOD
 }
+check_deconvolution_modules() {
+    run_python -c 'import sys
+print("Deconvolution Python: " + sys.executable, flush=True)
+import seaborn
+from ARIC import ARIC
+' || {
+        log 4 "ERROR" "Steps 20-22 require seaborn and ARIC in the Python environment shown above. Update environments/evscope_env.yml and check CORE_PYTHON_ENV in your configuration."
+        return 1
+    }
+}
 check_r_packages() {
     local -a packages=("knitr" "rmarkdown" "readr" "dplyr" "DT" "tools" "stringr" "ggplot2" "plotly" "tidyr" "xfun" "htmltools")
     local pkg_expr
@@ -413,6 +423,10 @@ check_dependencies() {
             missing_deps=$((missing_deps + 1))
         fi
     done
+
+    if any_step_selected 20 21 22; then
+        check_deconvolution_modules || missing_deps=$((missing_deps + 1))
+    fi
 
     if step_is_selected 27; then
         check_r_packages || missing_deps=$((missing_deps + 1))

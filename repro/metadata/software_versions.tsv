@@ -1,6 +1,7 @@
 tool	version_source	expected_version	notes
 EVscope	git tag	TBD	Set at release time.
 Python	environments/evscope_env.yml	3.10	Core scripts.
+ARIC	environments/evscope_env.yml (pip)	1.0.1	Deconvolution for Steps 20-20.13.2
 FastQC	environments/evscope_env.yml	0.12.1	QC.
 STAR	environments/evscope_env.yml	2.7.11b	Alignment.
 samtools	environments/evscope_env.yml	1.21	BAM operations.
