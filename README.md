@@ -44,7 +44,7 @@
 
 ## Visual Example
 
-An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the SMARTer smRNA workflow, including FastQC reports, alignment and strandness QC, RNA composition, taxonomy, and coverage plots.
+An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the paired-end SMARTer Stranded Total RNA-Seq workflow, including UMI and trimming QC, post-UMI-deduplication alignment, insert-size distribution, circRNA results, RNA composition, cellular-source estimates, taxonomy, and coverage plots. The example includes 33 main figures, 5 embedded reports, and 8 interactive tables; its folder provides download instructions and preview images.
 
 ## Motivation
 

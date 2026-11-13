@@ -1,6 +1,6 @@
 artifact_id	role	path_or_accession	external_url_or_doi	sha256	size_bytes	license_or_terms	notes
 source_tree	code	.	https://github.com/TheDongLab/EVscope	NA	NA	MIT	Use the exact public Git tag/commit for authoritative source-tree identity.
-README_md	documentation	README.md	NA	760041c46f7042dc1eb0cc0c8e22a20ef3ac314ddfbf9fc85bee87f8c736553a	28800	MIT	User-facing installation, kit selection, usage, scope and smoke-test documentation.
+README_md	documentation	README.md	NA	bdc5e10ffb732819d069cb6801d123115e38c6377421120480c0b318c12d8a85	33079	MIT	User-facing installation, kit selection, usage, scope and smoke-test documentation.
 LICENSE	license	LICENSE	NA	8003003ded85bbc27a43f9719d604a358993818007a6dc7a35eb45e06c749e15	1082	MIT	MIT license for EVscope source code.
 EVscope_sh	code	EVscope.sh	NA	d990fbfef5f7737e998ebc5f53600e1f3378f2186bda460dee2facb8c14207e6	111426	MIT	Main Bash entry point with Total RNA and SMARTer smRNA kit profiles and separate Step 27 reports.
 EVscope_conf	configuration	EVscope.conf	NA	33ba6396cca8ff2301be81b394c64bbf45327b14153c74b6a4bb57787d37b6db	7713	MIT	Default reference/tool path and injectable STAR-parameter configuration; users should edit local paths.
@@ -17,8 +17,8 @@ tests_smoke_run_smoke_sh	test	tests/smoke/run_smoke.sh	NA	2e10439cccafe7348a9c06
 tests_smoke_data_toy_R2_fastq_gz	test_data	tests/smoke/data/toy_R2.fastq.gz	NA	4f817aa0b325b273c2e94e57e19aee0e6c0a6e200e7f679687dd0a151c3cc7ce	72	MIT	Tiny synthetic FASTQ for smoke testing.
 tests_smoke_expected_expected_files_txt	test	tests/smoke/expected/expected_files.txt	NA	0a4ad44f7e3244443e7647debc398b462333aca99a0266ccb28147b7b7a49754	214	MIT	Expected smoke-test output paths.
 repro_README_md	documentation	repro/README.md	NA	c9fe5113e00d09485eca2b3ecc9d9f021a7ca927e92e6d4d492c70d4b047bbef	1031	MIT	Release-level reproducibility index.
-repro_manifest_tsv	metadata	repro/manifest.tsv	NA	NA	5628	MIT	This manifest; checksum intentionally omitted to avoid self-reference. Validate with git commit/tag and repro/checksums.sha256.
-repro_checksums_sha256	checksum	repro/checksums.sha256	NA	NA	4569	MIT	Checksum file; self-checksum intentionally omitted.
+repro_manifest_tsv	metadata	repro/manifest.tsv	NA	NA	7034	MIT	This manifest; checksum intentionally omitted to avoid self-reference. Validate with git commit/tag and repro/checksums.sha256.
+repro_checksums_sha256	checksum	repro/checksums.sha256	NA	NA	5073	MIT	Checksum file; self-checksum intentionally omitted.
 repro_metadata_software_versions_tsv	metadata	repro/metadata/software_versions.tsv	NA	e37c5a511bfa1d6235abe058cf2941f7ccfdc45fef7d9ff30a56c7387b588434	588	MIT	Representative software/version metadata.
 repro_benchmarks_EMapper_MAQC_qPCR_README_md	documentation	repro/benchmarks/EMapper_MAQC_qPCR/README.md	NA	767c5b88b1c8ca7349ba0efb4a71f758ef78bd27d62c4e36cae04b38ae675688	1064	MIT	Benchmark/qPCR documentation and final-release artifact requirements.
 repro_figures_README_md	documentation	repro/figures/README.md	NA	593f85dc44c8faeb6a5d5c2dcc036bf229e97f52139070259c193a8af753637b	1023	MIT	Per-figure reproducibility organization notes.
@@ -27,3 +27,8 @@ sra_example_raw	sequencing_data	SRR31350808-SRR31350811	NCBI SRA	NA	NA	SRA terms
 amp_pd_controlled_access	controlled_access_data	AMP-PD Knowledge Portal	https://amp-pd.org/	NA	NA	controlled access/data-use terms	Controlled-access EV-enriched RNA-seq data are not redistributed; use portal access procedures.
 fig_s3_compendium_metadata	metadata	final public release bundle	NA	NA	NA	source-specific	Redistributable accession-level metadata/inclusion notes for the cross-biofluid compendium must be synchronized with final public release.
 emapper_qpcr_benchmark_matrices	benchmark_data	final public release bundle	NA	NA	NA	source-specific	Redistributable qPCR/benchmark matrices and commands must be synchronized with final public release.
+visual_example_EVscope_example_report_html	example_report	Visual_exmaple/EVscope_example_report.html	NA	35fd50d0c54ebe7a3098c9eb8c96bb2c968acbc22ec428a3497c25e68f05be78	53780643	See repository license and embedded third-party notices	De-identified Total RNA-seq report example; original analysis values retained.
+visual_example_README_md	documentation	Visual_exmaple/README.md	NA	bc8c71d9308acd6c7e6c6f72411649448df604f49c5aa8fa7071d218c0ad8448	2261	See repository license and embedded third-party notices	Visual example documentation, preview, or validation metadata.
+visual_example_deconvolution_preview_png	documentation	Visual_exmaple/deconvolution_preview.png	NA	7c3ef45d83d03a93ddd8dedb68587eb1c7ebb38ea035b437b0fff57278512757	481371	See repository license and embedded third-party notices	Visual example documentation, preview, or validation metadata.
+visual_example_report_preview_png	documentation	Visual_exmaple/report_preview.png	NA	93c98bde58bc3a6ea145f3be3356f78ff8a6285acea9e4041a7c3aefa7a1d32e	171754	See repository license and embedded third-party notices	Visual example documentation, preview, or validation metadata.
+visual_example_validation_json	example_metadata	Visual_exmaple/validation.json	NA	4e9730a9eb7f0bffd04c9de2257fdc845aa4795937a114d02653e3c7cc4ac89e	1022	See repository license and embedded third-party notices	Visual example documentation, preview, or validation metadata.
