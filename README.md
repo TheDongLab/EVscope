@@ -402,7 +402,7 @@ If you use EVscope in your research, please cite:
 - **Yiyong Zhao**: Data curation, Formal analysis, Software, Visualization
 - **Himanshu Chintalapudi**: Visualization
 - **Ziqian Xu**: Resources
-- **Jialu Yu**
+- **Jialu Yu**: Maintenance
 - **Weiqiang Liu**: Data curation
 - **Yuxuan Hu**: Validation
 - **Ewa Grassin**: Resources [supporting]
