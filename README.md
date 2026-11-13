@@ -1,6 +1,6 @@
-# EVscope: A Comprehensive Bioinformatics Workflow for Accurate and Robust Analysis of Total RNA Sequencing from Extracellular Vesicles
+# EVscope: A Comprehensive Bioinformatics Pipeline for Accurate and Robust Analysis of Total RNA Sequencing from Extracellular Vesicles
 
-**EVscope** is an open-source, modular bioinformatics pipeline designed for extracellular-vesicle (EV) RNA sequencing data. It provides kit-aware processing for the SMARTer Stranded Total RNA-Seq Kit v3 (Pico Input) and the SMARTer smRNA-Seq Kit for Illumina. Select the protocol with `--kit smarter_total_rna` (the backward-compatible default) or `--kit smarter_smrna`. Tailored to EV RNA-seq challenges - low RNA yield, fragmented inserts, diverse RNA biotypes, high multi-mapping, and contamination risk - EVscope processes supported paired-end or single-end FASTQ inputs through an end-to-end workflow. It includes quality control, kit-appropriate duplicate handling, kit-specific STAR alignment, circular RNA detection, expression matrix generation, contamination screening, exploratory source-enrichment analysis, and comprehensive reporting. EVscope also introduces EMapper, an expectation-maximization (EM) module whose main EMapper-specific contribution is EM-weighted genome-coordinate BigWig/coverage generation with RNA annotation support; gene-level count concordance with featureCounts/RSEM is used as a sanity check, not as a claim that EMapper is superior to RSEM for conventional gene readcount quantification.
+**EVscope** is an open-source, modular bioinformatics pipeline for extracellular vesicle (EV) RNA sequencing data. A single command takes raw FASTQ files through 27 steps to quality-control summaries, expression matrices, strand-aware coverage tracks and an interactive HTML report. EVscope provides kit-aware processing for the SMARTer Stranded Total RNA-Seq Kit v3 (Pico Input) and the SMARTer smRNA-Seq Kit for Illumina; select the protocol with `--kit smarter_total_rna` (the backward-compatible default) or `--kit smarter_smrna`. The pipeline is tailored to the characteristics of EV RNA-seq libraries - low RNA input, short and fragmented inserts, diverse RNA biotypes, a high proportion of multi-mapping reads, and possible genomic DNA or bacterial contamination - and accepts paired-end or single-end FASTQ input. It covers quality control, kit-appropriate preprocessing and duplicate handling, kit-specific STAR alignment, circular RNA detection, expression quantification, contamination screening, reference-based tissue and cell-type profiling, and comprehensive reporting. Its EMapper module generates genome-coordinate BigWig coverage tracks for uniquely mapped, multi-mapping and all reads and reports gene-level counts, using an expectation-maximization (EM) model for fragments shared by overlapping genes. On MAQC/SEQC reference RNA, EMapper gene-level counts agree closely with featureCounts and RSEM (Pearson r = 0.97-0.99).
 
 <p align="center">
   <img src="./figures/EVscope_pipeline.png" alt="EVscope Pipeline Overview" width="600"/>
@@ -15,6 +15,7 @@
 - [Directory Structure](#directory-structure)
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [Smoke Test](#smoke-test)
 - [Usage](#usage)
 - [Input Data Format](#input-data-format)
 - [Pipeline Steps](#pipeline-steps)
@@ -22,7 +23,6 @@
 - [Troubleshooting](#troubleshooting)
 - [FAQ](#faq)
 - [Contributing](#contributing)
-- [Feedback](#feedback)
 - [Citation](#citation)
 - [Credits](#credits)
 - [License](#license)
@@ -30,39 +30,40 @@
 
 ## Key Features
 
-- **Kit-Aware Preprocessing**: Preserves the existing 14-bp UMI workflow for `smarter_total_rna`, while `smarter_smrna` uses the official SMARTer smRNA 5'/poly(A) trimming profile without UMI extraction or deduplication.
-- **Novel Read-Through Detection for Total RNA**: Trims UMI-derived adapter sequences from Read1 using reverse-complemented Read2 UMIs (`bin/Step_03_UMIAdapterTrimR1.py`) when `--kit smarter_total_rna` is selected.
-- **EM-Weighted BigWig Coverage Profiling**: Uses a genome-wide expectation-maximization algorithm to assign multi-mapped fragments at single-base or binned resolution and generate strand-aware, RPM-normalized BigWig tracks (`bin/Step_25_EMapper.py`).
-- **Comprehensive RNA Annotation**: Supports 3,659,642 RNAs across 20 biotypes (e.g., protein-coding, lncRNAs, miRNAs, piRNAs, retrotransposons) from GENCODE v45, piRBase v3.0, and RepeatMasker.
-- **Dual circRNA Detection**: Integrates CIRCexplorer2 and CIRI2 for circular RNA identification, with merged results (`bin/Step_10_circRNA_merge.py`); SMARTer smRNA libraries use the no-dedup reads and kit-specific STAR chimeric output.
-- **Tissue Deconvolution**: Infers EV RNA cellular origins using GTEx v10 and Human Brain Cell Atlas v1.0 references (`bin/Step_22_run_RNA_deconvolution_ARIC.py`).
-- **Contamination Screening**: Filters bacterial (BBSplit) and microbial (Kraken2) contamination, with optional genomic DNA correction via strand-specific subtraction.
-- **Extensive Quality Control**: Validates raw and trimmed FASTQs (FastQC), generates a kit-aware library profile, and summarizes alignment metrics (`bin/Step_24_generate_QC_matrix.py`).
-- **Expression Quantification**: Produces TPM/CPM matrices using featureCounts and RSEM, with RNA distribution visualizations (`bin/Step_15_plot_RNA_distribution_*.py`).
-- **Interactive Reporting**: Generates bigWig tracks, density plots, a comprehensive HTML report via R Markdown (`bin/Step_27_html_report.Rmd`), and a separate one-paragraph RNA-seq summary covering read retention, human/E. coli/Mycoplasma mapping, alignment type, genomic regions, strand orientation, and the top 10 genes.
-- **Reproducibility**: Single-command Bash script with Conda environments, containerization support, and detailed logging.
+- **Kit-Aware Preprocessing**: Applies the 14-bp UMI workflow (UMI extraction, adapter trimming and UMI-based deduplication) to `smarter_total_rna` libraries and the official SMARTer smRNA 5'/poly(A) trimming profile to `smarter_smrna` libraries, which carry no UMIs.
+- **UMI Read-Through Removal**: Removes UMI-derived read-through sequence from the 3' end of Read 1 using the reverse-complemented Read 2 UMI region, recovering clean inserts from short EV RNA fragments (`bin/Step_03_UMIAdapterTrimR1.py`; `--kit smarter_total_rna`).
+- **EMapper Coverage Tracks and Quantification**: Generates strand-aware, RPM-normalized BigWig tracks at single-base or binned resolution for uniquely mapped, multi-mapping and all reads, and reports gene-level counts and TPM with expectation-maximization (EM) assignment of fragments shared by overlapping genes, together with per-gene splice-junction and poly(A)-site counts (`bin/Step_25_EMapper.py`).
+- **Comprehensive RNA Annotation**: Annotates 3,659,642 RNA features across 19 RNA biotypes (e.g., protein-coding genes, lncRNAs, miRNAs, piRNAs, retrotransposons) from GENCODE v45, piRBase v3.0, and RepeatMasker; with the circRNAs detected by EVscope, 20 categories are reported.
+- **Dual circRNA Detection**: Combines CIRCexplorer2 and CIRI2 for circular RNA identification and merges their calls into one table (`bin/Step_10_circRNA_merge.py`); SMARTer smRNA libraries use the no-dedup reads and kit-specific STAR chimeric output.
+- **Reference-Based Tissue and Cell-Type Profiling**: Relates EV RNA expression profiles to GTEx v10 tissues, immune cell types (Monaco et al.) and Human Brain Cell Atlas v1.0 cell types with ARIC, giving an exploratory view of candidate tissue and cellular sources; custom reference matrices are supported (`bin/Step_22_run_RNA_deconvolution_ARIC.py`).
+- **Contamination Screening and gDNA Assessment**: Screens for E. coli and Mycoplasma reads (BBSplit), profiles taxonomic composition (Kraken2/Krona) and the rRNA fraction (RiboDetector), and assesses genomic DNA with a splices-per-kilobase (splice/kb) indicator and an optional strand-based correction.
+- **Extensive Quality Control**: Checks raw and trimmed reads (FastQC), profiles the library structure for each kit, collects RNA-seq metrics (Picard), and consolidates per-sample metrics into a QC table and a MultiQC report (`bin/Step_24_generate_QC_matrix.py`).
+- **Expression Quantification**: Produces TPM/CPM expression matrices from featureCounts and RSEM, with RNA-biotype distribution plots (`bin/Step_15_plot_RNA_distribution_*.py`).
+- **Interactive Reporting**: Compiles coverage density plots, QC tables and embedded reports into a comprehensive interactive HTML report via R Markdown (`bin/Step_27_html_report.Rmd`), plus a standalone one-paragraph RNA-seq summary covering read retention, human/E. coli/Mycoplasma mapping, alignment type, genomic regions, strand orientation, and the top 10 genes.
+- **Reproducibility**: Single-command execution with Conda environment files, resumable runs with step-level metadata, structured logging, continuous-integration smoke tests, and release checksums.
 
 ## Visual Example
 
-An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the paired-end SMARTer Stranded Total RNA-Seq workflow, including UMI and trimming QC, post-UMI-deduplication alignment, insert-size distribution, circRNA results, RNA composition, cellular-source estimates, taxonomy, and coverage plots. The example includes 33 main figures, 5 embedded reports, and 8 interactive tables; its folder provides download instructions and preview images. [Chromosome-1 strand BigWigs](Visual_exmaple/bigwig/) are also available for genome-browser inspection.
+An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the paired-end SMARTer Stranded Total RNA-Seq workflow, including UMI and trimming QC, post-UMI-deduplication alignment, insert-size distribution, circRNA results, RNA composition, cellular-source estimates, taxonomy, and coverage plots. The example includes 33 main figures, 5 embedded reports, and 8 interactive tables; its folder provides file locations and preview images. [Chromosome-1 strand BigWigs](Visual_exmaple/bigwig/) are also available for genome-browser inspection.
 
 ![Anonymized EVscope report showing strandness and splice-junction quality control](Visual_exmaple/report_preview.png)
 
 ## Motivation
 
-Extracellular vesicles (EVs) are critical mediators of intercellular communication, carrying diverse RNAs that serve as potential biomarkers for diseases like cancer and neurodegeneration. However, EV RNA sequencing faces unique challenges: low RNA abundance, fragmented transcripts, contamination from genomic DNA or bacterial RNA, and the presence of non-polyadenylated RNAs (e.g., miRNAs, lncRNAs). Standard RNA-seq pipelines, designed for cellular RNA, often fail to address these issues, leading to unreliable results due to multi-mapping reads, incomplete RNA annotations, or unfiltered contaminants.
+Extracellular vesicles (EVs) mediate intercellular communication and carry diverse RNAs that are studied as candidate biomarkers for diseases such as cancer and neurodegeneration. EV RNA-seq libraries have distinctive properties: low RNA input, short and fragmented inserts, a high proportion of multi-mapping reads, abundant non-polyadenylated RNAs (e.g., miRNAs, piRNAs and other small non-coding RNAs), and possible contamination with genomic DNA or bacterial RNA. General-purpose RNA-seq pipelines are designed primarily for abundant, intact cellular RNA, so EV data benefit from dedicated processing and quality-control steps.
 
-EVscope provides a specialized, end-to-end pipeline with profiles for EV-enriched SMARTer Total RNA and SMARTer smRNA sequencing. Its distinctive contribution is not to replace transcript quantifiers such as RSEM for ordinary gene readcount estimation, but to connect kit-aware EV RNA preprocessing, broad RNA annotation, EM-weighted genome-coordinate BigWig tracks, RNA-biotype/meta-gene coverage profiling, and report generation in one reproducible workflow.
+EVscope provides a specialized, end-to-end pipeline with profiles for EV-enriched SMARTer Total RNA and SMARTer smRNA sequencing. It brings together kit-aware EV RNA preprocessing, broad RNA annotation, established quantifiers (featureCounts and RSEM), strand-aware genome-coordinate BigWig tracks, RNA-biotype and meta-gene coverage profiling, and report generation in one reproducible workflow.
 
 ## Directory Structure
 
-The EVscope repository is organized as follows:
+An EVscope installation is organized as follows. `references/` and `soft/` are created during installation and are not tracked in Git.
 
 ```
 EVscope/
 ├── EVscope.conf                                # Configuration file for tool and reference paths
 ├── EVscope.sh                                  # Main pipeline script (v1.1.0)
 ├── README.md                                   # This documentation
+├── LICENSE                                     # MIT license
 ├── Visual_exmaple/                             # Anonymized HTML report and preview screenshot
 ├── bin/                                        # Custom scripts for pipeline steps
 │   ├── Step_02_calculate_ACC_motif_fraction.py  # Calculates ACC motif fractions
@@ -82,22 +83,25 @@ EVscope/
 │   ├── Step_15_plot_top_expressed_genes.py     # Plots top expressed genes
 │   ├── Step_17_RSEM2expr_matrix.py             # Converts RSEM to expression matrix
 │   ├── Step_18_plot_reads_mapping_stats.py     # Visualizes genomic region mapping
-│   ├── Step_22_run_RNA_deconvolution_ARIC.py   # Performs tissue deconvolution
+│   ├── Step_22_run_RNA_deconvolution_ARIC.py   # Reference-based tissue/cell-type profiling (ARIC)
 │   ├── Step_24_generate_QC_matrix.py           # Compiles QC metrics
 │   ├── Step_25_bigWig2Expression.py            # Converts bigWig to CPM/TPM
-│   ├── Step_25_EMapper.py                      # EM-based read coverage estimation
+│   ├── Step_25_EMapper.py                      # EMapper coverage tracks and gene-level counts
 │   ├── Step_26_density_plot_over_meta_gene.sh  # Density plots for meta-gene regions
 │   ├── Step_26_density_plot_over_RNA_types.sh  # Density plots for RNA types
 │   ├── Step_27_generate_summary_report.py      # Generates standalone concise summary
 │   └── Step_27_html_report.Rmd                 # Generates comprehensive HTML report
 ├── figures/                                    # Pipeline visualization
 │   └── EVscope_pipeline.png                    # Pipeline overview image
-├── references/                                 # Reference genomes, annotations, and indices
+├── environments/                               # Conda environment files (evscope_env, kraken2_env, picard_env)
+├── repro/                                      # Release manifest, checksums and reproducibility notes
+├── tests/smoke/                                # Lightweight smoke test with toy data
+├── references/                                 # Reference files provided by the user (not tracked in Git)
 │   ├── annotations_HG38/                       # Human genome annotations
 │   ├── deconvolution_HG38/                     # Deconvolution reference matrices
 │   ├── genome/                                 # Reference genomes
 │   └── index/                                  # Aligner indices
-└── soft/                                       # Bundled external tools
+└── soft/                                       # External tools installed by the user (not tracked in Git)
     ├── bbmap                                   # BBMap tools
     ├── CIRI_v2.0.6                             # CIRI2 for circRNA detection
     ├── kraken2                                 # Kraken2 for taxonomic classification
@@ -108,21 +112,23 @@ EVscope/
 ## Requirements
 
 ### Software
-- **Operating System**: Linux (e.g., Ubuntu 20.04+) or macOS.
+- **Operating System**: Linux (developed and tested on Linux; continuous integration runs on Ubuntu).
 - **Bash**: Version 4.0 or higher.
 - **Conda**: Miniconda or Anaconda for environment management.
 - **Core Tools**:
   - FastQC (v0.12.1), umi_tools (v1.1.5), cutadapt (v4.9)
-  - STAR (v2.7.11b), samtools (v1.21), featureCounts (v2.0.6)
-  - CIRCexplorer2 (v2.3.8), CIRI2 (v2.0.6), RSEM (v1.3.3)
-  - BBMap (v39.15), Kraken2, ribodetector (v0.3.1)
-  - seqtk (v1.4), BWA (v0.7.18), Picard (v3.3.0), deepTools (v3.5.5)
+  - STAR (v2.7.11b), samtools (v1.21), featureCounts (Subread v2.0.6)
+  - CIRCexplorer2 (v2.3.8), CIRI2 (v2.0.6), RSEM (v1.3.3) with Bowtie 2
+  - BBMap (v39.15), Kraken2 (v2.1.3), KrakenTools (v1.2), Krona (v2.8.1), ribodetector (v0.3.1)
+  - seqtk (v1.4), BWA (v0.7.18), Picard (v3.3.0), deepTools (v3.5.6), MultiQC
   - R (v4.3.1) with rmarkdown, DT, kableExtra, bookdown, ggplot2, dplyr
-  - Python (v3.10.0) with pandas, numpy, matplotlib, seaborn, ARIC, biopython, numba, pyBigWig, pysam
+  - Python (v3.10) with pandas, numpy, matplotlib, seaborn, ARIC, biopython, numba, pyBigWig, pysam
+
+  Most tools are installed through the Conda environment files in `environments/`; BBMap, CIRI2, RSEM and MultiQC are set up as described under [Installation](#installation).
 
 ### Hardware
 - **CPU**: 20+ threads recommended for optimal performance.
-- **RAM**: Minimum 64 GB; 250 GB recommended for Picard tools.
+- **RAM**: Minimum 64 GB. Picard's Java heap is set by `JAVA_MEM` in `EVscope.conf` (default `250g`) and can be adjusted to the server.
 - **Storage**: 500 GB+ for input data, references, and outputs.
 
 ## Installation
@@ -147,14 +153,31 @@ EVscope/
    conda env create -f environments/kraken2_env.yml
    ```
 
-4. **Install CIRCexplorer2**:
-   ```bash
-   conda activate evscope_env
-   pip install CIRCexplorer2==2.3.8
-   ```
+4. **Install External Tools**:
+   CIRCexplorer2 is installed with `evscope_env`. The tools below are called through the paths or environments set in `EVscope.conf`:
 
-5. **Download Reference Files**:
-   Reference annotation files (HG38, GENCODE v45) are available on [Zenodo](https://doi.org/10.5281/zenodo.15577788). Download `EVscope_annotations_HG38.zip` and extract to `references/annotations_HG38/`.
+   | Tool | Setting in `EVscope.conf` | Default location |
+   |------|---------------------------|------------------|
+   | BBMap (BBSplit) | `BBSPLIT_SCRIPT` | `soft/bbmap/bbsplit.sh` |
+   | CIRI2 | `CIRI2_PERL_SCRIPT` | `soft/CIRI_v2.0.6/CIRI2.pl` |
+   | RSEM | `RSEM_CALC_EXPR` | `soft/RSEM_v1.3.3/rsem-calculate-expression` |
+   | KrakenTools | `KRAKEN_TOOLS_DIR` | `soft/KrakenTools` |
+   | MultiQC | on `PATH`, or the Conda environment named by `MULTIQC_ENV` | - |
+
+5. **Set Up Reference Files**:
+   Reference annotation files (HG38, GENCODE v45) are available on [Zenodo](https://doi.org/10.5281/zenodo.15577788). Download `EVscope_annotations_HG38.zip`, extract it, and then extract the inner `.tgz` archives into `references/annotations_HG38/` as described in the bundled `INSTALL_ANNOTATIONS.txt`.
+
+   The remaining references are provided by the user and registered in `EVscope.conf`:
+
+   | Resource | Setting in `EVscope.conf` |
+   |----------|---------------------------|
+   | hg38 (GRCh38.p14) genome FASTA | `HUMAN_GENOME_FASTA` |
+   | STAR index | `STAR_INDEX` |
+   | BWA index | `BWA_INDEX` |
+   | RSEM Bowtie 2 reference | `RSEM_BOWTIE2_INDEX` |
+   | E. coli and Mycoplasma genome FASTA files | `ECOLI_GENOME_FASTA`, `MYCOPLASMA_GENOME_FASTA` |
+   | Kraken2 database | `KRAKEN_DB` |
+   | Reference matrices for tissue and cell-type profiling | `GTEX_SMTS_REF`, `Monaco2020_ImmuneCell_REF`, `BRAIN_SC_REF` |
 
 6. **Test Installation**:
    ```bash
@@ -280,9 +303,9 @@ Because this protocol introduces an artificial poly(A) tract, EMapper's biologic
 | 17 | RSEM-based expression matrix |
 | 18 | Genomic region read mapping analysis |
 | 19 | Taxonomic classification using Kraken2 |
-| 20-22 | Tissue deconvolution (featureCounts, gDNA-corrected, RSEM) |
+| 20-22 | Reference-based tissue and cell-type profiling with ARIC (featureCounts, gDNA-corrected, RSEM) |
 | 23 | rRNA detection using ribodetector |
-| 24 | Comprehensive quality control summary generation |
+| 24 | Per-sample QC summary table and MultiQC report |
 | 25 | Coverage analysis and bigWig generation using EMapper |
 | 26 | Coverage density plots for RNA types and meta-gene regions |
 | 27 | Final interactive HTML report plus a separate concise RNA-seq summary report |
@@ -317,7 +340,7 @@ Each sample generates an output directory with the following structure:
 ├── Step_19_Taxonomy/                  # Kraken2 taxonomic classification
 ├── Step_20-22_Deconvolution/          # Tissue deconvolution results
 ├── Step_23_rRNA_Detection/            # ribodetector rRNA detection
-├── Step_24_MultiQC_Summary/           # QC summary matrix
+├── Step_24_MultiQC_Summary/           # QC summary table and MultiQC report
 ├── Step_25_EMapper_BigWig_Quantification/ # EMapper coverage and bigWig
 ├── Step_26_BigWig_Density_Plot/       # RNA type and meta-gene density plots
 ├── Step_27_HTML_Report/               # Detailed and standalone concise HTML reports
@@ -332,7 +355,7 @@ For `smarter_smrna`, STAR is run with end-to-end, unspliced alignment (`--alignE
 
 - **Dependency Not Found**: Verify Conda environments with `conda list -n evscope_env`.
 - **Reference File Missing**: Check `EVscope.conf` paths and file existence.
-- **Memory Issues**: Picard requires up to 250 GB RAM. Reduce `--threads` or use a high-memory server.
+- **Memory Issues**: Picard's Java heap is set by `JAVA_MEM` in `EVscope.conf` (default `250g`); lower it to match the available memory, or run on a high-memory server.
 - **Step Failure**: Review logs in `<output_dir>/EVscope_pipeline.log`.
 
 ## FAQ
@@ -371,7 +394,9 @@ Please report bugs via [GitHub Issues](https://github.com/TheDongLab/EVscope/iss
 
 If you use EVscope in your research, please cite:
 
-> Zhao, Yiyong, et al. "EVscope: A Comprehensive Bioinformatics Pipeline for Accurate and Robust Analysis of Total RNA Sequencing from Extracellular Vesicles." bioRxiv (2025). Zenodo: https://doi.org/10.5281/zenodo.15577788
+> Zhao, Y., et al. EVscope: A Comprehensive Bioinformatics Pipeline for Accurate and Robust Analysis of Total RNA Sequencing from Extracellular Vesicles. bioRxiv (2025). https://doi.org/10.1101/2025.06.24.660984
+>
+> Software archive (Zenodo, all versions): https://doi.org/10.5281/zenodo.15577788
 
 ## Credits
 
@@ -379,6 +404,7 @@ If you use EVscope in your research, please cite:
 - **Yiyong Zhao**: Data curation, Formal analysis, Software, Visualization
 - **Himanshu Chintalapudi**: Visualization
 - **Ziqian Xu**: Resources
+- **Jialu Yu**
 - **Weiqiang Liu**: Data curation
 - **Yuxuan Hu**: Validation
 - **Ewa Grassin**: Resources [supporting]
@@ -389,12 +415,12 @@ If you use EVscope in your research, please cite:
 2. Department of Neurology, Yale School of Medicine, Yale University, New Haven, CT 06510, USA
 3. Aligning Science Across Parkinson's (ASAP) Collaborative Research Network, Chevy Chase, MD 20815, USA
 4. Department of Medicine, Brigham and Women's Hospital, Harvard Medical School, Harvard University, Boston, MA, USA
+5. Current address (Yiyong Zhao): Institute for Genomic Diversity, Cornell University, Ithaca, NY, USA
 
 **Data Availability**:
 Source code: [https://github.com/TheDongLab/EVscope](https://github.com/TheDongLab/EVscope) and Zenodo (https://doi.org/10.5281/zenodo.15577788), licensed under the MIT License.
-Raw sequencing data: NCBI SRA (accession: SRR31350808-SRR31350811).
-
-**Corresponding Author**: Xianjun Dong ([xianjun.dong@yale.edu](mailto:xianjun.dong@yale.edu))
+Example EV total RNA-seq data: NCBI GEO GSE281915 (SRA runs SRR31350808-SRR31350811).<br>
+MAQC/SEQC benchmark data: NCBI SRA runs SRR1215996, SRR1216024, SRR1216052 and SRR1216080.
 
 ## License
 
@@ -402,5 +428,6 @@ EVscope source code is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
+- **Yiyong Zhao**: [yz3676@cornell.edu](mailto:yz3676@cornell.edu)
 - **Xianjun Dong**: [xianjun.dong@yale.edu](mailto:xianjun.dong@yale.edu)
 - **GitHub**: [https://github.com/TheDongLab/EVscope](https://github.com/TheDongLab/EVscope)
