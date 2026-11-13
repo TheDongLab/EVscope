@@ -44,7 +44,9 @@
 
 ## Visual Example
 
-An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the SMARTer smRNA workflow, including FastQC reports, alignment and strandness QC, RNA composition, taxonomy, and coverage plots.
+An anonymized example of the comprehensive HTML report is available in [Visual_exmaple](Visual_exmaple/). It demonstrates the paired-end SMARTer Stranded Total RNA-Seq workflow, including UMI and trimming QC, post-UMI-deduplication alignment, insert-size distribution, circRNA results, RNA composition, cellular-source estimates, taxonomy, and coverage plots. The example includes 33 main figures, 5 embedded reports, and 8 interactive tables; its folder provides file locations and preview images. [Chromosome-1 strand BigWigs](Visual_exmaple/bigwig/) are also available for genome-browser inspection.
+
+![Anonymized EVscope report showing strandness and splice-junction quality control](Visual_exmaple/report_preview.png)
 
 ## Motivation
 
@@ -120,7 +122,7 @@ EVscope/
   - BBMap (v39.15), Kraken2 (v2.1.3), KrakenTools (v1.2), Krona (v2.8.1), ribodetector (v0.3.1)
   - seqtk (v1.4), BWA (v0.7.18), Picard (v3.3.0), deepTools (v3.5.6), MultiQC
   - R (v4.3.1) with rmarkdown, DT, kableExtra, bookdown, ggplot2, dplyr
-  - Python (v3.10) with pandas, numpy, matplotlib, biopython, numba, pyBigWig, pysam
+  - Python (v3.10) with pandas, numpy, matplotlib, seaborn, ARIC, biopython, numba, pyBigWig, pysam
 
   Most tools are installed through the Conda environment files in `environments/`; BBMap, CIRI2, RSEM and MultiQC are set up as described under [Installation](#installation).
 
@@ -416,7 +418,7 @@ If you use EVscope in your research, please cite:
 
 **Data Availability**:
 Source code: [https://github.com/TheDongLab/EVscope](https://github.com/TheDongLab/EVscope) and Zenodo (https://doi.org/10.5281/zenodo.15577788), licensed under the MIT License.
-Example EV total RNA-seq data: NCBI GEO GSE281915 (SRA runs SRR31350808-SRR31350811).  
+Example EV total RNA-seq data: NCBI GEO GSE281915 (SRA runs SRR31350808-SRR31350811).<br>
 MAQC/SEQC benchmark data: NCBI SRA runs SRR1215996, SRR1216024, SRR1216052 and SRR1216080.
 
 ## License

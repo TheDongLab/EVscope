@@ -31,6 +31,7 @@ dependencies:
   - pandas
   - numpy
   - matplotlib
+  - seaborn
   - biopython
   - numba
   - pybigwig
@@ -41,3 +42,4 @@ dependencies:
   - bowtie2
   - pip:
       - CIRCexplorer2==2.3.8
+      - ARIC==1.0.1

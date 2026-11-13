@@ -5,6 +5,7 @@ author:
   - Rambo (Yiyong) Zhao
   - Himanshu Chintalapudi
   - Ziqian Xu
+  - Jiale Yu
   - Weiqiang Liu
   - Yuxuan Hu
   - Ewa Grassin
@@ -159,12 +160,14 @@ body {
 /* --- Images with Download Button --- */
 .image-container {
   position: relative;
-  display: inline-block;
+  display: block;
   width: 100%;
   margin: 1.5rem auto;
 }
 
 .image-container img {
+  /* Scale to the available width using the output file's intrinsic aspect ratio. */
+  width: 100%;
   max-width: 100%;
   height: auto;
   display: block;
@@ -247,13 +250,14 @@ body {
 
 .step07-grid {
   display: grid;
-  grid-template-columns: minmax(280px, 0.8fr) minmax(440px, 1.25fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
   align-items: stretch;
   margin: 1rem 0 1.4rem 0;
 }
 
 .step07-card {
+  min-width: 0;
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
@@ -282,7 +286,6 @@ body {
 .step07-card img {
   box-shadow: none !important;
   border: none !important;
-  max-height: 420px;
   object-fit: contain;
 }
 
@@ -294,16 +297,12 @@ body {
 }
 
 .step07-splice {
-  max-width: 980px;
+  width: 100%;
   margin: 1rem auto 1.5rem auto;
 }
 
 .step07-splice .step07-card {
   min-height: auto;
-}
-
-.step07-splice img {
-  max-height: 500px !important;
 }
 
 .step07-metric-grid {
@@ -380,14 +379,11 @@ body {
   .step07-card {
     min-height: auto;
   }
-  .step07-card img,
-  .step07-splice img {
-    max-height: none !important;
-  }
 }
 
 /* Legacy img styling for backward compatibility */
 img:not(.image-container img) {
+  width: 100%;
   max-width: 100%;
   height: auto;
   display: block;
@@ -415,9 +411,14 @@ iframe {
 }
 
 /* --- Data Tables Container --- */
+.datatables.html-widget {
+  width: 100% !important;
+  max-width: 100%;
+}
+
 .dataTables_wrapper {
   background: var(--card-bg);
-  width: 90%;
+  width: 100%;
   padding: 1.5rem;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
@@ -1042,6 +1043,8 @@ display_all_images <- function(subdir_path, pattern, main_caption) {
       cat(paste0('<img src="', img_uri, '" alt="', img_name, '">\n'))
       cat(paste0('</div>\n\n'))
     }
+  } else {
+    missing_asset_html(main_caption, subdir_path, pattern)
   }
 }
 
@@ -1323,7 +1326,7 @@ if (check_step_dir("Step_19_Taxonomy")) {
 
 ```{r step20, results='asis'}
 if (check_step_dir("Step_20_featureCounts_Deconvolution")) {
-  display_all_images("Step_20_featureCounts_Deconvolution", "_deconvolution_fraction.*\\.png$", "Cell Type Deconvolution Plots")
+  display_all_images("Step_20_featureCounts_Deconvolution", "^Deconvolution_fraction_.*\\.png$", "Cell Type Deconvolution Plots")
 }
 
 ```
@@ -1332,7 +1335,7 @@ if (check_step_dir("Step_20_featureCounts_Deconvolution")) {
 
 ```{r step21, results='asis'}
 if (check_step_dir("Step_21_gDNA_Corrected_Deconvolution")) {
-  display_all_images("Step_21_gDNA_Corrected_Deconvolution", "_deconvolution_fraction.*\\.png$", "Cell Type Deconvolution Plots (gDNA Corrected)")
+  display_all_images("Step_21_gDNA_Corrected_Deconvolution", "^Deconvolution_fraction_.*\\.png$", "Cell Type Deconvolution Plots (gDNA Corrected)")
 }
 
 ```
@@ -1341,7 +1344,7 @@ if (check_step_dir("Step_21_gDNA_Corrected_Deconvolution")) {
 
 ```{r step22, results='asis'}
 if (check_step_dir("Step_22_RSEM_Deconvolution")) {
-  display_all_images("Step_22_RSEM_Deconvolution", "_deconvolution_fraction.*\\.png$", "Cell Type Deconvolution Plots (RSEM)")
+  display_all_images("Step_22_RSEM_Deconvolution", "^Deconvolution_fraction_.*\\.png$", "Cell Type Deconvolution Plots (RSEM)")
 }
 
 ```

@@ -1,0 +1,33 @@
+{
+  "scope": "chr1 only",
+  "track_groups": {
+    "F1R2": {
+      "file": "Example_001_chr1_F1R2.bw",
+      "chromosome": "chr1",
+      "chromosome_length": 248956422,
+      "interval_count": 151217,
+      "covered_bases": 5066570,
+      "min_value": 1.0250651438781233e-09,
+      "max_value": 125.96051788330078,
+      "all_interval_coordinates_and_float32_values_match_source": true,
+      "source_file_unchanged": true,
+      "sha256": "beebce5b14ea8d6ca06ddf58e82fbb796c01f92931a634259e8cc77f2fbdafe6",
+      "size_bytes": 1431902,
+      "interval_records_sha256": "49cd67b756d76df64437dd9ecb7654d708b46409de26c32e4b2a6f19289b2d3e"
+    },
+    "F2R1": {
+      "file": "Example_001_chr1_F2R1.bw",
+      "chromosome": "chr1",
+      "chromosome_length": 248956422,
+      "interval_count": 160893,
+      "covered_bases": 5242333,
+      "min_value": 6.761939896904323e-09,
+      "max_value": 34.154239654541016,
+      "all_interval_coordinates_and_float32_values_match_source": true,
+      "source_file_unchanged": true,
+      "sha256": "157f316b2c5da0ff0270f3978e75b0adb2ea09f7ab5298f93348a6a77277b71a",
+      "size_bytes": 1492537,
+      "interval_records_sha256": "967f9718813a37e2b90a8aa473cd1ca2102f50dbd5bd9ec715eb4e28ceca9c74"
+    }
+  }
+}

@@ -12,10 +12,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
       - name: Install lightweight Python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install matplotlib pandas numpy biopython numba pyBigWig pysam
+          python -m pip install matplotlib pandas numpy biopython numba pyBigWig pysam seaborn ARIC
       - name: Run smoke tests
         run: bash tests/smoke/run_smoke.sh
