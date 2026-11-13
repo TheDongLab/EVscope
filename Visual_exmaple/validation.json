@@ -42,9 +42,6 @@
     ],
     "original_interval_coordinates_and_float32_values_preserved": true,
     "intervals_verified": 312110,
-    "details": "bigwig/validation.json",
-    "html_download_links": 2,
-    "browser_downloads_verified": 2,
-    "download_sha256_matches_files": true
+    "details": "bigwig/validation.json"
   }
 }
