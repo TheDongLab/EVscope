@@ -32,5 +32,19 @@
     "javascript_error_count": 0,
     "external_request_count": 0
   },
-  "unique_png_metadata_assets_checked": 71
+  "unique_png_metadata_assets_checked": 71,
+  "bigwig_tracks": {
+    "count": 2,
+    "scope": "chr1 only",
+    "orientation_groups": [
+      "F1R2",
+      "F2R1"
+    ],
+    "original_interval_coordinates_and_float32_values_preserved": true,
+    "intervals_verified": 312110,
+    "details": "bigwig/validation.json",
+    "html_download_links": 2,
+    "browser_downloads_verified": 2,
+    "download_sha256_matches_files": true
+  }
 }
